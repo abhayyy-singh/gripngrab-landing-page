@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grip&Grab</title>
+  <link rel="icon" href="./video/logo.png">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./gallery section page/gallery_css_file.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-left">
+      <img src="./video/logo.png" alt="Grip&Grab Logo" class="logo" />
+    </div>
+    <div class="nav-center">
+      <a href="#home">Home</a>
+      <a href="#timeline" onclick="scrollToSection('timeline')">Why Us?</a>
+      <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
+      <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn join" onclick="scrollToSection('pricing')">Join Now</button>
+      <button class="btn trainer" onclick="scrollToSection('how-it-works')">About Us</button>
+    </div>
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home">Home</a>
+    <a href="#timeline" onclick="scrollToSection('timeline')">Our Process</a>
+    <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
+    <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
+    <a href="#pricing" onclick="scrollToSection('pricing')">Join Now</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="gallery-bg-logo" aria-hidden="true"></div>
+    <div class="hero-content">
+      <h1>
+        Your New<br>
+        Favourite<br>
+        Fitness Spot
+      </h1>
+      <p class="hero-subtitle">
+        Transform your body. Train smarter. <a href="#pricing" onclick="scrollToSection('pricing')">Join now.</a>
+      </p>
+      <p class="hero-cta" onclick="scrollToSection('how-it-works')" style="cursor: pointer;">Get Started</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section" id="how-it-works">
+    <div class="how-it-works-content">
+      <div class="how-text animate-left">
+        <h2>How Grip & Grab Works</h2>
+        <p>
+          Whether you're a beginner or an athlete or suffering from pain, Grip&Grab is where your fitness journey transforms into a lifestyle. We blend calisthenics, bodyweight, and weight training with cutting-edge mobility and pain-management techniques. What truly sets us apart is our community-first approach—where you're never just a member, you're part of a movement.
+        </p>
+
+        <div class="steps-container">
+          <div class="step">1. Personalized Training Plans</div>
+          <div class="step">2. Supportive Community Vibe</div>
+          <div class="step">3. Expert Coaches</div>
+        </div>
+      </div>
+
+      <div class="how-media animate-right">
+        <div class="phone-frame">
+          <img src="./video/pngwing.com.png" alt="Phone Frame" class="phone-png" />
+          <video src="./video/1.mp4" autoplay muted loop class="phone-video"></video>
+
+          <!-- Floating Labels -->
+          <div class="floating-label label-1">Personalized Workouts</div>
+          <div class="floating-label label-2">Real-Time Progress</div>
+          <div class="floating-label label-3">Expert Tips</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline Section (NEW) -->
+  <section class="timeline-section" id="timeline">
+    <div class="timeline-header">
+      <h2>What Makes <span class="highlight-green">Us Different</span></h2>
+      <p class="subtitle">"The one Stop Shop"</p>
+    </div>
+    
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+      <div class="timeline-progress" id="timelineProgress"></div>
+      
+      <div class="timeline-item" data-step="1">
+        <div class="timeline-number">01</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading">
+            Personalized Training
+            </h3>
+          <p class="timeline-description">
+            We don’t offer traditional personal training — because we don’t need to. Our sessions are already tailored to your goals, movement patterns, and progress level, so you get the kind of attention that makes a PT feel unnecessary
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-step="2">
+        <div class="timeline-number">02</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading">Our Coaches</h3>
+          <p class="timeline-description">
+            Our Experienced Coaches bring years of experience in calisthenics, weight training, and mobility work. They provide hands-on guidance, and push you safely towards your goals while ensuring proper technique and injury prevention.
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-step="3">
+        <div class="timeline-number">03</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading"> Movement-Based Philosophy</h3>
+          <p class="timeline-description">
+            The Best Part About Grip & Grab? You Never Get Bored.
+
+At Grip & Grab, we bring the essence of movement to life. Our training is dynamic, constantly evolving—with new skills to learn, fresh routines to explore, and programs that adapt regularly to keep your body and mind engaged.
+
+Grip & Grab is not just a gym—it’s a holistic movement center. We help people move better, feel better, and live pain-free. Our focus spans across strength, flexibility, mobility, and skill development, with a strong foundation in joint health—because progress should never come at the cost of injury.
+
+We're here to make sure your growth is sustainable, pain-free, and always exciting.
+
+
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-step="4">
+        <div class="timeline-number">04</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading">Flexible Timings</h3>
+          <p class="timeline-description">
+            No more missing workouts due to a busy schedule. Grip&Grab offers complete time flexibility, so you can train whenever it suits you best, without compromising on consistency or results..
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-step="5">
+        <div class="timeline-number">05</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading">Limitless Possibilities</h3>
+          <p class="timeline-description">
+            At Grip & Grab, we focus on every aspect of fitness—calisthenics, weight training, skill-building, and even pain management. Whether yoFFu want to grow stronger, move better, or recover smarter, we’ve got it all under one roof.
+        </div>
+      </div>
+
+      <div class="timeline-item" data-step="6">
+        <div class="timeline-number">06</div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-heading">Trial Sessions</h3>
+          <p class="timeline-description">
+            Experience our training philosophy wifth a complimentary trial session. Get a taste of our coaching style, meet our trainers, and see if Grip & Grab is the right fit for your fitness journey before making any commitment.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!--video card section removed from here -->
+
+<!-- Gallery Container - All content wrapped to avoid global conflicts -->
+<div class="gallery-wrapper">
+  <!-- Hero Section -->
+  <section class="gallery-hero-section">
+      <div class="gallery-bg-logo" aria-hidden="true"></div>
+      
+      <div class="gallery-hero-content">
+          <h1 class="gallery-hero-title">WELCOME <br>TO <br> GRIP&GRAB</h1>
+          <p class="gallery-hero-subtitle">Take a look at how our gyms look like and vibe with us</p>
+          
+          <div class="gallery-location-buttons" role="tablist" aria-label="Select gym location">
+              <button class="gallery-location-btn" 
+                      data-location="lajpat" 
+                      role="tab" 
+                      aria-selected="false"
+                      aria-controls="gallery-lajpat-preview">
+                  Lajpat Nagar
+              </button>
+              <button class="gallery-location-btn" 
+                      data-location="saket" 
+                      role="tab" 
+                      aria-selected="false"
+                      aria-controls="gallery-saket-preview">
+                  Saket
+              </button>
+          </div>
+      </div>
+
+      <div class="gallery-scroll-indicator" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+          </svg>
+      </div>
+  </section>
+
+  <!-- Preview Sections -->
+  <div class="gallery-preview-container">
+      <!-- Close Button -->
+      <button class="gallery-close-btn" 
+              id="gallery-close-preview" 
+              aria-label="Close gallery preview"
+              title="Close Preview (Esc)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+      </button>
+
+      <!-- Lajpat Nagar Preview -->
+      <div class="gallery-preview-section" id="gallery-lajpat-preview" role="tabpanel">
+          <div class="gallery-section-header">
+              <h2>Lajpat Nagar Location</h2>
+              <p>Experience our premium facilities and cutting-edge equipment</p>
+          </div>
+          
+          <div class="gallery-preview-grid">
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="./images/photo1.JPG" 
+                           alt="Main Floor - State-of-the-art equipment" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Main Floor</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">State-of-the-art equipment floor</div>
+              </div>
+              
+              <div class="gallery-preview-item gallery-video-item">
+                  <div class="gallery-preview-video">
+                      <video muted loop preload="metadata" aria-label="Virtual tour video">
+                          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+                      <div class="gallery-video-overlay">
+                          <div class="gallery-play-icon" aria-hidden="true">▶</div>
+                          <span>Virtual Tour</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Virtual tour of our facilities</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="./images/photo2.JPG" 
+                           alt="Cardio Zone with city views" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Cardio Zone</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Premium cardio equipment with city views</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="./images/photo3.JPG" 
+                           alt="Professional strength training area" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Strength Training</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Professional strength training area</div>
+              </div>
+              
+              <div class="gallery-preview-item gallery-video-item">
+                  <div class="gallery-preview-video">
+                      <video muted loop preload="metadata" aria-label="Workout session video">
+                          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+                      <div class="gallery-video-overlay">
+                          <div class="gallery-play-icon" aria-hidden="true">▶</div>
+                          <span>Workout Sessions</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Workout sessions in action</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="./images/photo4.JPG" 
+                           alt="Clean and spacious locker rooms" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Locker Rooms</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Clean and spacious changing facilities</div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Saket Preview -->
+      <div class="gallery-preview-section" id="gallery-saket-preview" role="tabpanel">
+          <div class="gallery-section-header">
+              <h2>Saket Location</h2>
+              <p>Modern facilities with a focus on community and wellness</p>
+          </div>
+          
+          <div class="gallery-preview-grid">
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop" 
+                           alt="Modern reception area and lounge" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Reception Area</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Modern welcome desk and lounge</div>
+              </div>
+              
+              <div class="gallery-preview-item gallery-video-item">
+                  <div class="gallery-preview-video">
+                      <video muted loop preload="metadata" aria-label="Location walkthrough video">
+                          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+                      <div class="gallery-video-overlay">
+                          <div class="gallery-play-icon" aria-hidden="true">▶</div>
+                          <span>Location Walkthrough</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Saket location walkthrough</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop" 
+                           alt="Dedicated functional fitness zone" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Functional Training</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Dedicated functional fitness zone</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop" 
+                           alt="Spacious studio for group workouts" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Group Classes</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Spacious studio for group workouts</div>
+              </div>
+              
+              <div class="gallery-preview-item gallery-video-item">
+                  <div class="gallery-preview-video">
+                      <video muted loop preload="metadata" aria-label="Group class session video">
+                          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                      </video>
+                      <div class="gallery-video-overlay">
+                          <div class="gallery-play-icon" aria-hidden="true">▶</div>
+                          <span>Group Session</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">High-energy group class session</div>
+              </div>
+              
+              <div class="gallery-preview-item">
+                  <div class="gallery-preview-image">
+                      <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop" 
+                           alt="Relaxation and recovery area" 
+                           loading="lazy">
+                      <div class="gallery-image-overlay">
+                          <span>Recovery Zone</span>
+                      </div>
+                  </div>
+                  <div class="gallery-preview-caption">Relaxation and recovery area</div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Gallery JavaScript -->
+<script src="./gallery_js_file.js"></script>
+
+  <!-- Testimonial Section -->
+  <section class="testimonial-section" id="testimonials">
+    <h2 class="testimonial-heading">Listen What Our Clients Say</h2>
+    <div class="testimonial-cards">
+      <div class="testimonial-card animate-up">
+        <div class="video-container">
+          <video src="./video/1.mp4" muted loop></video>
+          <div class="testimonial-overlay"></div>
+          <div class="play-icon">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+        <div class="testimonial-info">
+          <h4>Ravi Sharma</h4>
+          <p>Grip & Grab completely changed my fitness game. The personalized approach and community support made all the difference in achieving my goals.</p>
+          <div class="testimonial-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate-up">
+        <div class="video-container">
+          <video src="./video/Whether you're young or old, a beginner or advanced, Grip & Grab offers a complete fitness solution for everyone..mp4" muted loop></video>
+          <div class="testimonial-overlay"></div>
+          <div class="play-icon">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+        <div class="testimonial-info">
+          <h4>Simran Kaur</h4>
+          <p>Personalized training and amazing results! The coaches here really understand how to push you while keeping safety as the priority.</p>
+          <div class="testimonial-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate-up">
+        <div class="video-container">
+          <video src="./video/3.mp4" muted loop></video>
+          <div class="testimonial-overlay"></div>
+          <div class="play-icon">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+        <div class="testimonial-info">
+          <h4>Aman Verma</h4>
+          <p>I finally stuck to a routine. These guys are pros! The combination of different training styles keeps things interesting and effective.</p>
+          <div class="testimonial-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <div class="pricing-container">
+      <div class="pricing-header">
+        <h2>Choose Your Plan</h2>
+        <p>Flexible membership options designed to fit your fitness journey and budget</p>
+      </div>
+      
+      <div class="pricing-cards">
+        
+        <!-- Monthly Plan -->
+        <div class="pricing-card">
+          <div class="pricing-badge">Most Flexible</div>
+          <div class="pricing-header-card">
+            <h3>Monthly</h3>
+            <div class="pricing-amount">
+              <span class="currency">₹</span>
+              <span class="price">8,000</span>
+              <span class="period">/month</span>
+            </div>
+            <div class="pricing-save">Basic</div>
+          </div>
+          <div class="pricing-features">
+            
+          </div>
+          <button class="pricing-btn" href="tel:+919971250050">Get Started</button>
+        </div>
+
+        <!-- Quarterly Plan -->
+        <div class="pricing-card">
+          <div class="pricing-badge">Great Value</div>
+          <div class="pricing-header-card">
+            <h3>Quarterly</h3>
+            <div class="pricing-amount">
+              <span class="currency">₹</span>
+              <span class="price">21,000</span>
+              <span class="period">/3 months</span>
+            </div>
+            <div class="pricing-save">Save ₹3,000</div>
+          </div>
+          <div class="pricing-features">
+            
+          </div>
+          <button class="pricing-btn" onclick="redirectToPayment()">Get Started</button>
+        </div>
+
+        <!-- Half Yearly Plan -->
+        <div class="pricing-card popular">
+          <div class="pricing-badge popular-badge">Most Popular</div>
+          <div class="pricing-header-card">
+            <h3>Half Yearly</h3>
+            <div class="pricing-amount">
+              <span class="currency">₹</span>
+              <span class="price">36,000</span>
+              <span class="period">/6 months</span>
+            </div>
+            <div class="pricing-save">Save ₹12,000</div>
+          </div>
+          <div class="pricing-features">
+            <ul>
+      
+            </ul>
+          </div>
+          <button class="pricing-btn popular-btn" onclick="redirectToPayment()">Get Started</button>
+        </div>
+
+        <!-- Yearly Plan -->
+        <div class="pricing-card">
+          <div class="pricing-badge">Best Deal</div>
+          <div class="pricing-header-card">
+            <h3>Yearly</h3>
+            <div class="pricing-amount">
+              <span class="currency">₹</span>
+              <span class="price">60,000</span>
+              <span class="period">/year</span>
+            </div>
+            <div class="pricing-save">Save ₹36,000</div>
+          </div>
+          <div class="pricing-features">
+            <ul>
+          
+              
+            </ul>
+          </div>
+          <button class="pricing-btn" onclick="redirectToPayment()">Get Started</button>
+        </div>
+
+      </div>
+      
+      <div class="pricing-footer">
+        <p>All plans include access to both <a href="https://maps.app.goo.gl/J3rfKoqepiDsr1QW9" target="_blank" class="location-link">Lajpat Nagar</a> and <a href="https://maps.app.goo.gl/nZE5xFQWnohzjvSE6" target="_blank" class="location-link">Saket</a> locations</p>
+        <div class="pricing-contact">
+          <span>Questions about pricing?</span>
+          <a href="https://wa.me/9971250050" target="_blank" class="contact-btn">
+            <i class="fab fa-whatsapp"></i>
+            Contact Us on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section" id="faq">
+    <div class="faq-container">
+      <div class="faq-content">
+        <!-- Left side intro text -->
+        <div class="faq-intro">
+          <h2>How can we help you?</h2>
+          <p>
+            Find answers to your questions here. If you don't find what you're looking for, feel free to reach out to us directly via WhatsApp or visit our gym.
+          </p>
+          <button class="faq-all-btn">All FAQ</button>
+        </div>
+
+        <!-- Right side FAQ accordion -->
+        <div class="faq-accordion-container">
+          <div class="faq-accordion">
+            
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>I'm a beginner. Will I be able to do these workouts?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>Yes! Our workouts are designed for all levels. Whether you're just starting or more experienced, we tailor the sessions to your pace and goals.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Can I try a session before joining?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>Absolutely! We offer a free trial session so you can experience our training style and community before committing.</p>
+                <div class="faq-buttons">
+                  <a href="https://wa.me/9971250050?text=Hi%2C%20I%20want%20a%20trial%20session" target="_blank" class="faq-btn trial-btn">
+                    <i class="fab fa-whatsapp"></i>
+                    Get a Free Trial Session
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What is your membership pricing?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>Our pricing plans are designed to offer great value. <a href="#pricing" onclick="scrollToSection('pricing')" class="location-link">See our pricing</a> to find the plan that suits you best.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>What are your gym hours and location?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>We have two locations with flexible timings:</p>
+                <ul>
+                  <li><strong><a href="https://maps.app.goo.gl/J3rfKoqepiDsr1QW9" target="_blank" class="location-link">Lajpat Nagar</a>:</strong> 7 AM – 12 PM, 5 PM – 9 PM</li>
+                  <li><strong><a href="https://maps.app.goo.gl/nZE5xFQWnohzjvSE6" target="_blank" class="location-link">Saket</a>:</strong> 7 AM – 12 PM, 6 PM – 9 PM</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>How can I join or contact Grip&Grab?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>Joining is easy! Contact us anytime to get started or ask questions.</p>
+                <div class="faq-buttons">
+                  <a href="https://wa.me/9971250050?text=Hi%2C%20I%20want%20to%20join%20Grip%26Grab" target="_blank" class="faq-btn whatsapp-btn">
+                    <i class="fab fa-whatsapp"></i>
+                    Contact us on WhatsApp
+                  </a>
+                  <a href="tel:+919971250050" class="faq-btn call-btn">
+                    <i class="fas fa-phone"></i>
+                    Call Us
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFaq(this)">
+                <span>Do you offer personal training?</span>
+                <i class="fas fa-plus faq-icon"></i>
+              </div>
+              <div class="faq-answer">
+                <p>We don't offer separate personal training sessions because our entire program is personalized and goal-oriented. Try a free session and feel the difference!</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <section class="footer" id="contact">
+    <div class="main-footer-text">
+      <h3>Are you ready</h3>
+      <h3>to&nbsp;<span class="highlight">join&nbsp;</span>us</h3>
+    </div>
+
+    <div class="footer-content">
+      <a href="https://wa.me/9971250050?text=Hi%2C%20I%20want%20to%20join%20Grip%26Grab" target="_blank" class="joinus fbtn">
+        <i class="fab fa-whatsapp"></i>
+        Join us
+      </a>
+
+      <a href="tel:+919971250050" class="call-us fbtn">
+        <i class="fas fa-phone"></i>
+        Call Us
+      </a>
+
+      <!-- Map Section -->
+      <div class="map-section">
+        <h4>Visit Our Locations</h4>
+        <div class="map-container">
+          <div class="map-location">
+            <div class="map-info">
+              <h5>Lajpat Nagar</h5>
+              <p>7 AM – 12 PM, 5 PM – 9 PM</p>
+              <a href="https://maps.app.goo.gl/TGhC4Rz3XW65J5s18" target="_blank" class="map-btn">
+                <i class="fas fa-map-marker-alt"></i>
+                Get Directions
+              </a>
+            </div>
+          </div>
+          <div class="map-location">
+            <div class="map-info">
+              <h5>Saket</h5>
+              <p>7 AM – 12 PM, 6 PM – 9 PM</p>
+              <a href="https://maps.app.goo.gl/agrpCqbk3xc4wn9q7" target="_blank" class="map-btn">
+                <i class="fas fa-map-marker-alt"></i>
+                Get Directions
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="socials">
+        <a href="https://www.instagram.com/gripandgrab/?hl=en" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.youtube.com/@haristhenics06" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- Sticky Call Button -->
+  <div class="sticky-call-btn">
+    <a href="tel:+919971250050" target="_blank">
+      <i class="fas fa-phone"></i>
+    </a>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="./gallery section page/gallery_js_file.js"></script>
+</body>
+</html>
