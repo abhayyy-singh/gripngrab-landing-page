@@ -121,6 +121,30 @@ const timelineObserver = new IntersectionObserver(
   }
 );
 
+// autoplay and mute unmute
+
+const video = document.getElementById("autoPlayVideo");
+
+const observer = new IntersectionObserver(
+  ([entry]) => {
+    if (entry.isIntersecting) {
+      video.muted = false;
+      video.play();
+    } else {
+      video.pause();
+      video.muted = true;
+    }
+  },
+  {
+    threshold: 0.5, // Video should be 50% visible to trigger
+  }
+);
+
+if (video) {
+  observer.observe(video);
+}
+
+
 // Observe timeline items
 timelineItems.forEach((item) => {
   timelineObserver.observe(item);
