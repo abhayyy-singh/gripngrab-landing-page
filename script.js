@@ -125,6 +125,13 @@ const timelineObserver = new IntersectionObserver(
 
 const video = document.getElementById("autoPlayVideo");
 
+
+// iOS fix fullscreen 
+if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+  video.setAttribute("webkit-playsinline", "true");
+  video.setAttribute("playsinline", "true");
+}
+
 const observer = new IntersectionObserver(
   ([entry]) => {
     if (entry.isIntersecting) {
@@ -618,3 +625,80 @@ document.addEventListener("DOMContentLoaded", () => {
 window.openGallery = openGallery;
 window.closeGallery = closeGallery;
 window.changeSlide = changeSlide;
+
+// Each video card के लिए event listener
+testimonialCards.forEach((card, index) => {
+  const video = card.querySelector('video');
+  const playBtn = card.querySelector('.play-icon');
+  
+  playBtn.addEventListener('click', () => {
+    if (video.paused) {
+      video.play();
+      playBtn.querySelector('i').classList.replace('fa-play', 'fa-pause');
+    } else {
+      video.pause();
+      playBtn.querySelector('i').classList.replace('fa-pause', 'fa-play');
+    }
+  });
+});
+
+// Logo GIF control - One time play on load
+document.addEventListener('DOMContentLoaded', function() {
+  const logoImg = document.getElementById('logoBackground');
+  const gifSrc = './images/logo.gif';
+  const staticSrc = './images/logo-static.png'; // fallback static image
+  
+  // Check if we have a static version, otherwise create one
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  logoImg.onload = function() {
+    // Create static version from first frame
+    canvas.width = this.naturalWidth;
+    canvas.height = this.naturalHeight;
+    ctx.drawImage(this, 0, 0);
+    const staticFrame = canvas.toDataURL();
+    
+    // Play GIF once, then switch to static
+    setTimeout(() => {
+      logoImg.src = staticFrame;
+    }, 3000); // Adjust timing based on your GIF duration
+  };
+  
+  // Error handling for iOS/mobile
+  logoImg.onerror = function() {
+    console.log('GIF loading failed, using fallback');
+    if (staticSrc) {
+      this.src = staticSrc;
+    }
+  };
+  
+  // Ensure proper loading
+  if (logoImg.complete) {
+    logoImg.onload();
+  }
+});
+
+// Alternative method - if you want more control
+function playLogoOnce() {
+  const logoImg = document.getElementById('logoBackground');
+  const originalSrc = logoImg.src;
+  
+  // Force reload GIF to play once
+  logoImg.src = '';
+  logoImg.src = originalSrc + '?t=' + Date.now();
+  
+  // Stop after one cycle (adjust timeout as needed)
+  setTimeout(() => {
+    logoImg.style.opacity = '0.08'; // Make it more subtle after play
+  }, 3000);
+}
+
+// Optional: Play logo animation on page focus (if user comes back to tab)
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    // Uncomment if you want logo to play when user returns
+    // playLogoOnce();
+  }
+});
+
