@@ -240,13 +240,22 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Testimonial video controls
+// Testimonial video controls with unmute and iOS fullscreen prevention
 document.querySelectorAll(".testimonial-card").forEach((card) => {
   const video = card.querySelector("video");
+  
+  if (video) {
+    // Set video attributes to prevent fullscreen on iOS and enable inline playback
+    video.setAttribute("playsinline", "true");
+    video.setAttribute("webkit-playsinline", "true");
+    video.setAttribute("muted", "false"); // Initially muted for autoplay compliance
+    video.muted = true; // Set muted property
+  }
 
   // Mouse events
   card.addEventListener("mouseenter", () => {
     if (video) {
+      video.muted = false; // Unmute on hover
       video.play().catch((e) => console.log("Video play failed:", e));
     }
   });
@@ -255,30 +264,49 @@ document.querySelectorAll(".testimonial-card").forEach((card) => {
     if (video) {
       video.pause();
       video.currentTime = 0;
+      video.muted = true; // Mute again when not hovering
     }
   });
 
   // Touch events for mobile devices
   card.addEventListener(
     "touchstart",
-    () => {
+    (e) => {
       if (video) {
+        // Prevent any default touch behavior that might trigger fullscreen
+        e.preventDefault();
+        video.muted = false; // Unmute on touch
         video.play().catch((e) => console.log("Video play failed:", e));
       }
     },
-    { passive: true }
+    { passive: false } // Changed to false to allow preventDefault
   );
 
   card.addEventListener(
     "touchend",
-    () => {
+    (e) => {
       if (video) {
+        e.preventDefault(); // Prevent default touch behavior
         video.pause();
         video.currentTime = 0;
+        video.muted = true; // Mute again when touch ends
       }
     },
-    { passive: true }
+    { passive: false } // Changed to false to allow preventDefault
   );
+
+  // Additional event to prevent fullscreen on iOS
+  if (video) {
+    video.addEventListener("webkitbeginfullscreen", (e) => {
+      e.preventDefault();
+      return false;
+    });
+    
+    video.addEventListener("webkitendfullscreen", (e) => {
+      e.preventDefault();
+      return false;
+    });
+  }
 });
 
 // Scroll-based reveal animations
