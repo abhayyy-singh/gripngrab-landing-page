@@ -2750,7 +2750,7 @@ body {
     max-width: 100% ;
   }
 }
-/* Timeline Section - Mobile First */
+/* Timeline Section - Mobile First - FIXED VERSION */
 .timeline-section {
   min-height: 100vh;
   padding: 3rem 1rem;
@@ -2793,20 +2793,21 @@ body {
   padding-left: 0;
 }
 
+/* FIXED: Consistent positioning for all mobile sizes */
 .timeline-line {
   position: absolute;
-  left: 1.25rem;
+  left: 20px; /* Fixed pixel value instead of rem */
   top: 0;
   bottom: 0;
-  width: 0.125rem;
+  width: 2px; /* Fixed pixel value */
   background: linear-gradient(180deg, rgba(255, 107, 107, 0.3), rgba(247, 215, 148, 0.3));
 }
 
 .timeline-progress {
   position: absolute;
-  left: 1.25rem;
+  left: 20px; /* Same as timeline-line */
   top: 0;
-  width: 0.125rem;
+  width: 2px;
   height: 0;
   background: linear-gradient(180deg, #ff6b6b, #f7d794);
   transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2815,18 +2816,19 @@ body {
 
 .timeline-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start for better alignment */
   margin-bottom: 2.5rem;
   position: relative;
+  min-height: 40px; /* Ensure minimum height */
 }
 
 .timeline-number {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 40px; /* Fixed pixel value */
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.5rem; /* Smaller on mobile */
   font-weight: 900;
   color: rgba(255, 255, 255, 0.1);
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2837,16 +2839,16 @@ body {
 
 .timeline-number.active {
   color: #fff;
-  text-shadow: 0 0 1.875rem rgba(255, 107, 107, 0.5);
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
 }
 
 .timeline-content {
   flex: 1;
-  margin-left: 1rem;
+  margin-left: 16px; /* Fixed pixel value */
   opacity: 0;
-  transform: translateX(1.25rem);
+  transform: translateX(20px);
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  max-width: calc(100vw - 6rem);
+  max-width: calc(100vw - 80px); /* Account for padding and number width */
 }
 
 .timeline-content.active {
@@ -2877,25 +2879,47 @@ body {
   overflow-wrap: break-word;
 }
 
+/* FIXED: Perfect dot alignment */
 .timeline-dot {
   position: absolute;
-  left: 0.9375rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0.75rem;
-  height: 0.75rem;
+  left: 14px; /* Precisely centered on line (20px - 6px border/2) */
+  top: 20px; /* Fixed distance from top */
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  border: 0.1875rem solid rgba(255, 107, 107, 0.3);
+  border: 3px solid rgba(255, 107, 107, 0.3);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 4;
+  transform: none; /* Remove transform to avoid calculation issues */
 }
 
 .timeline-item.active .timeline-dot {
   background: #ff6b6b;
   border-color: #f7d794;
-  box-shadow: 0 0 1.25rem rgba(255, 107, 107, 0.6);
-  transform: translateY(-50%) scale(1.2);
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+  transform: scale(1.2);
+}
+
+/* iPhone 13 and similar devices specific fix */
+@media (min-width: 375px) and (max-width: 430px) {
+  .timeline-line {
+    left: 20px;
+  }
+  
+  .timeline-progress {
+    left: 20px;
+  }
+  
+  .timeline-dot {
+    left: 14px; /* 20px - 6px (border + half width) */
+    top: 20px;
+  }
+  
+  .timeline-content {
+    margin-left: 16px;
+    max-width: calc(100vw - 70px);
+  }
 }
 
 /* Tablet */
@@ -2913,11 +2937,11 @@ body {
   }
 
   .timeline-line {
-    left: 2rem;
+    left: 32px;
   }
 
   .timeline-progress {
-    left: 2rem;
+    left: 32px;
   }
 
   .timeline-item {
@@ -2925,19 +2949,20 @@ body {
   }
 
   .timeline-number {
-    width: 4rem;
-    height: 4rem;
+    width: 64px;
+    height: 64px;
     font-size: 1.5rem;
   }
 
   .timeline-content {
-    margin-left: 2rem;
+    margin-left: 32px;
     max-width: 40rem;
-    transform: translateX(2rem);
+    transform: translateX(32px);
   }
 
   .timeline-dot {
-    left: 1.6875rem;
+    left: 26px;
+    top: 32px;
   }
 }
 
@@ -3074,7 +3099,6 @@ body {
     transform: translateY(-50%) scale(1.2);
   }
 }
-
 /* Mobile First Responsive Testimonial Section */
 .testimonial-section {
   padding: 10vh 4vw;
