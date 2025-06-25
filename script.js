@@ -121,52 +121,22 @@ const timelineObserver = new IntersectionObserver(
   }
 );
 
-// autoplay and mute unmute with mobile fix
+// autoplay and mute unmute
+
 const video = document.getElementById("autoPlayVideo");
 
-// iOS fix fullscreen
+
+// iOS fix fullscreen 
 if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
   video.setAttribute("webkit-playsinline", "true");
   video.setAttribute("playsinline", "true");
 }
 
-// Ensure video starts muted for autoplay compliance
-if (video) {
-  video.muted = true;
-  video.autoplay = true;
-  video.playsInline = true;
-}
-
-let hasUserInteracted = false;
-
-// Track user interaction for mobile autoplay policy
-function enableAutoplay() {
-  hasUserInteracted = true;
-  document.removeEventListener('touchstart', enableAutoplay);
-  document.removeEventListener('click', enableAutoplay);
-  document.removeEventListener('scroll', enableAutoplay);
-}
-
-// Listen for any user interaction
-document.addEventListener('touchstart', enableAutoplay, { once: true });
-document.addEventListener('click', enableAutoplay, { once: true });
-document.addEventListener('scroll', enableAutoplay, { once: true });
-
 const observer = new IntersectionObserver(
   ([entry]) => {
     if (entry.isIntersecting) {
-      // Always try to play, but handle mobile restrictions
-      video.play().then(() => {
-        // Only unmute after successful play and if user has interacted
-        if (hasUserInteracted) {
-          video.muted = false;
-        }
-      }).catch((error) => {
-        console.log("Autoplay prevented:", error);
-        // Keep video muted if autoplay fails
-        video.muted = true;
-        video.play().catch(e => console.log("Muted play failed:", e));
-      });
+      video.muted = false;
+      video.play();
     } else {
       video.pause();
       video.muted = true;
@@ -181,22 +151,11 @@ if (video) {
   observer.observe(video);
 }
 
-// Alternative approach: Add click handler to video for manual play on mobile
-video.addEventListener('click', function() {
-  if (video.paused) {
-    video.muted = false;
-    video.play();
-  } else {
-    video.pause();
-  }
-});
 
-// Observe timeline items (assuming timelineItems and timelineObserver are defined elsewhere)
-if (typeof timelineItems !== 'undefined' && typeof timelineObserver !== 'undefined') {
-  timelineItems.forEach((item) => {
-    timelineObserver.observe(item);
-  });
-}
+// Observe timeline items
+timelineItems.forEach((item) => {
+  timelineObserver.observe(item);
+});
 
 // Gallery functionality
 const galleryData = {
@@ -281,88 +240,45 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Testimonial video controls with unmute and iOS fullscreen prevention
+// Testimonial video controls
 document.querySelectorAll(".testimonial-card").forEach((card) => {
   const video = card.querySelector("video");
-  let isPlaying = false;
-  let isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
-  if (video) {
-    // Set video attributes to prevent fullscreen on iOS and enable inline playbook
-    video.setAttribute("playsinline", "true");
-    video.setAttribute("webkit-playsinline", "true");
-    video.muted = true; // Start muted for autoplay compliance
-  }
 
-  // Desktop hover events
-  if (!isMobile) {
-    card.addEventListener("mouseenter", () => {
-      if (video) {
-        video.muted = false; // Unmute on hover
-        video.play().catch((e) => console.log("Video play failed:", e));
-        isPlaying = true;
-      }
-    });
-
-    card.addEventListener("mouseleave", () => {
-      if (video) {
-        video.pause();
-        video.currentTime = 0;
-        video.muted = true; // Mute again when not hovering
-        isPlaying = false;
-      }
-    });
-  }
-
-  // Mobile touch events - single tap to toggle play/pause
-  card.addEventListener("click", (e) => {
-    if (video && isMobile) {
-      e.preventDefault();
-      
-      if (!isPlaying) {
-        // Play video
-        video.muted = false;
-        video.play().catch((e) => console.log("Video play failed:", e));
-        isPlaying = true;
-      } else {
-        // Pause video
-        video.pause();
-        video.currentTime = 0;
-        video.muted = true;
-        isPlaying = false;
-      }
+  // Mouse events
+  card.addEventListener("mouseenter", () => {
+    if (video) {
+      video.play().catch((e) => console.log("Video play failed:", e));
     }
   });
 
-  // Prevent touch events from interfering on mobile
-  if (isMobile) {
-    card.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-    }, { passive: false });
-    
-    card.addEventListener("touchend", (e) => {
-      e.preventDefault();
-    }, { passive: false });
-  }
+  card.addEventListener("mouseleave", () => {
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+  });
 
-  // Additional event to prevent fullscreen on iOS
-  if (video) {
-    video.addEventListener("webkitbeginfullscreen", (e) => {
-      e.preventDefault();
-      return false;
-    });
-    
-    video.addEventListener("webkitendfullscreen", (e) => {
-      e.preventDefault();
-      return false;
-    });
-    
-    // Reset playing state when video ends
-    video.addEventListener("ended", () => {
-      isPlaying = false;
-      video.muted = true;
-    });
-  }
+  // Touch events for mobile devices
+  card.addEventListener(
+    "touchstart",
+    () => {
+      if (video) {
+        video.play().catch((e) => console.log("Video play failed:", e));
+      }
+    },
+    { passive: true }
+  );
+
+  card.addEventListener(
+    "touchend",
+    () => {
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    },
+    { passive: true }
+  );
 });
 
 // Scroll-based reveal animations
