@@ -78,37 +78,37 @@ footerObserver.observe(footer);
 heroObserver.observe(hero);
 
 // Timeline Animation
-const timelineItems = document.querySelectorAll(".timeline-item");
-const timelineProgress = document.getElementById("timelineProgress");
+const timelineItems = document.querySelectorAll('.timeline-item');
+const timelineProgress = document.getElementById('timelineProgress');
 
 const timelineObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const item = entry.target;
-        const number = item.querySelector(".timeline-number");
-        const content = item.querySelector(".timeline-content");
+        const number = item.querySelector('.timeline-number');
+        const content = item.querySelector('.timeline-content');
         const step = parseInt(item.dataset.step);
-
+        
         // Activate current item
-        item.classList.add("active");
-        number.classList.add("active");
-        content.classList.add("active");
-
+        item.classList.add('active');
+        number.classList.add('active');
+        content.classList.add('active');
+        
         // Update progress bar
         const progressHeight = (step / timelineItems.length) * 100;
         timelineProgress.style.height = `${progressHeight}%`;
-
+        
         // Deactivate previous items when scrolling up
         timelineItems.forEach((otherItem, index) => {
           if (index >= step) {
-            const otherNumber = otherItem.querySelector(".timeline-number");
-            const otherContent = otherItem.querySelector(".timeline-content");
-
+            const otherNumber = otherItem.querySelector('.timeline-number');
+            const otherContent = otherItem.querySelector('.timeline-content');
+            
             if (index > step - 1) {
-              otherItem.classList.remove("active");
-              otherNumber.classList.remove("active");
-              otherContent.classList.remove("active");
+              otherItem.classList.remove('active');
+              otherNumber.classList.remove('active');
+              otherContent.classList.remove('active');
             }
           }
         });
@@ -117,54 +117,33 @@ const timelineObserver = new IntersectionObserver(
   },
   {
     threshold: 0.5,
-    rootMargin: "-10% 0px -10% 0px",
+    rootMargin: '-10% 0px -10% 0px'
   }
 );
 
-// Autoplay video - FIXED FOR MOBILE
+// autoplay and mute unmute
+
 const video = document.getElementById("autoPlayVideo");
-
-// Detect mobile device
-const isMobile =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-
-// iOS specific attributes
-if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-  video.setAttribute("webkit-playsinline", "true");
-  video.setAttribute("playsinline", "true");
-}
 
 const observer = new IntersectionObserver(
   ([entry]) => {
     if (entry.isIntersecting) {
-      if (isMobile) {
-        // Mobile: autoplay with sound on scroll
-        video.muted = false;
-        video.play().catch((e) => {
-          console.log("Mobile autoplay failed, trying muted:", e);
-          video.muted = true;
-          video.play();
-        });
-      } else {
-        // Desktop: keep existing behavior
-        video.muted = false;
-        video.play();
-      }
+      video.muted = false;
+      video.play();
     } else {
       video.pause();
       video.muted = true;
     }
   },
   {
-    threshold: 0.5,
+    threshold: 0.5, // Video should be 50% visible to trigger
   }
 );
 
 if (video) {
   observer.observe(video);
 }
+
 
 // Observe timeline items
 timelineItems.forEach((item) => {
@@ -179,18 +158,18 @@ const galleryData = {
       "./video/logo.png", // Replace with actual gym images
       "./video/logo.png",
       "./video/logo.png",
-      "./video/logo.png",
-    ],
+      "./video/logo.png"
+    ]
   },
   saket: {
-    title: "Saket Gym",
+    title: "Saket Gym", 
     images: [
       "./video/logo.png", // Replace with actual gym images
       "./video/logo.png",
       "./video/logo.png",
-      "./video/logo.png",
-    ],
-  },
+      "./video/logo.png"
+    ]
+  }
 };
 
 let currentGallery = null;
@@ -199,105 +178,100 @@ let currentSlideIndex = 0;
 function openGallery(gymLocation) {
   currentGallery = galleryData[gymLocation];
   currentSlideIndex = 0;
-
-  const modal = document.getElementById("galleryModal");
-  const title = document.getElementById("galleryTitle");
-  const mainImage = document.getElementById("galleryMainImage");
-  const currentSlideSpan = document.getElementById("currentSlide");
-  const totalSlidesSpan = document.getElementById("totalSlides");
-
+  
+  const modal = document.getElementById('galleryModal');
+  const title = document.getElementById('galleryTitle');
+  const mainImage = document.getElementById('galleryMainImage');
+  const currentSlideSpan = document.getElementById('currentSlide');
+  const totalSlidesSpan = document.getElementById('totalSlides');
+  
   title.textContent = currentGallery.title;
   mainImage.src = currentGallery.images[0];
   mainImage.alt = currentGallery.title;
-  currentSlideSpan.textContent = "1";
+  currentSlideSpan.textContent = '1';
   totalSlidesSpan.textContent = currentGallery.images.length;
-
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeGallery() {
-  const modal = document.getElementById("galleryModal");
-  modal.classList.remove("active");
-  document.body.style.overflow = "auto";
+  const modal = document.getElementById('galleryModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = 'auto';
   currentGallery = null;
 }
 
 function changeSlide(direction) {
   if (!currentGallery) return;
-
+  
   currentSlideIndex += direction;
-
+  
   if (currentSlideIndex < 0) {
     currentSlideIndex = currentGallery.images.length - 1;
   } else if (currentSlideIndex >= currentGallery.images.length) {
     currentSlideIndex = 0;
   }
-
-  const mainImage = document.getElementById("galleryMainImage");
-  const currentSlideSpan = document.getElementById("currentSlide");
-
+  
+  const mainImage = document.getElementById('galleryMainImage');
+  const currentSlideSpan = document.getElementById('currentSlide');
+  
   mainImage.src = currentGallery.images[currentSlideIndex];
   currentSlideSpan.textContent = currentSlideIndex + 1;
 }
 
 // Keyboard navigation for gallery
-document.addEventListener("keydown", (e) => {
+document.addEventListener('keydown', (e) => {
   if (currentGallery) {
-    if (e.key === "ArrowLeft") {
+    if (e.key === 'ArrowLeft') {
       changeSlide(-1);
-    } else if (e.key === "ArrowRight") {
+    } else if (e.key === 'ArrowRight') {
       changeSlide(1);
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       closeGallery();
     }
   }
 });
 
-// TESTIMONIAL VIDEO CONTROLS - FIXED
+// Testimonial video controls
 document.querySelectorAll(".testimonial-card").forEach((card) => {
   const video = card.querySelector("video");
 
-  if (!video) return;
+  // Mouse events
+  card.addEventListener("mouseenter", () => {
+    if (video) {
+      video.play().catch((e) => console.log("Video play failed:", e));
+    }
+  });
 
-  // Prevent fullscreen on iOS
-  video.setAttribute("webkit-playsinline", "true");
-  video.setAttribute("playsinline", "true");
-  video.setAttribute("controls", "false");
+  card.addEventListener("mouseleave", () => {
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+  });
 
-  if (isMobile) {
-    // Mobile: Click to play/pause with sound, no fullscreen
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (video.paused) {
-        video.muted = false;
+  // Touch events for mobile devices
+  card.addEventListener(
+    "touchstart",
+    () => {
+      if (video) {
         video.play().catch((e) => console.log("Video play failed:", e));
-      } else {
+      }
+    },
+    { passive: true }
+  );
+
+  card.addEventListener(
+    "touchend",
+    () => {
+      if (video) {
         video.pause();
-        video.muted = true;
         video.currentTime = 0;
       }
-    });
-
-    // Prevent context menu on long press
-    card.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-    });
-  } else {
-    // Desktop: Keep hover behavior but fix unmute
-    card.addEventListener("mouseenter", () => {
-      video.muted = false; // FIXED: Now unmutes on hover
-      video.play().catch((e) => console.log("Video play failed:", e));
-    });
-
-    card.addEventListener("mouseleave", () => {
-      video.pause();
-      video.muted = true;
-      video.currentTime = 0;
-    });
-  }
+    },
+    { passive: true }
+  );
 });
 
 // Scroll-based reveal animations
@@ -394,7 +368,7 @@ videos.forEach((video) => {
     video.style.backgroundColor = "#2a2a2a";
   });
 
-  // Ensure videos are muted initially
+  // Ensure videos are muted for autoplay
   video.muted = true;
 });
 
@@ -644,63 +618,3 @@ document.addEventListener("DOMContentLoaded", () => {
 window.openGallery = openGallery;
 window.closeGallery = closeGallery;
 window.changeSlide = changeSlide;
-
-// Logo GIF control - One time play on load
-document.addEventListener("DOMContentLoaded", function () {
-  const logoImg = document.getElementById("logoBackground");
-  const gifSrc = "./images/logo.gif";
-  const staticSrc = "./images/logo-static.png"; // fallback static image
-
-  // Check if we have a static version, otherwise create one
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  logoImg.onload = function () {
-    // Create static version from first frame
-    canvas.width = this.naturalWidth;
-    canvas.height = this.naturalHeight;
-    ctx.drawImage(this, 0, 0);
-    const staticFrame = canvas.toDataURL();
-
-    // Play GIF once, then switch to static
-    setTimeout(() => {
-      logoImg.src = staticFrame;
-    }, 3000); // Adjust timing based on your GIF duration
-  };
-
-  // Error handling for iOS/mobile
-  logoImg.onerror = function () {
-    console.log("GIF loading failed, using fallback");
-    if (staticSrc) {
-      this.src = staticSrc;
-    }
-  };
-
-  // Ensure proper loading
-  if (logoImg.complete) {
-    logoImg.onload();
-  }
-});
-
-// Alternative method - if you want more control
-function playLogoOnce() {
-  const logoImg = document.getElementById("logoBackground");
-  const originalSrc = logoImg.src;
-
-  // Force reload GIF to play once
-  logoImg.src = "";
-  logoImg.src = originalSrc + "?t=" + Date.now();
-
-  // Stop after one cycle (adjust timeout as needed)
-  setTimeout(() => {
-    logoImg.style.opacity = "0.08"; // Make it more subtle after play
-  }, 3000);
-}
-
-// Optional: Play logo animation on page focus (if user comes back to tab)
-document.addEventListener("visibilitychange", function () {
-  if (!document.hidden) {
-    // Uncomment if you want logo to play when user returns
-    // playLogoOnce();
-  }
-});

@@ -214,21 +214,7 @@ body {
   transform: translateX(10px);
 }
 
-/* Hero Section */
 
-/* .gallery-bg-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  width: 800px;
-  height: 800px;
-  background: url('../video/logo.png') no-repeat center;
-  background-size: contain;
-  opacity: 0.1;
-  transition: all 0.6s ease;
-  z-index: 1;
-} */
 .hero {
   height: 100vh;
   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), ;
@@ -298,6 +284,31 @@ body {
   font-weight: 800;
   animation: pulse 2s infinite;
 }
+
+/* Logo background only for mobile phones - responsive sizing */
+@media screen and (max-width: 767px) {
+    .hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('./video/logo.png');
+        background-size: cover; /* Pura screen cover karega aur responsive rahega */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+}
+
+/* Alternative: Agar exact size control chahiye */
+@media screen and (max-width: 480px) {
+    .hero {
+        background-size: 120vw 120vw; /* Small phones ke liye bada size */
+    }
+}
+
+@media screen and (min-width: 481px) and (max-width: 767px) {
+    .hero {
+        background-size: 110vw 110vw; /* Large phones ke liye thoda kam */
+    }
+}
+
 
 /* How It Works Section */
 .how-it-works-section {
