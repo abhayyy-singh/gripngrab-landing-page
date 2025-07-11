@@ -121,40 +121,20 @@ const timelineObserver = new IntersectionObserver(
   }
 );
 
-// Autoplay video - FIXED FOR MOBILE
+// Simplified Autoplay Video - Works for all devices
 const video = document.getElementById("autoPlayVideo");
-
-// Detect mobile device
-const isMobile =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-
-// iOS specific attributes
-if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-  video.setAttribute("webkit-playsinline", "true");
-  video.setAttribute("playsinline", "true");
-}
 
 const observer = new IntersectionObserver(
   ([entry]) => {
     if (entry.isIntersecting) {
-      if (isMobile) {
-        // Mobile: autoplay with sound on scroll
-        video.muted = false;
-        video.play().catch((e) => {
-          console.log("Mobile autoplay failed, trying muted:", e);
-          video.muted = true;
-          video.play();
-        });
-      } else {
-        // Desktop: keep existing behavior
-        video.muted = false;
-        video.play();
-      }
+      // Video comes into view - play and unmute
+      video.muted = false;
+      video.play().catch((e) => {
+        console.log("Autoplay failed:", e);
+      });
     } else {
+      // Video goes out of view - pause
       video.pause();
-      video.muted = true;
     }
   },
   {
@@ -254,41 +234,76 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// TESTIMONIAL VIDEO CONTROLS - FIXED
+// Detect mobile device
+const isMobile =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+
+// TESTIMONIAL VIDEO CONTROLS - Fixed controls visibility
 document.querySelectorAll(".testimonial-card").forEach((card) => {
   const video = card.querySelector("video");
 
   if (!video) return;
 
-  // Prevent fullscreen on iOS
-  video.setAttribute("webkit-playsinline", "true");
-  video.setAttribute("playsinline", "true");
+  // Hide controls initially
   video.setAttribute("controls", "false");
-
+  
   if (isMobile) {
-    // Mobile: Click to play/pause with sound, no fullscreen
+    // Mobile: Click to play/pause with sound
     card.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
 
       if (video.paused) {
+        // Show controls briefly when playing
+        video.setAttribute("controls", "true");
         video.muted = false;
         video.play().catch((e) => console.log("Video play failed:", e));
+        
+        // Hide controls after 1 second
+        setTimeout(() => {
+          video.setAttribute("controls", "false");
+        }, 1000);
       } else {
+        // Show controls briefly when pausing
+        video.setAttribute("controls", "true");
         video.pause();
         video.muted = true;
         video.currentTime = 0;
+        
+        // Hide controls after 1 second
+        setTimeout(() => {
+          video.setAttribute("controls", "false");
+        }, 1000);
       }
     });
 
-    // Prevent context menu on long press
-    card.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
+    // Hide controls when clicking elsewhere
+    document.addEventListener("click", (e) => {
+      if (!card.contains(e.target)) {
+        video.setAttribute("controls", "false");
+      }
     });
+
+    // Hide controls when video starts playing
+    video.addEventListener("play", () => {
+      setTimeout(() => {
+        video.setAttribute("controls", "false");
+      }, 1000);
+    });
+
+    // Hide controls when video is paused
+    video.addEventListener("pause", () => {
+      setTimeout(() => {
+        video.setAttribute("controls", "false");
+      }, 1000);
+    });
+
   } else {
-    // Desktop: Keep hover behavior but fix unmute
+    // Desktop: Hover to play/pause (no controls needed)
     card.addEventListener("mouseenter", () => {
-      video.muted = false; // FIXED: Now unmutes on hover
+      video.muted = false;
       video.play().catch((e) => console.log("Video play failed:", e));
     });
 
