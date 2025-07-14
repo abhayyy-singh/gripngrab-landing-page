@@ -1256,11 +1256,11 @@ body {
   }
 
   .video-card video {
-    object-position: center !important;
+    object-position: center 
   }
 
   .video-container {
-    height: 300px !important;
+    height: 300px 
   }
 
  
@@ -3438,3 +3438,21 @@ body {
     padding: 1rem;
   }
 }
+
+/* Remove play icon from testimonial videos only */
+.testimonial-section .play-icon {
+  display: none !important;
+}
+
+/* Alternative: If you want to keep the icon but make it non-interactive */
+.testimonial-section .play-icon {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* If you want to remove the overlay as well (optional) */
+.testimonial-section .testimonial-overlay {
+  display: none;
+}
+

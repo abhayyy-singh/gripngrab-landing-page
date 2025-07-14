@@ -121,28 +121,60 @@ const timelineObserver = new IntersectionObserver(
   }
 );
 
-// Simplified Autoplay Video - Works for all devices
+// Detect mobile device
+const isMobile =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+
+// UPDATED: Simplified Autoplay Video - Works for all devices with user interaction strategy
 const video = document.getElementById("autoPlayVideo");
 
-const observer = new IntersectionObserver(
-  ([entry]) => {
-    if (entry.isIntersecting) {
-      // Video comes into view - play and unmute
-      video.muted = false;
-      video.play().catch((e) => {
-        console.log("Autoplay failed:", e);
-      });
-    } else {
-      // Video goes out of view - pause
-      video.pause();
-    }
-  },
-  {
-    threshold: 0.5,
-  }
-);
-
 if (video) {
+  // Track if user has interacted (for mobile unmute)
+  let userHasInteracted = false;
+  
+  // One-time user interaction handler for mobile
+  const handleFirstInteraction = () => {
+    if (!userHasInteracted) {
+      userHasInteracted = true;
+      // Permanently unmute video after first interaction
+      video.muted = false;
+      console.log('Autoplay video permanently unmuted after user interaction');
+    }
+  };
+  
+  // Add event listeners for first user interaction (mobile)
+  const interactionEvents = ['click', 'touchstart', 'touchmove', 'scroll'];
+  interactionEvents.forEach(eventType => {
+    document.addEventListener(eventType, handleFirstInteraction, { once: true });
+  });
+  
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        // Video comes into view - play
+        if (!userHasInteracted) {
+          // Desktop: Always unmuted, Mobile: Unmuted after first interaction
+          video.muted = isMobile ? true : false;
+        } else {
+          // After user interaction - always unmuted
+          video.muted = false;
+        }
+        
+        video.play().catch((e) => {
+          console.log("Autoplay failed:", e);
+        });
+      } else {
+        // Video goes out of view - pause (keep mute state)
+        video.pause();
+      }
+    },
+    {
+      threshold: 0.5,
+    }
+  );
+
   observer.observe(video);
 }
 
@@ -233,12 +265,6 @@ document.addEventListener("keydown", (e) => {
     }
   }
 });
-
-// Detect mobile device
-const isMobile =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
 
 // TESTIMONIAL VIDEO CONTROLS - Fixed controls visibility
 document.querySelectorAll(".testimonial-card").forEach((card) => {
