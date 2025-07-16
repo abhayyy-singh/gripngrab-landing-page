@@ -579,34 +579,6 @@ window.addEventListener("resize", () => {
   }, 250);
 });
 
-// Social media link interactions
-const socialLinks = document.querySelectorAll(".fa-brands");
-socialLinks.forEach((link) => {
-  link.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    // Add click animation
-    link.style.transform = "scale(0.9)";
-    setTimeout(() => {
-      link.style.transform = "scale(1)";
-    }, 150);
-
-    // You can add actual social media links here
-    const platform = link.classList[1].replace("fa-", "");
-    console.log(`Navigate to ${platform}`);
-    // Example: window.open(`https://www.${platform}.com/yourhandle`, '_blank');
-  });
-});
-
-// Error handling for missing elements
-const handleMissingElement = (selector, action) => {
-  const element = document.querySelector(selector);
-  if (!element) {
-    console.warn(`Element not found: ${selector}`);
-    return null;
-  }
-  return element;
-};
 
 // Initialize tooltips or additional features if needed
 const initializeTooltips = () => {
