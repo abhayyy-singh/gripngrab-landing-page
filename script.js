@@ -588,7 +588,7 @@ const initializeTooltips = () => {
       // Create and show tooltip
       const tooltip = document.createElement("div");
       tooltip.className = "tooltip";
-      tooltip.textContent = e.target.dataset.tooltip;
+      tooltip.textContent = e.target.dataset.tooltip; 
       document.body.appendChild(tooltip);
 
       // Position tooltip
