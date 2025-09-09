@@ -3483,13 +3483,13 @@ body {
 
 @media screen and (max-width: 768px) {
     .image-bg img {
-        width: 50vw; /* Increased for tablets */
-        min-width: 180px;
-        max-width: 350px;
+        width: 100vw;
+        min-width: 700px;
+        max-width: 1000px
     }
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-Swidth: 480px) {
     .image-bg img {
         width: 100vw; /* Increased for mobile */
         min-width: 450px; /* Fixed - was 400px which made no sense */
