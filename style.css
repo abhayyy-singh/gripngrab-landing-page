@@ -3484,7 +3484,7 @@ body {
 @media screen and (max-width: 768px) {
     .image-bg img {
         width: 100vw;
-        min-width: 700px;
+        min-width: 550px;
         max-width: 1000px
     }
 }
