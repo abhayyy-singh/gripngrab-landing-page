@@ -86,6 +86,9 @@ const timelineObserver = new IntersectionObserver(
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const item = entry.target;
+         if (item.classList.contains("active")) {
+          return;
+        }
         const number = item.querySelector(".timeline-number");
         const content = item.querySelector(".timeline-content");
         const step = parseInt(item.dataset.step);
@@ -99,19 +102,10 @@ const timelineObserver = new IntersectionObserver(
         const progressHeight = (step / timelineItems.length) * 100;
         timelineProgress.style.height = `${progressHeight}%`;
 
-        // Deactivate previous items when scrolling up
-        timelineItems.forEach((otherItem, index) => {
-          if (index >= step) {
-            const otherNumber = otherItem.querySelector(".timeline-number");
-            const otherContent = otherItem.querySelector(".timeline-content");
 
-            if (index > step - 1) {
-              otherItem.classList.remove("active");
-              otherNumber.classList.remove("active");
-              otherContent.classList.remove("active");
-            }
-          }
-        });
+
+
+
       }
     });
   },
@@ -120,54 +114,73 @@ const timelineObserver = new IntersectionObserver(
     rootMargin: "-10% 0px -10% 0px",
   }
 );
-
-// Detect mobile device
+// Detect mobile device (GLOBAL - keep as is)
 const isMobile =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   );
 
-// UPDATED: Simplified Autoplay Video - Works for all devices with user interaction strategy
-const video = document.getElementById("autoPlayVideo");
+// Vimeo Player for Embedded Video
+let vimeoPlayer;
+let userHasInteracted = false;
 
-if (video) {
-  // Track if user has interacted (for mobile unmute)
-  let userHasInteracted = false;
+// Initialize Vimeo Player (runs when script loads)
+function initVimeoPlayer() {
+  const videoElement = document.getElementById('autoPlayVideo');
   
-  // One-time user interaction handler for mobile
+  // Check if element exists
+  if (!videoElement) {
+    console.log('Video element not found');
+    return;
+  }
+  
+  // Create Vimeo Player instance
+  vimeoPlayer = new Vimeo.Player(videoElement);
+  
+  // One-time user interaction handler
   const handleFirstInteraction = () => {
     if (!userHasInteracted) {
       userHasInteracted = true;
       // Permanently unmute video after first interaction
-      video.muted = false;
+      vimeoPlayer.setMuted(false);
+      vimeoPlayer.setVolume(1);
       console.log('Autoplay video permanently unmuted after user interaction');
     }
   };
   
-  // Add event listeners for first user interaction (mobile)
+  // Add event listeners for first user interaction
   const interactionEvents = ['click', 'touchstart', 'touchmove', 'scroll'];
   interactionEvents.forEach(eventType => {
     document.addEventListener(eventType, handleFirstInteraction, { once: true });
   });
   
+  // Intersection Observer - same logic as before
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
         // Video comes into view - play
         if (!userHasInteracted) {
-          // Desktop: Always unmuted, Mobile: Unmuted after first interaction
-          video.muted = isMobile ? true : false;
+          // Desktop: Always unmuted, Mobile: Muted until first interaction
+          if (isMobile) {
+            vimeoPlayer.setMuted(true);
+          } else {
+            vimeoPlayer.setMuted(false);
+            vimeoPlayer.setVolume(1);
+          }
         } else {
           // After user interaction - always unmuted
-          video.muted = false;
+          vimeoPlayer.setMuted(false);
+          vimeoPlayer.setVolume(1);
         }
         
-        video.play().catch((e) => {
-          console.log("Autoplay failed:", e);
+        vimeoPlayer.play().catch(err => {
+          console.log('Autoplay blocked:', err);
         });
+        console.log('Video playing');
       } else {
         // Video goes out of view - pause (keep mute state)
-        video.pause();
+        vimeoPlayer.pause();
+        console.log('Video paused');
       }
     },
     {
@@ -175,7 +188,15 @@ if (video) {
     }
   );
 
-  observer.observe(video);
+  observer.observe(videoElement);
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVimeoPlayer);
+} else {
+  // DOM already loaded
+  initVimeoPlayer();
 }
 
 // Observe timeline items
@@ -183,27 +204,7 @@ timelineItems.forEach((item) => {
   timelineObserver.observe(item);
 });
 
-// Gallery functionality
-const galleryData = {
-  lajpat: {
-    title: "Lajpat Nagar Gym",
-    images: [
-      "./video/logo.png", // Replace with actual gym images
-      "./video/logo.png",
-      "./video/logo.png",
-      "./video/logo.png",
-    ],
-  },
-  saket: {
-    title: "Saket Gym",
-    images: [
-      "./video/logo.png", // Replace with actual gym images
-      "./video/logo.png",
-      "./video/logo.png",
-      "./video/logo.png",
-    ],
-  },
-};
+
 
 let currentGallery = null;
 let currentSlideIndex = 0;
@@ -266,80 +267,74 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// TESTIMONIAL VIDEO CONTROLS - Fixed controls visibility
-document.querySelectorAll(".testimonial-card").forEach((card) => {
-  const video = card.querySelector("video");
-
-  if (!video) return;
-
-  // Hide controls initially
-  video.setAttribute("controls", "false");
+// TESTIMONIAL VIMEO VIDEOS - Mobile & Desktop
+function initTestimonialVimeos() {
+  const testimonialCards = document.querySelectorAll(".testimonial-card");
   
-  if (isMobile) {
-    // Mobile: Click to play/pause with sound
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (video.paused) {
-        // Show controls briefly when playing
-        video.setAttribute("controls", "true");
-        video.muted = false;
-        video.play().catch((e) => console.log("Video play failed:", e));
+  if (testimonialCards.length === 0) return;
+  
+  testimonialCards.forEach((card) => {
+    const iframe = card.querySelector("iframe.testimonial-vimeo");
+    
+    if (!iframe) return;
+    
+    const player = new Vimeo.Player(iframe);
+    let isPlaying = false;
+    
+    if (isMobile) {
+      // Mobile: Click anywhere on card to play/pause
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         
-        // Hide controls after 1 second
-        setTimeout(() => {
-          video.setAttribute("controls", "false");
-        }, 1000);
-      } else {
-        // Show controls briefly when pausing
-        video.setAttribute("controls", "true");
-        video.pause();
-        video.muted = true;
-        video.currentTime = 0;
-        
-        // Hide controls after 1 second
-        setTimeout(() => {
-          video.setAttribute("controls", "false");
-        }, 1000);
-      }
-    });
+        player.getPaused().then(paused => {
+          if (paused) {
+            // Play with sound
+            player.setMuted(false);
+            player.setVolume(1);
+            player.play();
+            isPlaying = true;
+            console.log('Testimonial playing');
+          } else {
+            // Pause and reset
+            player.pause();
+            player.setCurrentTime(0);
+            player.setMuted(true);
+            isPlaying = false;
+            console.log('Testimonial paused');
+          }
+        }).catch(err => {
+          console.log('Testimonial control error:', err);
+        });
+      });
+      
+    } else {
+      // Desktop: Hover to play/pause
+      card.addEventListener("mouseenter", () => {
+        player.setMuted(false);
+        player.setVolume(1);
+        player.play().catch(err => {
+          console.log('Testimonial autoplay blocked:', err);
+        });
+        isPlaying = true;
+      });
+      
+      card.addEventListener("mouseleave", () => {
+        player.pause();
+        player.setCurrentTime(0);
+        player.setMuted(true);
+        isPlaying = false;
+      });
+    }
+  });
+}
 
-    // Hide controls when clicking elsewhere
-    document.addEventListener("click", (e) => {
-      if (!card.contains(e.target)) {
-        video.setAttribute("controls", "false");
-      }
-    });
-
-    // Hide controls when video starts playing
-    video.addEventListener("play", () => {
-      setTimeout(() => {
-        video.setAttribute("controls", "false");
-      }, 1000);
-    });
-
-    // Hide controls when video is paused
-    video.addEventListener("pause", () => {
-      setTimeout(() => {
-        video.setAttribute("controls", "false");
-      }, 1000);
-    });
-
-  } else {
-    // Desktop: Hover to play/pause (no controls needed)
-    card.addEventListener("mouseenter", () => {
-      video.muted = false;
-      video.play().catch((e) => console.log("Video play failed:", e));
-    });
-
-    card.addEventListener("mouseleave", () => {
-      video.pause();
-      video.muted = true;
-      video.currentTime = 0;
-    });
-  }
-});
+// Initialize testimonials after DOM loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTestimonialVimeos);
+} else {
+  initTestimonialVimeos();
+}
 
 // Scroll-based reveal animations
 const animatedElements = document.querySelectorAll(

@@ -2813,7 +2813,7 @@ margin-left: 20px;
   width: 2px;
   height: 0;
   background: linear-gradient(180deg, #ff6b6b, #f7d794);
-  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
 }
 
@@ -2834,10 +2834,12 @@ margin-left: 20px;
   font-size: 1.5rem; /* Smaller on mobile */
   font-weight: 900;
   color: rgba(255, 255, 255, 0.1);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 3;
   flex-shrink: 0;
+  visibility: hidden;
+  
 }
 
 .timeline-number.active {
@@ -2850,7 +2852,7 @@ margin-left: 20px;
   margin-left: 16px; /* Fixed pixel value */
   opacity: 0;
   transform: translateX(20px);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: calc(100vw - 80px); /* Account for padding and number width */
 }
 
@@ -2892,7 +2894,7 @@ margin-left: 20px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   border: 3px solid rgba(255, 107, 107, 0.3);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 4;
   transform: none; /* Remove transform to avoid calculation issues */
 }
@@ -2955,6 +2957,8 @@ margin-left: 20px;
     width: 64px;
     height: 64px;
     font-size: 1.5rem;
+    display: flex;
+    
   }
 
   .timeline-content {
@@ -3043,6 +3047,7 @@ margin-left: 20px;
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 3;
+    visibility: visible;
   }
 
   .timeline-number.active {
