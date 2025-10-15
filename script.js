@@ -114,73 +114,53 @@ const timelineObserver = new IntersectionObserver(
     rootMargin: "-10% 0px -10% 0px",
   }
 );
-// Detect mobile device (GLOBAL - keep as is)
+// Detect mobile device
 const isMobile =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   );
 
-// Vimeo Player for Embedded Video
-let vimeoPlayer;
-let userHasInteracted = false;
+// UPDATED: Simplified Autoplay Video - Works for all devices with user interaction strategy
+const video = document.getElementById("autoPlayVideo");
 
-// Initialize Vimeo Player (runs when script loads)
-function initVimeoPlayer() {
-  const videoElement = document.getElementById('autoPlayVideo');
+if (video) {
+  // Track if user has interacted (for mobile unmute)
+  let userHasInteracted = false;
   
-  // Check if element exists
-  if (!videoElement) {
-    console.log('Video element not found');
-    return;
-  }
-  
-  // Create Vimeo Player instance
-  vimeoPlayer = new Vimeo.Player(videoElement);
-  
-  // One-time user interaction handler
+  // One-time user interaction handler for mobile
   const handleFirstInteraction = () => {
     if (!userHasInteracted) {
       userHasInteracted = true;
       // Permanently unmute video after first interaction
-      vimeoPlayer.setMuted(false);
-      vimeoPlayer.setVolume(1);
+      video.muted = false;
       console.log('Autoplay video permanently unmuted after user interaction');
     }
   };
   
-  // Add event listeners for first user interaction
+  // Add event listeners for first user interaction (mobile)
   const interactionEvents = ['click', 'touchstart', 'touchmove', 'scroll'];
   interactionEvents.forEach(eventType => {
     document.addEventListener(eventType, handleFirstInteraction, { once: true });
   });
   
-  // Intersection Observer - same logic as before
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
         // Video comes into view - play
         if (!userHasInteracted) {
-          // Desktop: Always unmuted, Mobile: Muted until first interaction
-          if (isMobile) {
-            vimeoPlayer.setMuted(true);
-          } else {
-            vimeoPlayer.setMuted(false);
-            vimeoPlayer.setVolume(1);
-          }
+          // Desktop: Always unmuted, Mobile: Unmuted after first interaction
+          video.muted = isMobile ? true : false;
         } else {
           // After user interaction - always unmuted
-          vimeoPlayer.setMuted(false);
-          vimeoPlayer.setVolume(1);
+          video.muted = false;
         }
         
-        vimeoPlayer.play().catch(err => {
-          console.log('Autoplay blocked:', err);
+        video.play().catch((e) => {
+          console.log("Autoplay failed:", e);
         });
-        console.log('Video playing');
       } else {
-        // Video goes out of view - pause (keep mute state)
-        vimeoPlayer.pause();
-        console.log('Video paused');
+        // Video goes out of view - pause
+        video.pause();
       }
     },
     {
@@ -188,15 +168,7 @@ function initVimeoPlayer() {
     }
   );
 
-  observer.observe(videoElement);
-}
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initVimeoPlayer);
-} else {
-  // DOM already loaded
-  initVimeoPlayer();
+  observer.observe(video);
 }
 
 // Observe timeline items
