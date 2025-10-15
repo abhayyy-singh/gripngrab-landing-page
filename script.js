@@ -239,74 +239,80 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// TESTIMONIAL VIMEO VIDEOS - Mobile & Desktop
-function initTestimonialVimeos() {
-  const testimonialCards = document.querySelectorAll(".testimonial-card");
-  
-  if (testimonialCards.length === 0) return;
-  
-  testimonialCards.forEach((card) => {
-    const iframe = card.querySelector("iframe.testimonial-vimeo");
-    
-    if (!iframe) return;
-    
-    const player = new Vimeo.Player(iframe);
-    let isPlaying = false;
-    
-    if (isMobile) {
-      // Mobile: Click anywhere on card to play/pause
-      card.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        player.getPaused().then(paused => {
-          if (paused) {
-            // Play with sound
-            player.setMuted(false);
-            player.setVolume(1);
-            player.play();
-            isPlaying = true;
-            console.log('Testimonial playing');
-          } else {
-            // Pause and reset
-            player.pause();
-            player.setCurrentTime(0);
-            player.setMuted(true);
-            isPlaying = false;
-            console.log('Testimonial paused');
-          }
-        }).catch(err => {
-          console.log('Testimonial control error:', err);
-        });
-      });
-      
-    } else {
-      // Desktop: Hover to play/pause
-      card.addEventListener("mouseenter", () => {
-        player.setMuted(false);
-        player.setVolume(1);
-        player.play().catch(err => {
-          console.log('Testimonial autoplay blocked:', err);
-        });
-        isPlaying = true;
-      });
-      
-      card.addEventListener("mouseleave", () => {
-        player.pause();
-        player.setCurrentTime(0);
-        player.setMuted(true);
-        isPlaying = false;
-      });
-    }
-  });
-}
+// TESTIMONIAL VIDEO CONTROLS - Fixed controls visibility
+document.querySelectorAll(".testimonial-card").forEach((card) => {
+  const video = card.querySelector("video");
 
-// Initialize testimonials after DOM loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initTestimonialVimeos);
-} else {
-  initTestimonialVimeos();
-}
+  if (!video) return;
+
+  // Hide controls initially
+  video.setAttribute("controls", "false");
+  
+  if (isMobile) {
+    // Mobile: Click to play/pause with sound
+    card.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (video.paused) {
+        // Show controls briefly when playing
+        video.setAttribute("controls", "true");
+        video.muted = false;
+        video.play().catch((e) => console.log("Video play failed:", e));
+        
+        // Hide controls after 1 second
+        setTimeout(() => {
+          video.setAttribute("controls", "false");
+        }, 1000);
+      } else {
+        // Show controls briefly when pausing
+        video.setAttribute("controls", "true");
+        video.pause();
+        video.muted = true;
+        video.currentTime = 0;
+        
+        // Hide controls after 1 second
+        setTimeout(() => {
+          video.setAttribute("controls", "false");
+        }, 1000);
+      }
+    });
+
+    // Hide controls when clicking elsewhere
+    document.addEventListener("click", (e) => {
+      if (!card.contains(e.target)) {
+        video.setAttribute("controls", "false");
+      }
+    });
+
+    // Hide controls when video starts playing
+    video.addEventListener("play", () => {
+      setTimeout(() => {
+        video.setAttribute("controls", "false");
+      }, 1000);
+    });
+
+    // Hide controls when video is paused
+    video.addEventListener("pause", () => {
+      setTimeout(() => {
+        video.setAttribute("controls", "false");
+      }, 1000);
+    });
+
+  } else {
+    // Desktop: Hover to play/pause (no controls needed)
+    card.addEventListener("mouseenter", () => {
+      video.muted = false;
+      video.play().catch((e) => console.log("Video play failed:", e));
+    });
+
+    card.addEventListener("mouseleave", () => {
+      video.pause();
+      video.muted = true;
+      video.currentTime = 0;
+    });
+  }
+});
 
 // Scroll-based reveal animations
 const animatedElements = document.querySelectorAll(
