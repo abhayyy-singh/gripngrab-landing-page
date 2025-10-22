@@ -534,9 +534,9 @@ margin-left: 20px;
 
 /* Pricing Section */
 .pricing-section {
-  padding: 100px 5vw;
+  padding: 50px 5vw;
   background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
-  min-height: 100vh;
+  min-height: 60vh;
   overflow: hidden;
   width: 100%;
 }
@@ -549,17 +549,18 @@ margin-left: 20px;
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 80px;
+  margin-bottom: 20px;
 }
 
 .pricing-header h2 {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 800;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   background: linear-gradient(135deg, #fff, #ccc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
 }
 
 .pricing-header p {
@@ -746,8 +747,8 @@ margin-left: 20px;
 
 .pricing-footer {
   text-align: center;
-  padding-top: 20px;
-  margin-top: 20px;
+  padding-top: 0px;
+  margin-bottom: 20px;
 }
 
 .pricing-footer p {
@@ -843,7 +844,7 @@ margin-left: 20px;
 .faq-intro p {
   font-size: 18px;
   line-height: 1.7;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   opacity: 0.9;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.8);
@@ -1020,7 +1021,7 @@ margin-left: 20px;
   font-weight: 900;
   line-height: 0.9;
   text-transform: uppercase;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   background: linear-gradient(135deg, #fff, #ccc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1552,7 +1553,7 @@ margin-left: 20px;
 
   .faq-content {
     grid-template-columns: 1fr;
-    gap: 50px;
+    gap: 30px;
     text-align: center;
   }
 
@@ -1738,7 +1739,7 @@ margin-left: 20px;
 
   /* PRICING SECTION - SMALL MOBILE */
   .pricing-section {
-    padding: 60px 15px !important;
+    padding: 10px 15px !important;
   }
 
   .pricing-cards {
@@ -2093,6 +2094,7 @@ margin-left: 20px;
   .pricing-header h2 {
     font-size: 1.8rem !important;
     margin-bottom: 15px !important;
+  
   }
 
   .pricing-header p {
@@ -2232,6 +2234,12 @@ margin-left: 20px;
   }
 }
 
+@media screen and (max-width: 400px) {
+  .pricing-header h2 {
+   line-height: 40px;
+    
+  }
+}
 /* iPad and Tablet Responsiveness */
 @media screen and (min-width: 769px) and (max-width: 1024px) {
   .navbar {
