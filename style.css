@@ -2918,7 +2918,7 @@ margin-left: 20px;
   
   .timeline-dot {
     left: 14px; /* 20px - 6px (border + half width) */
-    top: 20px;
+    top: 5px; /*fizxed distance from top */
   }
   
   .timeline-content {
