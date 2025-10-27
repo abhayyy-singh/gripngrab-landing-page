@@ -14,7 +14,6 @@ hamburger.addEventListener("click", () => {
   hamburger.classList.toggle("active");
   mobileMenu.classList.toggle("active");
 
-  // Prevent scrolling when menu is open
   document.body.style.overflow = mobileMenu.classList.contains("active")
     ? "hidden"
     : "auto";
@@ -86,26 +85,19 @@ const timelineObserver = new IntersectionObserver(
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const item = entry.target;
-         if (item.classList.contains("active")) {
+        if (item.classList.contains("active")) {
           return;
         }
         const number = item.querySelector(".timeline-number");
         const content = item.querySelector(".timeline-content");
         const step = parseInt(item.dataset.step);
 
-        // Activate current item
         item.classList.add("active");
         number.classList.add("active");
         content.classList.add("active");
 
-        // Update progress bar
         const progressHeight = (step / timelineItems.length) * 100;
         timelineProgress.style.height = `${progressHeight}%`;
-
-
-
-
-
       }
     });
   },
@@ -114,30 +106,27 @@ const timelineObserver = new IntersectionObserver(
     rootMargin: "-10% 0px -10% 0px",
   }
 );
+
 // Detect mobile device
 const isMobile =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   );
 
-// UPDATED: Simplified Autoplay Video - Works for all devices with user interaction strategy
+// Autoplay Video
 const video = document.getElementById("autoPlayVideo");
 
 if (video) {
-  // Track if user has interacted (for mobile unmute)
   let userHasInteracted = false;
   
-  // One-time user interaction handler for mobile
   const handleFirstInteraction = () => {
     if (!userHasInteracted) {
       userHasInteracted = true;
-      // Permanently unmute video after first interaction
       video.muted = false;
       console.log('Autoplay video permanently unmuted after user interaction');
     }
   };
   
-  // Add event listeners for first user interaction (mobile)
   const interactionEvents = ['click', 'touchstart', 'touchmove', 'scroll'];
   interactionEvents.forEach(eventType => {
     document.addEventListener(eventType, handleFirstInteraction, { once: true });
@@ -146,12 +135,9 @@ if (video) {
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry.isIntersecting) {
-        // Video comes into view - play
         if (!userHasInteracted) {
-          // Desktop: Always unmuted, Mobile: Unmuted after first interaction
           video.muted = isMobile ? true : false;
         } else {
-          // After user interaction - always unmuted
           video.muted = false;
         }
         
@@ -159,7 +145,6 @@ if (video) {
           console.log("Autoplay failed:", e);
         });
       } else {
-        // Video goes out of view - pause
         video.pause();
       }
     },
@@ -175,8 +160,6 @@ if (video) {
 timelineItems.forEach((item) => {
   timelineObserver.observe(item);
 });
-
-
 
 let currentGallery = null;
 let currentSlideIndex = 0;
@@ -239,60 +222,51 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// TESTIMONIAL VIDEO CONTROLS - Fixed controls visibility
+// TESTIMONIAL VIDEO CONTROLS
 document.querySelectorAll(".testimonial-card").forEach((card) => {
   const video = card.querySelector("video");
 
   if (!video) return;
 
-  // Hide controls initially
   video.setAttribute("controls", "false");
   
   if (isMobile) {
-    // Mobile: Click to play/pause with sound
     card.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
 
       if (video.paused) {
-        // Show controls briefly when playing
         video.setAttribute("controls", "true");
         video.muted = false;
         video.play().catch((e) => console.log("Video play failed:", e));
         
-        // Hide controls after 1 second
         setTimeout(() => {
           video.setAttribute("controls", "false");
         }, 1000);
       } else {
-        // Show controls briefly when pausing
         video.setAttribute("controls", "true");
         video.pause();
         video.muted = true;
         video.currentTime = 0;
         
-        // Hide controls after 1 second
         setTimeout(() => {
           video.setAttribute("controls", "false");
         }, 1000);
       }
     });
 
-    // Hide controls when clicking elsewhere
     document.addEventListener("click", (e) => {
       if (!card.contains(e.target)) {
         video.setAttribute("controls", "false");
       }
     });
 
-    // Hide controls when video starts playing
     video.addEventListener("play", () => {
       setTimeout(() => {
         video.setAttribute("controls", "false");
       }, 1000);
     });
 
-    // Hide controls when video is paused
     video.addEventListener("pause", () => {
       setTimeout(() => {
         video.setAttribute("controls", "false");
@@ -300,7 +274,6 @@ document.querySelectorAll(".testimonial-card").forEach((card) => {
     });
 
   } else {
-    // Desktop: Hover to play/pause (no controls needed)
     card.addEventListener("mouseenter", () => {
       video.muted = false;
       video.play().catch((e) => console.log("Video play failed:", e));
@@ -323,7 +296,7 @@ const revealOnScroll = (entries, observer) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.classList.add("show");
-      observer.unobserve(entry.target); // Stop observing once revealed
+      observer.unobserve(entry.target);
     }
   });
 };
@@ -333,7 +306,6 @@ const scrollObserver = new IntersectionObserver(revealOnScroll, {
   rootMargin: "0px 0px -50px 0px",
 });
 
-// Observe all animated elements
 animatedElements.forEach((el) => scrollObserver.observe(el));
 
 // Smooth scrolling for navigation links
@@ -343,14 +315,12 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     const target = document.querySelector(this.getAttribute("href"));
 
     if (target) {
-      // Close mobile menu if open
       if (mobileMenu.classList.contains("active")) {
         hamburger.classList.remove("active");
         mobileMenu.classList.remove("active");
         document.body.style.overflow = "auto";
       }
 
-      // Smooth scroll to target
       target.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -366,20 +336,17 @@ if (form) {
     e.preventDefault();
     const email = form.querySelector(".emailinput").value;
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       alert("Please enter a valid email address.");
       return;
     }
 
-    // Add loading state
     const submitBtn = form.querySelector(".getnotify");
     const originalText = submitBtn.textContent;
     submitBtn.textContent = "Submitting...";
     submitBtn.disabled = true;
 
-    // Simulate API call
     setTimeout(() => {
       alert(`Thank you! We'll notify you at ${email}`);
       form.reset();
@@ -392,23 +359,19 @@ if (form) {
 // Enhanced video loading and error handling
 const videos = document.querySelectorAll("video");
 videos.forEach((video) => {
-  // Loading state
   video.addEventListener("loadstart", () => {
     video.style.backgroundColor = "#1a1a1a";
   });
 
-  // Loaded state
   video.addEventListener("canplay", () => {
     video.style.backgroundColor = "transparent";
   });
 
-  // Error handling
   video.addEventListener("error", (e) => {
     console.log("Video loading error:", e);
     video.style.backgroundColor = "#2a2a2a";
   });
 
-  // Ensure videos are muted initially
   video.muted = true;
 });
 
@@ -427,7 +390,6 @@ window.addEventListener("scroll", () => {
 // Enhanced button interactions
 const buttons = document.querySelectorAll(".btn, .fbtn, .cta-button");
 buttons.forEach((button) => {
-  // Mouse interactions
   button.addEventListener("mouseenter", () => {
     button.style.transform = "translateY(-2px) scale(1.02)";
   });
@@ -444,7 +406,6 @@ buttons.forEach((button) => {
     button.style.transform = "translateY(-2px) scale(1.02)";
   });
 
-  // Keyboard interactions
   button.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       button.style.transform = "translateY(0) scale(0.98)";
@@ -460,14 +421,12 @@ buttons.forEach((button) => {
 
 // Keyboard navigation improvements
 document.addEventListener("keydown", (e) => {
-  // Close mobile menu with Escape key
   if (e.key === "Escape" && mobileMenu.classList.contains("active")) {
     hamburger.classList.remove("active");
     mobileMenu.classList.remove("active");
     document.body.style.overflow = "auto";
   }
 
-  // Navigation with arrow keys (optional enhancement)
   if (e.key === "ArrowDown" && e.ctrlKey) {
     e.preventDefault();
     window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
@@ -498,7 +457,6 @@ const videoObserver = new IntersectionObserver(
   }
 );
 
-// Apply lazy loading to videos that are not immediately visible
 videos.forEach((video) => {
   const rect = video.getBoundingClientRect();
   if (rect.top > window.innerHeight * 1.5) {
@@ -510,10 +468,8 @@ videos.forEach((video) => {
 
 // Window load event for initial animations
 window.addEventListener("load", () => {
-  // Fade in the body
   document.body.style.opacity = "1";
 
-  // Stagger animation for hero elements
   const heroElements = document.querySelectorAll(".hero-content > *");
   heroElements.forEach((el, index) => {
     setTimeout(() => {
@@ -523,27 +479,23 @@ window.addEventListener("load", () => {
   });
 });
 
-// Resize event handler for responsive adjustments
+// Resize event handler
 let resizeTimeout;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    // Close mobile menu on resize to larger screen
     if (window.innerWidth > 768 && mobileMenu.classList.contains("active")) {
       hamburger.classList.remove("active");
       mobileMenu.classList.remove("active");
       document.body.style.overflow = "auto";
     }
 
-    // Close gallery on resize
     if (currentGallery && window.innerWidth < 768) {
       closeGallery();
     }
 
-    // Recalculate video dimensions if needed
     videos.forEach((video) => {
       if (video.videoWidth && video.videoHeight) {
-        // Maintain aspect ratio
         const aspectRatio = video.videoWidth / video.videoHeight;
         const containerWidth = video.parentElement.offsetWidth;
         video.style.height = `${containerWidth / aspectRatio}px`;
@@ -552,19 +504,16 @@ window.addEventListener("resize", () => {
   }, 250);
 });
 
-
-// Initialize tooltips or additional features if needed
+// Initialize tooltips
 const initializeTooltips = () => {
   const tooltipElements = document.querySelectorAll("[data-tooltip]");
   tooltipElements.forEach((element) => {
     element.addEventListener("mouseenter", (e) => {
-      // Create and show tooltip
       const tooltip = document.createElement("div");
       tooltip.className = "tooltip";
-      tooltip.textContent = e.target.dataset.tooltip; 
+      tooltip.textContent = e.target.dataset.tooltip;
       document.body.appendChild(tooltip);
 
-      // Position tooltip
       const rect = e.target.getBoundingClientRect();
       tooltip.style.top = `${rect.top - 40}px`;
       tooltip.style.left = `${rect.left + rect.width / 2}px`;
@@ -593,13 +542,10 @@ function scrollToSection(sectionId) {
 
 // Payment redirect function
 function redirectToPayment() {
-  // Replace with your actual payment gateway URL
   window.open(
     "https://wa.me/+919971250050?text=Hey%2C%20I%20want%20to%20join%20Grip%20and%20Grab.%20What%20is%20the%20procedure%3F",
     "_blank"
   );
-  // Or for external payment gateway:
-  // window.open('https://your-payment-gateway.com', '_blank');
 }
 
 // FAQ functionality
@@ -607,54 +553,46 @@ function toggleFaq(element) {
   const faqItem = element.parentElement;
   const isActive = faqItem.classList.contains("active");
 
-  // Close all other FAQ items
   document.querySelectorAll(".faq-item").forEach((item) => {
     item.classList.remove("active");
   });
 
-  // Toggle current item
   if (!isActive) {
     faqItem.classList.add("active");
   }
 }
 
-// Initialize additional features
+// Initialize
 document.addEventListener("DOMContentLoaded", () => {
   initializeTooltips();
-
-  // Add any other initialization code here
   console.log("Grip&Grab website initialized successfully!");
 });
 
-// Expose gallery functions to global scope for onclick handlers
+// Expose gallery functions
 window.openGallery = openGallery;
 window.closeGallery = closeGallery;
 window.changeSlide = changeSlide;
 
-// Logo GIF control - One time play on load
+// Logo GIF control
 document.addEventListener("DOMContentLoaded", function () {
   const logoImg = document.getElementById("logoBackground");
   const gifSrc = "./images/logo.gif";
-  const staticSrc = "./images/logo-static.png"; // fallback static image
+  const staticSrc = "./images/logo-static.png";
 
-  // Check if we have a static version, otherwise create one
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
   logoImg.onload = function () {
-    // Create static version from first frame
     canvas.width = this.naturalWidth;
     canvas.height = this.naturalHeight;
     ctx.drawImage(this, 0, 0);
     const staticFrame = canvas.toDataURL();
 
-    // Play GIF once, then switch to static
     setTimeout(() => {
       logoImg.src = staticFrame;
-    }, 3000); // Adjust timing based on your GIF duration
+    }, 3000);
   };
 
-  // Error handling for iOS/mobile
   logoImg.onerror = function () {
     console.log("GIF loading failed, using fallback");
     if (staticSrc) {
@@ -662,85 +600,44 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Ensure proper loading
   if (logoImg.complete) {
     logoImg.onload();
   }
 });
 
-// Alternative method - if you want more control
 function playLogoOnce() {
   const logoImg = document.getElementById("logoBackground");
   const originalSrc = logoImg.src;
 
-  // Force reload GIF to play once
   logoImg.src = "";
   logoImg.src = originalSrc + "?t=" + Date.now();
 
-  // Stop after one cycle (adjust timeout as needed)
   setTimeout(() => {
-    logoImg.style.opacity = "0.08"; // Make it more subtle after play
+    logoImg.style.opacity = "0.08";
   }, 3000);
 }
 
-// Optional: Play logo animation on page focus (if user comes back to tab)
 document.addEventListener("visibilitychange", function () {
   if (!document.hidden) {
-    // Uncomment if you want logo to play when user returns
-    // playLogoOnce();
+    // Uncomment if needed: playLogoOnce();
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ==================== FREE TRIAL MODAL SCRIPT ==================== */
-/* Production-ready, fully tested, no conflicts */
 
 (function() {
   'use strict';
 
-  // ==================== CONFIGURATION ====================
   const CONFIG = {
     accessKey:'ac6dfa83-49cf-4b5a-a983-1ac5e095dc37'
   };
 
-  // ==================== STATE ====================
   const state = {
     isOpen: false,
-    isSubmitting: false
+    isSubmitting: false,
+    formType: 'free-trial'
   };
 
-  // ==================== DOM ELEMENTS ====================
   const elements = {
     modal: null,
     overlay: null,
@@ -753,7 +650,62 @@ document.addEventListener("visibilitychange", function () {
     triggers: []
   };
 
-  // ==================== INITIALIZATION ====================
+  function updateFormForType(formType) {
+    const modalTitle = document.querySelector('.trial-modal__title');
+    const modalSubtitle = document.querySelector('.trial-modal__subtitle');
+    const serviceGroup = document.querySelector('.trial-form__group:has(#trialService)');
+    const mediumGroup = document.querySelector('.trial-form__group:has([name="medium"])');
+    
+    if (formType === 'personal-training') {
+      // Personal Training Form
+      modalTitle.textContent = 'Book Personal Training';
+      modalSubtitle.textContent = 'Choose your preferred training plan and schedule your session.';
+      
+      // Show service and medium fields
+      if (serviceGroup) serviceGroup.style.display = 'flex';
+      if (mediumGroup) mediumGroup.style.display = 'flex';
+      
+      const serviceDropdown = document.getElementById('trialService');
+      if (serviceDropdown) {
+        serviceDropdown.innerHTML = `
+          <option value="" disabled selected>Select service</option>
+          <optgroup label="Consultation & Programs">
+            <option value="One-Time Consultation (₹4,000)">One-Time Consultation - ₹4,000</option>
+            <option value="Consultation + Workout Program (₹8,000)">Consultation + Workout Program - ₹8,000</option>
+            <option value="Consultation + Workout Program + Daily Guidance (₹12,000)">Consultation + Workout Program + Daily Guidance - ₹12,000</option>
+          </optgroup>
+          <optgroup label="Training Sessions">
+            <option value="Per Session (₹3,000)">Per Session - ₹3,000</option>
+            <option value="12 Sessions Package (₹30,000)">12 Sessions Package - ₹30,000 (Save ₹6K)</option>
+          </optgroup>
+        `;
+        serviceDropdown.required = true;
+      }
+      
+      // Make medium required
+      const mediumInputs = document.querySelectorAll('[name="medium"]');
+      mediumInputs.forEach(input => input.required = true);
+      
+    } else {
+      // Free Trial Form (Original - NO dropdown, NO medium)
+      modalTitle.textContent = 'Book Your Free Trial';
+      modalSubtitle.textContent = 'Experience Grip & Grab for free. Choose your preferred location and time slot.';
+      
+      // Hide service and medium fields
+      if (serviceGroup) serviceGroup.style.display = 'none';
+      if (mediumGroup) mediumGroup.style.display = 'none';
+      
+      const serviceDropdown = document.getElementById('trialService');
+      if (serviceDropdown) {
+        serviceDropdown.required = false;
+      }
+      
+      // Make medium not required
+      const mediumInputs = document.querySelectorAll('[name="medium"]');
+      mediumInputs.forEach(input => input.required = false);
+    }
+  }
+
   function init() {
     elements.modal = document.getElementById('trialModal');
     elements.overlay = document.querySelector('.trial-modal__overlay');
@@ -776,7 +728,6 @@ document.addEventListener("visibilitychange", function () {
     console.log('✅ Free Trial Modal initialized');
   }
 
-  // ==================== EVENT LISTENERS ====================
   function setupEventListeners() {
     elements.triggers.forEach(trigger => {
       trigger.addEventListener('click', openModal);
@@ -802,7 +753,6 @@ document.addEventListener("visibilitychange", function () {
     }
   }
 
-  // ==================== DATE PICKER SETUP ====================
   function setupDatePicker() {
     if (!elements.dateInput) return;
 
@@ -826,14 +776,18 @@ document.addEventListener("visibilitychange", function () {
     });
   }
 
-  // ==================== MODAL CONTROLS ====================
   function openModal(e) {
     if (e) e.preventDefault();
     
+    const clickedButton = e.target.closest('[data-trial-trigger]');
+    const formType = clickedButton?.getAttribute('data-form-type') || 'free-trial';
+    
     state.isOpen = true;
+    state.formType = formType;
     elements.modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
+    updateFormForType(formType);
     resetForm();
     
     setTimeout(() => {
@@ -856,7 +810,6 @@ document.addEventListener("visibilitychange", function () {
     }
   }
 
-  // ==================== FORM SUBMISSION ====================
   async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -884,14 +837,20 @@ document.addEventListener("visibilitychange", function () {
 
       const payload = {
         access_key: CONFIG.accessKey,
-        subject: 'New Free Trial Booking - Grip & Grab',
+        subject: state.formType === 'personal-training' 
+          ? 'New Personal Training Booking - Grip & Grab'
+          : 'New Free Trial Booking - Grip & Grab',
         name: data.name,
         email: data.email,
         phone: data.phone,
         location: data.location,
         date: data.date,
         time: data.time,
-        message: `🎯 Free Trial Booking Request\n\n📍 Location: ${data.location}\n📅 Date: ${data.date}\n⏰ Time: ${data.time}\n📞 Phone: ${data.phone}`
+        medium: data.medium || 'Not specified',
+        service: data.service || 'Not specified',
+        message: state.formType === 'personal-training'
+          ? `🎯 Personal Training Booking\n\n👤 Name: ${data.name}\n📧 Email: ${data.email}\n📞 Phone: ${data.phone}\n📍 Location: ${data.location}\n📅 Date: ${data.date}\n⏰ Time: ${data.time}\n💻 Medium: ${data.medium || 'Not specified'}\n🏋️ Service: ${data.service || 'Not specified'}`
+          : `🎯 Free Trial Booking Request\n\n👤 Name: ${data.name}\n📧 Email: ${data.email}\n📞 Phone: ${data.phone}\n📍 Location: ${data.location}\n📅 Date: ${data.date}\n⏰ Time: ${data.time}`
       };
 
       console.log('📤 Sending booking request...');
@@ -929,7 +888,6 @@ document.addEventListener("visibilitychange", function () {
     }
   }
 
-  // ==================== HELPER FUNCTIONS ====================
   function showSuccess() {
     hideMessages();
     if (elements.successMsg) {
@@ -972,14 +930,12 @@ document.addEventListener("visibilitychange", function () {
     }
   }
 
-  // ==================== PUBLIC API ====================
   window.TrialModal = {
     open: openModal,
     close: closeModal,
     isOpen: () => state.isOpen
   };
 
-  // ==================== AUTO-INIT ====================
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -988,46 +944,55 @@ document.addEventListener("visibilitychange", function () {
 
 })();
 
-/* ==================== END FREE TRIAL MODAL SCRIPT ==================== */
+/* ==================== PERSONAL TRAINING SECTION SCRIPT ==================== */
 
+(function() {
+  'use strict';
 
-/*
-==================== SETUP INSTRUCTIONS ====================
+  function init() {
+    console.log('✅ Personal Training section loaded');
+    enhanceScrollBehavior();
+    trackCardInteractions();
+  }
 
-STEP 1: Get Web3Forms Access Key (2 minutes)
------------------------------------------------
-1. Visit: https://web3forms.com/
-2. Enter your email address
-3. Click "Get Access Key" (FREE)
-4. Check your email for the access key
-5. Copy the access key
+  function enhanceScrollBehavior() {
+    const ptSection = document.getElementById('personal-training');
+    
+    if (!ptSection) return;
 
-STEP 2: Update Configuration
------------------------------
-1. Find line: accessKey: 'YOUR_WEB3FORMS_ACCESS_KEY'
-2. Replace with your actual key
-3. Change demoMode: true to demoMode: false
+    const hash = window.location.hash;
+    if (hash === '#personal-training') {
+      setTimeout(() => {
+        ptSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }
 
-DEMO MODE:
-----------
-- Works out of the box for testing
-- Shows success message but doesn't send email
-- Check browser console for form data
-- Perfect for UI/UX testing
+  function trackCardInteractions() {
+    const cards = document.querySelectorAll('.pt-card');
+    
+    cards.forEach((card, index) => {
+      card.addEventListener('mouseenter', function() {
+        const cardTitle = card.querySelector('.pt-card-title')?.textContent;
+        console.log(`User viewing: ${cardTitle}`);
+      });
+    });
 
-TESTING CHECKLIST:
-------------------
-✅ Button click opens modal
-✅ ESC key closes modal
-✅ Overlay click closes modal
-✅ Close button works
-✅ All form fields required
-✅ Email validation works
-✅ Phone validation works
-✅ Date picker shows (no Sundays)
-✅ Time slots display correctly
-✅ Form submission works
-✅ Success message appears
-✅ Auto-close after success
+    const ctaButton = document.querySelector('.pt-btn');
+    if (ctaButton) {
+      ctaButton.addEventListener('click', function() {
+        console.log('Personal Training CTA clicked');
+      });
+    }
+  }
 
-*/
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
