@@ -417,6 +417,13 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
         </div>
       </div>
     </div>
+    <!-- Add this before </section> closing tag -->
+<div class="google-reviews-cta">
+  <a href="https://www.google.com/maps/place/Grip%26Grab+Fitness/@28.5736719,77.238414,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce3b8fc6867db:0x676b25f713a2cc76!8m2!3d28.5736719!4d77.238414!16s%2Fg%2F11t31327fv?entry=ttu&g_ep=EgoyMDI1MTAyMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" class="google-review-btn">
+    <span>See What People Say About Us On Google</span>
+    <i class="fab fa-google"></i>
+  </a>
+</div>
   </section>
 
   <!-- Pricing Section -->
@@ -796,191 +803,196 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 
 
 
-<!-- ==================== FREE TRIAL MODAL ==================== -->
-<div class="trial-modal" id="trialModal" role="dialog" aria-modal="true" aria-labelledby="trialModalTitle">
-  <div class="trial-modal__overlay" aria-hidden="true"></div>
+
+
+
+
+
+
+ <!-- ============================================
+     GRIP AND GRAB - WORKSHOP SECTION
+     Isolated Component with gmw- prefix
+     ============================================
+
+<section class="gmw-workshop-section" id="gmwWorkshopSection">
+  <div class="gmw-section-header">
+    <h1 class="gmw-section-title">MOVEMENT MASTERY WORKSHOPS</h1>
+    <p class="gmw-section-subtitle">Learn. Move. Transform.</p>
+  </div>
+
+  <div class="gmw-workshop-container">
+    
+    <div class="gmw-video-wrapper">
+      <iframe 
+        class="gmw-video-iframe"
+        src="https://www.youtube.com/embed/SSnNFt_CqLc?rel=0&modestbranding=1" 
+        title="Lower Back Pain Workshop Preview"
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <div class="gmw-content-wrapper">
+      <div class="gmw-content-inner">
+        <h2 class="gmw-workshop-title">Tired of Lower Back Pain?</h2>
+        
+        <p class="gmw-workshop-description">
+          Join our comprehensive <strong>Lower Back Pain Workshop</strong> and discover evidence-based movement strategies to alleviate discomfort and build lasting strength. This hands-on session will guide you through proper movement mechanics, mobility exercises, and strengthening techniques specifically designed for lower back health.
+          <br><br>
+          <strong>Workshop Details:</strong><br>
+          📅 <strong>Date:</strong> 15th November 2025<br>
+          📍 <strong>Location:</strong> Delhi, Saket<br>
+          ⏰ <strong>Time:</strong> 11:00 AM - 2:00 PM<br>
+          💰 <strong>Registration Fee:</strong> ₹499 only<br>
+          <br>
+          Limited seats available. Secure your spot today and take the first step toward a pain-free life!
+        </p>
+
+        <button class="gmw-cta-button" id="gmwRegisterBtn" aria-label="Register for workshop">
+          Register Now
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="gmw-modal" id="gmwModal" role="dialog" aria-modal="true" aria-labelledby="gmwModalTitle">
+  <div class="gmw-modal-overlay" id="gmwModalOverlay"></div>
   
-  <div class="trial-modal__container">
-    <!-- Close Button -->
-    <button class="trial-modal__close" type="button" aria-label="Close booking form">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="gmw-modal-container">
+    <button class="gmw-modal-close" id="gmwModalClose" aria-label="Close modal">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
 
-    <!-- Modal Content -->
-    <div class="trial-modal__content">
-      <!-- Icon -->
-      <div class="trial-modal__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-        </svg>
+    <div class="gmw-modal-header">
+      <h3 class="gmw-modal-title" id="gmwModalTitle">Workshop Registration</h3>
+      <p class="gmw-modal-subtitle">Lower Back Pain Workshop</p>
+    </div>
+
+    <form class="gmw-form" id="gmwRegistrationForm" novalidate>
+      
+      <div class="gmw-form-group">
+        <label for="gmwFirstName" class="gmw-form-label">First Name</label>
+        <input 
+          type="text" 
+          id="gmwFirstName" 
+          name="firstName"
+          class="gmw-form-input" 
+          placeholder="Enter your first name"
+          required
+          autocomplete="given-name"
+        >
+        <span class="gmw-form-error" id="gmwFirstNameError"></span>
       </div>
 
-      <!-- Title -->
-      <h2 class="trial-modal__title" id="trialModalTitle">Book Your Free Trial</h2>
-      <p class="trial-modal__subtitle">Experience Grip & Grab for free. Choose your preferred location and time slot.</p>
+      <div class="gmw-form-group">
+        <label for="gmwLastName" class="gmw-form-label">Last Name</label>
+        <input 
+          type="text" 
+          id="gmwLastName" 
+          name="lastName"
+          class="gmw-form-input" 
+          placeholder="Enter your last name"
+          required
+          autocomplete="family-name"
+        >
+        <span class="gmw-form-error" id="gmwLastNameError"></span>
+      </div>
 
-      <!-- Form -->
-      <form class="trial-form" id="trialForm" novalidate>
-        <!-- Name Field -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialName">Full Name <span class="trial-form__required">*</span></label>
-          <input 
-            type="text" 
-            id="trialName" 
-            name="name" 
-            class="trial-form__input" 
-            placeholder="Enter your name"
-            required 
-            autocomplete="name"
-          />
-        </div>
+      <div class="gmw-form-group">
+        <label for="gmwEmail" class="gmw-form-label">Email Address</label>
+        <input 
+          type="email" 
+          id="gmwEmail" 
+          name="email"
+          class="gmw-form-input" 
+          placeholder="your.email@example.com"
+          required
+          autocomplete="email"
+        >
+        <span class="gmw-form-error" id="gmwEmailError"></span>
+      </div>
 
-        <!-- Email Field -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialEmail">Email Address <span class="trial-form__required">*</span></label>
-          <input 
-            type="email" 
-            id="trialEmail" 
-            name="email" 
-            class="trial-form__input" 
-            placeholder="your.email@example.com"
-            required 
-            autocomplete="email"
-          />
-        </div>
+      <div class="gmw-form-group">
+        <label for="gmwPhone" class="gmw-form-label">Phone Number</label>
+        <input 
+          type="tel" 
+          id="gmwPhone" 
+          name="phone"
+          class="gmw-form-input" 
+          placeholder="+91 98765 43210"
+          required
+          autocomplete="tel"
+          pattern="[0-9+\s-]+"
+        >
+        <span class="gmw-form-error" id="gmwPhoneError"></span>
+      </div>
 
-        <!-- Phone Field -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialPhone">Contact Number <span class="trial-form__required">*</span></label>
-          <input 
-            type="tel" 
-            id="trialPhone" 
-            name="phone" 
-            class="trial-form__input" 
-            placeholder="+91 98765 43210"
-            pattern="[0-9+\s-]{10,15}"
-            required 
-            autocomplete="tel"
-          />
-        </div>
+      <div class="gmw-form-group">
+        <label for="gmwWorkshopDate" class="gmw-form-label">Workshop Date</label>
+        <select 
+          id="gmwWorkshopDate" 
+          name="workshopDate"
+          class="gmw-form-select" 
+          required
+        >
+          <option value="">Select a workshop date</option>
+          <option value="15th November 2025 - Delhi, Saket">15th November 2025 - Delhi, Saket</option>
+        </select>
+        <span class="gmw-form-error" id="gmwWorkshopDateError"></span>
+      </div>
 
-        <!-- Location Dropdown -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialLocation">Preferred Location <span class="trial-form__required">*</span></label>
-          <div class="trial-form__select-wrapper">
-            <select id="trialLocation" name="location" class="trial-form__select" required>
-              <option value="" disabled selected>Select location</option>
-              <option value="Saket">Saket - 241, Westend Marg</option>
-              <option value="Lajpat Nagar">Lajpat Nagar - B-32, 3rd Floor</option>
-            </select>
-            <svg class="trial-form__select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-        </div>
+      <div class="gmw-form-checkbox-group">
+        <input 
+          type="checkbox" 
+          id="gmwTerms" 
+          name="terms"
+          class="gmw-form-checkbox"
+          required
+        >
+        <label for="gmwTerms" class="gmw-form-checkbox-label">
+          I agree to the <a href="#" class="gmw-form-link">terms and conditions</a>
+        </label>
+        <span class="gmw-form-error" id="gmwTermsError"></span>
+      </div>
 
-        <!-- Date Picker -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialDate">Preferred Date <span class="trial-form__required">*</span></label>
-          <input 
-            type="date" 
-            id="trialDate" 
-            name="date" 
-            class="trial-form__input trial-form__input--date" 
-            required
-            min=""
-          />
-          <small class="trial-form__hint">Note: Sundays are closed</small>
-        </div>
+      <button type="submit" class="gmw-form-submit" id="gmwSubmitBtn">
+        Confirm Registration - ₹499
+      </button>
 
-        <!-- Time Slot -->
-        <div class="trial-form__group">
-          <label class="trial-form__label" for="trialTime">Preferred Time Slot <span class="trial-form__required">*</span></label>
-          <div class="trial-form__select-wrapper">
-            <select id="trialTime" name="time" class="trial-form__select" required>
-              <option value="" disabled selected>Select time slot</option>
-              <optgroup label="Morning Sessions">
-                <option value="7:00 AM - 8:00 AM">7:00 AM - 8:00 AM</option>
-                <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
-                <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
-                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-              </optgroup>
-              <optgroup label="Evening Sessions">
-                <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
-                <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
-                <option value="7:00 PM - 8:00 PM">7:00 PM - 8:00 PM</option>
-                <option value="8:00 PM - 9:00 PM">8:00 PM - 9:00 PM</option>
-              </optgroup>
-            </select>
-            <svg class="trial-form__select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-        </div>
+      <p class="gmw-form-info">
+        By registering, you'll receive a confirmation email with workshop details and venue information.
+      </p>
 
-           <!-- Preferred Medium (Hidden by default, shown for PT only) -->
-        <div class="trial-form__group" style="display: none;">
-          <label class="trial-form__label">Preferred Medium <span class="trial-form__required">*</span></label>
-          <div class="trial-form__radio-group">
-            <label class="trial-form__radio">
-              <input type="radio" name="medium" value="Online">
-              <span class="trial-form__radio-label">Online</span>
-            </label>
-            <label class="trial-form__radio">
-              <input type="radio" name="medium" value="Offline (In-person)">
-              <span class="trial-form__radio-label">Offline (In-person)</span>
-            </label>
-          </div>
-        </div>
+    </form>
 
-
-        <!-- Service You Need (Hidden by default, shown for PT only) -->
-        <div class="trial-form__group" style="display: none;">
-          <label class="trial-form__label" for="trialService">Service You Need <span class="trial-form__required">*</span></label>
-          <div class="trial-form__select-wrapper">
-            <select id="trialService" name="service" class="trial-form__select">
-              <option value="" disabled selected>Select service</option>
-            </select>
-            <svg class="trial-form__select-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="trial-form__submit">
-          <span class="trial-form__submit-text">Confirm Booking</span>
-          <span class="trial-form__submit-loader" aria-hidden="true"></span>
-        </button>
-
-        <!-- Success Message -->
-        <div class="trial-form__message trial-form__message--success" id="trialSuccess" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <span>Booking confirmed! We'll contact you within 24 hours.</span>
-        </div>
-
-        <!-- Error Message -->
-        <div class="trial-form__message trial-form__message--error" id="trialError" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <span>Something went wrong. Please try again or call us at +91-9971250050.</span>
-        </div>
-      </form>
+    <div class="gmw-success-message" id="gmwSuccessMessage">
+      <div class="gmw-success-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 12l2 2 4-4"></path>
+        </svg>
+      </div>
+      <h4 class="gmw-success-title">Registration Successful!</h4>
+      <p class="gmw-success-text">
+        Thank you for registering! A confirmation email with workshop details has been sent to your email address.
+      </p>
+      <button class="gmw-success-button" id="gmwSuccessClose">Close</button>
     </div>
+
   </div>
 </div>
-<!-- ==================== END FREE TRIAL MODAL ==================== -->
 
-
- <script src="script.js?v=20251022"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+-->
+<script src="script.js?v=20251022"></script>
 
 </body>
 </html>
+

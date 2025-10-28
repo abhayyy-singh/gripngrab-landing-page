@@ -996,3 +996,789 @@ document.addEventListener("visibilitychange", function () {
   }
 
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================
+   GRIP AND GRAB - WORKSHOP REGISTRATION
+   Isolated JavaScript Module with gmw- prefix
+   ============================================ */
+
+(function() {
+  'use strict';
+
+  /* ============================================
+     CONFIGURATION
+     ============================================ */
+  const CONFIG = {
+    // EmailJS Configuration
+    emailJS: {
+      serviceId: 'harish@teamgng',
+      templateId: 'template_1k0fnrn', // TODO: Add your EmailJS template ID
+      publicKey: 'wwGXMDT6ekGDIkKNg',
+      recipientEmail: 'haristhenics06@gmail.com'
+    },
+    
+    // Razorpay Configuration
+    razorpay: {
+      keyId: 'YOUR_RAZORPAY_KEY_ID', // TODO: Add your Razorpay Key ID after setup
+      amount: 49900, // Amount in paise (₹499)
+      currency: 'INR',
+      name: 'Grip and Grab',
+      description: 'Lower Back Pain Workshop Registration',
+      image: 'https://yourdomain.com/logo.png', // Optional: Add your logo URL
+      theme: {
+        color: '#2a2a2a'
+      }
+    },
+    
+    // Workshop Details
+    workshop: {
+      title: 'Lower Back Pain Workshop',
+      date: '15th November 2025',
+      time: '11:00 AM - 2:00 PM',
+      location: 'Delhi, Saket',
+      venue: '241, 2nd Floor, Westend Marg\nNear Garden of Five Senses\nMittal Garden, Saket\nNew Delhi, Delhi 110030',
+      amount: '₹499',
+      businessName: 'Grip and Grab'
+    },
+    
+    // LocalStorage Key
+    storageKey: 'gmw_workshop_registrations'
+  };
+
+  /* ============================================
+     DOM ELEMENTS
+     ============================================ */
+  const elements = {
+    registerBtn: document.getElementById('gmwRegisterBtn'),
+    modal: document.getElementById('gmwModal'),
+    modalOverlay: document.getElementById('gmwModalOverlay'),
+    modalClose: document.getElementById('gmwModalClose'),
+    form: document.getElementById('gmwRegistrationForm'),
+    successMessage: document.getElementById('gmwSuccessMessage'),
+    successClose: document.getElementById('gmwSuccessClose'),
+    
+    // Form Inputs
+    firstName: document.getElementById('gmwFirstName'),
+    lastName: document.getElementById('gmwLastName'),
+    email: document.getElementById('gmwEmail'),
+    phone: document.getElementById('gmwPhone'),
+    workshopDate: document.getElementById('gmwWorkshopDate'),
+    terms: document.getElementById('gmwTerms'),
+    submitBtn: document.getElementById('gmwSubmitBtn'),
+    
+    // Error Spans
+    firstNameError: document.getElementById('gmwFirstNameError'),
+    lastNameError: document.getElementById('gmwLastNameError'),
+    emailError: document.getElementById('gmwEmailError'),
+    phoneError: document.getElementById('gmwPhoneError'),
+    workshopDateError: document.getElementById('gmwWorkshopDateError'),
+    termsError: document.getElementById('gmwTermsError')
+  };
+
+  /* ============================================
+     UTILITY FUNCTIONS
+     ============================================ */
+  
+  // Generate unique registration ID
+  function generateRegistrationId() {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    return `GMW-${timestamp}-${random}`.toUpperCase();
+  }
+  
+  // Get current date and time
+  function getCurrentDateTime() {
+    const now = new Date();
+    const date = now.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+    const time = now.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    return { date, time, timestamp: now.toISOString() };
+  }
+  
+  // Validate email format
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+  
+  // Validate phone number (Indian format)
+  function isValidPhone(phone) {
+    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  }
+
+  /* ============================================
+     MODAL FUNCTIONS
+     ============================================ */
+  
+  function openModal() {
+    elements.modal.classList.add('gmw-modal--active');
+    document.body.style.overflow = 'hidden';
+    // Reset form when opening
+    resetForm();
+  }
+  
+  function closeModal() {
+    elements.modal.classList.remove('gmw-modal--active');
+    document.body.style.overflow = '';
+  }
+  
+  function showSuccessMessage() {
+    elements.form.style.display = 'none';
+    elements.successMessage.classList.add('gmw-success-message--visible');
+  }
+  
+  function resetForm() {
+    elements.form.reset();
+    elements.form.style.display = 'flex';
+    elements.successMessage.classList.remove('gmw-success-message--visible');
+    clearAllErrors();
+  }
+
+  /* ============================================
+     VALIDATION FUNCTIONS
+     ============================================ */
+  
+  function showError(input, errorElement, message) {
+    input.classList.add('gmw-form-input--error');
+    errorElement.textContent = message;
+    errorElement.classList.add('gmw-form-error--visible');
+  }
+  
+  function clearError(input, errorElement) {
+    input.classList.remove('gmw-form-input--error', 'gmw-form-select--error');
+    errorElement.textContent = '';
+    errorElement.classList.remove('gmw-form-error--visible');
+  }
+  
+  function clearAllErrors() {
+    const inputs = [
+      elements.firstName,
+      elements.lastName,
+      elements.email,
+      elements.phone,
+      elements.workshopDate
+    ];
+    const errors = [
+      elements.firstNameError,
+      elements.lastNameError,
+      elements.emailError,
+      elements.phoneError,
+      elements.workshopDateError,
+      elements.termsError
+    ];
+    
+    inputs.forEach((input, index) => clearError(input, errors[index]));
+  }
+  
+  function validateForm() {
+    let isValid = true;
+    clearAllErrors();
+    
+    // Validate First Name
+    if (elements.firstName.value.trim() === '') {
+      showError(elements.firstName, elements.firstNameError, 'First name is required');
+      isValid = false;
+    } else if (elements.firstName.value.trim().length < 2) {
+      showError(elements.firstName, elements.firstNameError, 'First name must be at least 2 characters');
+      isValid = false;
+    }
+    
+    // Validate Last Name
+    if (elements.lastName.value.trim() === '') {
+      showError(elements.lastName, elements.lastNameError, 'Last name is required');
+      isValid = false;
+    } else if (elements.lastName.value.trim().length < 2) {
+      showError(elements.lastName, elements.lastNameError, 'Last name must be at least 2 characters');
+      isValid = false;
+    }
+    
+    // Validate Email
+    if (elements.email.value.trim() === '') {
+      showError(elements.email, elements.emailError, 'Email address is required');
+      isValid = false;
+    } else if (!isValidEmail(elements.email.value.trim())) {
+      showError(elements.email, elements.emailError, 'Please enter a valid email address');
+      isValid = false;
+    }
+    
+    // Validate Phone
+    if (elements.phone.value.trim() === '') {
+      showError(elements.phone, elements.phoneError, 'Phone number is required');
+      isValid = false;
+    } else if (!isValidPhone(elements.phone.value.trim())) {
+      showError(elements.phone, elements.phoneError, 'Please enter a valid phone number');
+      isValid = false;
+    }
+    
+    // Validate Workshop Date
+    if (elements.workshopDate.value === '') {
+      showError(elements.workshopDate, elements.workshopDateError, 'Please select a workshop date');
+      elements.workshopDate.classList.add('gmw-form-select--error');
+      isValid = false;
+    }
+    
+    // Validate Terms
+    if (!elements.terms.checked) {
+      showError(elements.terms, elements.termsError, 'You must agree to the terms and conditions');
+      isValid = false;
+    }
+    
+    return isValid;
+  }
+
+  /* ============================================
+     LOCAL STORAGE FUNCTIONS
+     ============================================ */
+  
+  function saveRegistration(registrationData) {
+    try {
+      // Get existing registrations
+      const existingData = localStorage.getItem(CONFIG.storageKey);
+      const registrations = existingData ? JSON.parse(existingData) : [];
+      
+      // Add new registration
+      registrations.push(registrationData);
+      
+      // Save back to localStorage
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify(registrations));
+      
+      console.log('✅ Registration saved to localStorage:', registrationData.registrationId);
+      return true;
+    } catch (error) {
+      console.error('❌ Error saving registration:', error);
+      return false;
+    }
+  }
+  
+  function getAllRegistrations() {
+    try {
+      const data = localStorage.getItem(CONFIG.storageKey);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('❌ Error retrieving registrations:', error);
+      return [];
+    }
+  }
+
+  /* ============================================
+     EXCEL EXPORT FUNCTION
+     ============================================ */
+  
+  function exportToExcel() {
+    const registrations = getAllRegistrations();
+    
+    if (registrations.length === 0) {
+      alert('No registrations to export');
+      return;
+    }
+    
+    // Create CSV content
+    const headers = [
+      'Registration ID',
+      'First Name',
+      'Last Name',
+      'Email',
+      'Phone Number',
+      'Workshop Date',
+      'Payment ID',
+      'Amount',
+      'Registration Date',
+      'Registration Time',
+      'Timestamp'
+    ];
+    
+    let csvContent = headers.join(',') + '\n';
+    
+    registrations.forEach(reg => {
+      const row = [
+        reg.registrationId,
+        reg.firstName,
+        reg.lastName,
+        reg.email,
+        reg.phone,
+        reg.workshopDate,
+        reg.paymentId || 'N/A',
+        reg.amount,
+        reg.registrationDate,
+        reg.registrationTime,
+        reg.timestamp
+      ];
+      csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `GMW_Registrations_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log(`✅ Exported ${registrations.length} registrations to Excel`);
+  }
+  
+  // Expose export function to window for admin use
+  window.gmwExportRegistrations = exportToExcel;
+
+  /* ============================================
+     RAZORPAY PAYMENT INTEGRATION
+     ============================================ */
+  
+  function initiatePayment(formData) {
+    // Check if Razorpay is loaded
+    if (typeof Razorpay === 'undefined') {
+      alert('Payment gateway not loaded. Please refresh the page and try again.');
+      console.error('❌ Razorpay SDK not loaded');
+      return;
+    }
+    
+    // Check if Razorpay Key is configured
+    if (CONFIG.razorpay.keyId === 'YOUR_RAZORPAY_KEY_ID') {
+      alert('Payment gateway not configured yet. Please contact support.');
+      console.error('❌ Razorpay Key ID not configured');
+      return;
+    }
+    
+    const options = {
+      key: CONFIG.razorpay.keyId,
+      amount: CONFIG.razorpay.amount,
+      currency: CONFIG.razorpay.currency,
+      name: CONFIG.razorpay.name,
+      description: CONFIG.razorpay.description,
+      image: CONFIG.razorpay.image,
+      
+      // Prefill user data
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        contact: formData.phone
+      },
+      
+      theme: CONFIG.razorpay.theme,
+      
+      // Payment Success Handler
+      handler: function(response) {
+        console.log('✅ Payment Successful:', response);
+        handlePaymentSuccess(formData, response.razorpay_payment_id);
+      },
+      
+      // Payment Modal Closed
+      modal: {
+        ondismiss: function() {
+          console.log('⚠️ Payment cancelled by user');
+          elements.submitBtn.disabled = false;
+          elements.submitBtn.textContent = 'Confirm Registration - ₹499';
+        }
+      }
+    };
+    
+    const razorpayInstance = new Razorpay(options);
+    
+    // Handle payment failure
+    razorpayInstance.on('payment.failed', function(response) {
+      console.error('❌ Payment Failed:', response.error);
+      alert(`Payment failed: ${response.error.description}`);
+      elements.submitBtn.disabled = false;
+      elements.submitBtn.textContent = 'Confirm Registration - ₹499';
+    });
+    
+    razorpayInstance.open();
+  }
+
+  /* ============================================
+     PAYMENT SUCCESS HANDLER
+     ============================================ */
+  
+  function handlePaymentSuccess(formData, paymentId) {
+    const { date, time, timestamp } = getCurrentDateTime();
+    const registrationId = generateRegistrationId();
+    
+    // Prepare registration data
+    const registrationData = {
+      registrationId: registrationId,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      workshopDate: formData.workshopDate,
+      paymentId: paymentId,
+      amount: CONFIG.workshop.amount,
+      registrationDate: date,
+      registrationTime: time,
+      timestamp: timestamp
+    };
+    
+    // Save to localStorage
+    saveRegistration(registrationData);
+    
+    // Send confirmation email
+    sendConfirmationEmail(registrationData);
+    
+    // Show success message
+    showSuccessMessage();
+    
+    // Re-enable submit button
+    elements.submitBtn.disabled = false;
+    elements.submitBtn.textContent = 'Confirm Registration - ₹499';
+    
+    console.log('✅ Registration completed:', registrationId);
+  }
+
+  /* ============================================
+     EMAILJS INTEGRATION
+     ============================================ */
+  
+  function sendConfirmationEmail(registrationData) {
+    // Check if EmailJS is loaded
+    if (typeof emailjs === 'undefined') {
+      console.error('❌ EmailJS not loaded');
+      return;
+    }
+    
+    // Check if Template ID is configured
+    if (CONFIG.emailJS.templateId === 'YOUR_EMAILJS_TEMPLATE_ID') {
+      console.error('❌ EmailJS Template ID not configured');
+      alert('Email confirmation service not configured. Please contact support.');
+      return;
+    }
+    
+    // Prepare email parameters
+    const emailParams = {
+      to_email: registrationData.email,
+      to_name: `${registrationData.firstName} ${registrationData.lastName}`,
+      registration_id: registrationData.registrationId,
+      workshop_title: CONFIG.workshop.title,
+      workshop_date: CONFIG.workshop.date,
+      workshop_time: CONFIG.workshop.time,
+      workshop_location: CONFIG.workshop.location,
+      workshop_venue: CONFIG.workshop.venue,
+      amount_paid: registrationData.amount,
+      payment_id: registrationData.paymentId,
+      registration_date: registrationData.registrationDate,
+      registration_time: registrationData.registrationTime,
+      business_name: CONFIG.workshop.businessName,
+      recipient_email: CONFIG.emailJS.recipientEmail
+    };
+    
+    // Send email using EmailJS
+    emailjs.send(
+      CONFIG.emailJS.serviceId,
+      CONFIG.emailJS.templateId,
+      emailParams,
+      CONFIG.emailJS.publicKey
+    )
+    .then(function(response) {
+      console.log('✅ Confirmation email sent successfully:', response.status);
+    })
+    .catch(function(error) {
+      console.error('❌ Failed to send confirmation email:', error);
+      // Don't show error to user as registration is already complete
+    });
+  }
+
+  /* ============================================
+     FORM SUBMIT HANDLER
+     ============================================ */
+  
+  function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    // Validate form
+    if (!validateForm()) {
+      console.log('⚠️ Form validation failed');
+      return;
+    }
+    
+    // Collect form data
+    const formData = {
+      firstName: elements.firstName.value.trim(),
+      lastName: elements.lastName.value.trim(),
+      email: elements.email.value.trim(),
+      phone: elements.phone.value.trim(),
+      workshopDate: elements.workshopDate.value
+    };
+    
+    // Disable submit button
+    elements.submitBtn.disabled = true;
+    elements.submitBtn.textContent = 'Processing...';
+    
+    // Initiate payment
+    initiatePayment(formData);
+  }
+
+  /* ============================================
+     EVENT LISTENERS
+     ============================================ */
+  
+  function initEventListeners() {
+    // Open modal
+    if (elements.registerBtn) {
+      elements.registerBtn.addEventListener('click', openModal);
+    }
+    
+    // Close modal
+    if (elements.modalClose) {
+      elements.modalClose.addEventListener('click', closeModal);
+    }
+    
+    if (elements.modalOverlay) {
+      elements.modalOverlay.addEventListener('click', closeModal);
+    }
+    
+    // Close success message
+    if (elements.successClose) {
+      elements.successClose.addEventListener('click', closeModal);
+    }
+    
+    // Form submit
+    if (elements.form) {
+      elements.form.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Real-time validation on blur
+    if (elements.firstName) {
+      elements.firstName.addEventListener('blur', function() {
+        if (this.value.trim() !== '') {
+          clearError(this, elements.firstNameError);
+        }
+      });
+    }
+    
+    if (elements.lastName) {
+      elements.lastName.addEventListener('blur', function() {
+        if (this.value.trim() !== '') {
+          clearError(this, elements.lastNameError);
+        }
+      });
+    }
+    
+    if (elements.email) {
+      elements.email.addEventListener('blur', function() {
+        if (isValidEmail(this.value.trim())) {
+          clearError(this, elements.emailError);
+        }
+      });
+    }
+    
+    if (elements.phone) {
+      elements.phone.addEventListener('blur', function() {
+        if (isValidPhone(this.value.trim())) {
+          clearError(this, elements.phoneError);
+        }
+      });
+    }
+    
+    if (elements.workshopDate) {
+      elements.workshopDate.addEventListener('change', function() {
+        if (this.value !== '') {
+          clearError(this, elements.workshopDateError);
+        }
+      });
+    }
+    
+    if (elements.terms) {
+      elements.terms.addEventListener('change', function() {
+        if (this.checked) {
+          clearError(this, elements.termsError);
+        }
+      });
+    }
+    
+    // ESC key to close modal
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && elements.modal.classList.contains('gmw-modal--active')) {
+        closeModal();
+      }
+    });
+  }
+
+  /* ============================================
+     INITIALIZATION
+     ============================================ */
+  
+  function init() {
+    console.log('🚀 GMW Workshop Registration Initialized');
+    
+    // Initialize EmailJS
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init(CONFIG.emailJS.publicKey);
+      console.log('✅ EmailJS initialized');
+    } else {
+      console.warn('⚠️ EmailJS not loaded. Please include EmailJS SDK.');
+    }
+    
+    // Check Razorpay SDK
+    if (typeof Razorpay === 'undefined') {
+      console.warn('⚠️ Razorpay SDK not loaded. Please include: https://checkout.razorpay.com/v1/checkout.js');
+    } else {
+      console.log('✅ Razorpay SDK loaded');
+    }
+    
+    // Initialize event listeners
+    initEventListeners();
+    
+    // Log admin functions
+    console.log('📊 Admin Functions:');
+    console.log('  - Export registrations: window.gmwExportRegistrations()');
+    console.log('  - View registrations: localStorage.getItem("gmw_workshop_registrations")');
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* ============================================
+     RAZORPAY SETUP INSTRUCTIONS
+     ============================================ 
+     
+     1. CREATE RAZORPAY ACCOUNT:
+        - Visit: https://razorpay.com/
+        - Sign up for a free account
+        - Complete KYC verification
+     
+     2. GET API KEYS:
+        - Go to Dashboard → Settings → API Keys
+        - Generate Test/Live keys
+        - Copy "Key ID" (starts with rzp_test_ or rzp_live_)
+        - Update CONFIG.razorpay.keyId above
+     
+     3. ADD RAZORPAY SDK:
+        Add this script BEFORE gmw-workshop.js in your HTML:
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+     
+     4. TESTING:
+        - Use Test Mode keys for development
+        - Test card: 4111 1111 1111 1111
+        - Any future expiry date & CVV
+     
+     5. GO LIVE:
+        - Replace Test Key with Live Key
+        - Complete activation process in Razorpay Dashboard
+     
+     ============================================ */
+
+  /* ============================================
+     EMAILJS TEMPLATE SETUP
+     ============================================ 
+     
+     1. CREATE EMAIL TEMPLATE:
+        - Go to: https://dashboard.emailjs.com/
+        - Click "Email Templates" → "Create New Template"
+        - Template ID: Copy and update CONFIG.emailJS.templateId
+     
+     2. TEMPLATE CONTENT (Example):
+        
+        Subject: Workshop Registration Confirmed - {{registration_id}}
+        
+        Body:
+        Dear {{to_name}},
+        
+        Thank you for registering for the {{workshop_title}}!
+        
+        REGISTRATION DETAILS:
+        Registration ID: {{registration_id}}
+        Payment ID: {{payment_id}}
+        Amount Paid: {{amount_paid}}
+        
+        WORKSHOP DETAILS:
+        Title: {{workshop_title}}
+        Date: {{workshop_date}}
+        Time: {{workshop_time}}
+        Location: {{workshop_location}}
+        
+        VENUE:
+        {{workshop_venue}}
+        
+        Please arrive 15 minutes before the workshop starts.
+        
+        Best regards,
+        {{business_name}} Team
+     
+     3. TEMPLATE VARIABLES (must match emailParams):
+        - {{to_email}}
+        - {{to_name}}
+        - {{registration_id}}
+        - {{workshop_title}}
+        - {{workshop_date}}
+        - {{workshop_time}}
+        - {{workshop_location}}
+        - {{workshop_venue}}
+        - {{amount_paid}}
+        - {{payment_id}}
+        - {{registration_date}}
+        - {{registration_time}}
+        - {{business_name}}
+     
+     4. ADD EMAILJS SDK:
+        Add this script BEFORE gmw-workshop.js in your HTML:
+        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+     
+     ============================================ */
+
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+

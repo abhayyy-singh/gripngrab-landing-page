@@ -3889,6 +3889,78 @@ body {
   display: none;
 }
 
+/* Google Reviews CTA Button */
+.google-reviews-cta {
+  text-align: center;
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding: 0 2vw;
+}
+
+.google-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  padding: clamp(1rem, 3vw, 1.25rem) clamp(2rem, 5vw, 3rem);
+  background: linear-gradient(135deg, #ff6b6b, #f7d794);
+  color: #fff;
+  font-size: clamp(0.95rem, 2.5vw, 1.125rem);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: clamp(3rem, 8vw, 4rem);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0.5rem 1.5rem rgba(255, 107, 107, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.google-review-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f7d794, #ff6b6b);
+  transition: left 0.4s ease;
+  z-index: -1;
+}
+
+.google-review-btn:hover::before {
+  left: 0;
+}
+
+.google-review-btn:hover {
+  transform: translateY(-0.25rem) scale(1.02);
+  box-shadow: 0 1rem 2rem rgba(255, 107, 107, 0.4);
+}
+
+.google-review-btn i {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  transition: transform 0.3s ease;
+}
+
+.google-review-btn:hover i {
+  transform: rotate(360deg);
+}
+
+/* Tablet */
+@media (min-width: 48rem) {
+  .google-reviews-cta {
+    margin-top: clamp(4rem, 10vw, 6rem);
+  }
+}
+
+/* Desktop */
+@media (min-width: 64rem) {
+  .google-reviews-cta {
+    margin-top: clamp(5rem, 12vw, 7rem);
+  }
+  
+  .google-review-btn {
+    padding: 1.25rem 3.5rem;
+  }
+}
+
 .socials a i {
     transition: transform 0.3s ease;
 }
@@ -4952,15 +5024,619 @@ media screen and (max-width: 768px) {
 
 
 
-/* 
-media screen and (max-width: 768px) {
-    .image-bg img {
-        width: 100vw;
-        /* margin-bottom: 100px; */
-        position: relative;
-        bottom: 40px;
-        min-width: 550px;
-        /* max-width: 1000px; */
-    }
-} 
-*/
+
+
+
+
+
+
+
+/* ============================================
+   GRIP AND GRAB - WORKSHOP SECTION STYLES
+   Isolated with gmw- prefix
+   Mobile-First Responsive Design
+   ============================================ */
+
+/* ============================================
+   RESET & BASE STYLES (Scoped)
+   ============================================ */
+.gmw-workshop-section,
+.gmw-modal {
+  box-sizing: border-box;
+}
+
+.gmw-workshop-section *,
+.gmw-modal * {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================
+   SECTION CONTAINER
+   ============================================ */
+.gmw-workshop-section {
+  width: 100%;
+  background: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+  padding: 60px 20px;
+  font-family: 'Inter', 'Poppins', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle depth effect */
+.gmw-workshop-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================
+   SECTION HEADER
+   ============================================ */
+.gmw-section-header {
+  text-align: center;
+  margin-bottom: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.gmw-section-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gmw-section-subtitle {
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  color: #888888;
+  font-style: italic;
+}
+
+/* ============================================
+   WORKSHOP CONTAINER (Mobile First)
+   ============================================ */
+.gmw-workshop-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ============================================
+   VIDEO WRAPPER
+   ============================================ */
+.gmw-video-wrapper {
+  width: 100%;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  order: 2; /* Video comes after content on mobile */
+}
+
+.gmw-video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ============================================
+   CONTENT WRAPPER
+   ============================================ */
+.gmw-content-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  order: 1; /* Content comes first on mobile */
+}
+
+.gmw-content-inner {
+  width: 100%;
+}
+
+.gmw-workshop-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+.gmw-workshop-description {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #b0b0b0;
+  margin-bottom: 30px;
+}
+
+.gmw-workshop-description strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ============================================
+   CTA BUTTON
+   ============================================ */
+.gmw-cta-button {
+  display: inline-block;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.gmw-cta-button:hover {
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  border-color: #4a4a4a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.gmw-cta-button:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.gmw-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.gmw-modal.gmw-modal--active {
+  display: flex;
+}
+
+/* Modal Overlay */
+.gmw-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  transition: opacity 0.3s ease;
+}
+
+/* Modal Container */
+.gmw-modal-container {
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px 30px;
+  z-index: 10;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.gmw-modal.gmw-modal--active .gmw-modal-container {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Custom Scrollbar for Modal */
+.gmw-modal-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.gmw-modal-container::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 10px;
+}
+
+.gmw-modal-container::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 10px;
+}
+
+.gmw-modal-container::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}
+
+/* Close Button */
+.gmw-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #888888;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gmw-modal-close:hover {
+  background: #2a2a2a;
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Modal Header */
+.gmw-modal-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.gmw-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.gmw-modal-subtitle {
+  font-size: 14px;
+  color: #888888;
+  font-weight: 400;
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.gmw-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gmw-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gmw-form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+  letter-spacing: 0.5px;
+}
+
+.gmw-form-input,
+.gmw-form-select {
+  width: 100%;
+  padding: 14px 16px;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.gmw-form-input:focus,
+.gmw-form-select:focus {
+  border-color: #4a4a4a;
+  background: #121212;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.gmw-form-input::placeholder {
+  color: #555555;
+}
+
+/* Select Dropdown Arrow */
+.gmw-form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888888' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 45px;
+}
+
+/* Error Messages */
+.gmw-form-error {
+  font-size: 12px;
+  color: #ff4444;
+  display: none;
+  margin-top: -4px;
+}
+
+.gmw-form-error.gmw-form-error--visible {
+  display: block;
+}
+
+.gmw-form-input.gmw-form-input--error,
+.gmw-form-select.gmw-form-select--error {
+  border-color: #ff4444;
+}
+
+/* Checkbox Group */
+.gmw-form-checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.gmw-form-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #4a4a4a;
+  flex-shrink: 0;
+}
+
+.gmw-form-checkbox-label {
+  font-size: 13px;
+  color: #888888;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.gmw-form-link {
+  color: #b0b0b0;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.gmw-form-link:hover {
+  color: #ffffff;
+}
+
+/* Submit Button */
+.gmw-form-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+.gmw-form-submit:hover {
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  border-color: #4a4a4a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.gmw-form-submit:active {
+  transform: translateY(0);
+}
+
+.gmw-form-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Form Info */
+.gmw-form-info {
+  font-size: 12px;
+  color: #666666;
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 5px;
+}
+
+/* ============================================
+   SUCCESS MESSAGE
+   ============================================ */
+.gmw-success-message {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.gmw-success-message.gmw-success-message--visible {
+  display: block;
+}
+
+.gmw-success-icon {
+  margin-bottom: 20px;
+  color: #4caf50;
+}
+
+.gmw-success-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.gmw-success-text {
+  font-size: 15px;
+  color: #888888;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.gmw-success-button {
+  padding: 14px 40px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gmw-success-button:hover {
+  background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  border-color: #4a4a4a;
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .gmw-modal,
+  .gmw-modal-container,
+  .gmw-modal-close,
+  .gmw-cta-button,
+  .gmw-form-input,
+  .gmw-form-select,
+  .gmw-form-submit,
+  .gmw-success-button,
+  .gmw-form-link {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   TABLET RESPONSIVE (768px and up)
+   ============================================ */
+@media (min-width: 768px) {
+  .gmw-workshop-section {
+    padding: 80px 40px;
+  }
+
+  .gmw-section-title {
+    font-size: 42px;
+  }
+
+  .gmw-section-subtitle {
+    font-size: 18px;
+  }
+
+  .gmw-workshop-container {
+    gap: 50px;
+  }
+
+  .gmw-workshop-title {
+    font-size: 32px;
+  }
+
+  .gmw-workshop-description {
+    font-size: 17px;
+  }
+
+  .gmw-modal-container {
+    padding: 50px 40px;
+  }
+}
+
+/* ============================================
+   DESKTOP RESPONSIVE (1024px and up)
+   ============================================ */
+@media (min-width: 1024px) {
+  .gmw-workshop-section {
+    padding: 100px 60px;
+  }
+
+  .gmw-section-title {
+    font-size: 48px;
+  }
+
+  /* Split Layout for Desktop */
+  .gmw-workshop-container {
+    flex-direction: row;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .gmw-video-wrapper {
+    width: 50%;
+    flex-shrink: 0;
+    padding-bottom: 28.125%; /* Maintain 16:9 aspect ratio for 50% width */
+    order: 1; /* Video on left */
+  }
+
+  .gmw-content-wrapper {
+    width: 50%;
+    order: 2; /* Content on right */
+  }
+
+  .gmw-workshop-title {
+    font-size: 36px;
+  }
+
+  .gmw-workshop-description {
+    font-size: 18px;
+  }
+
+  .gmw-cta-button {
+    font-size: 17px;
+    padding: 18px 50px;
+  }
+}
+
+/* ============================================
+   LARGE DESKTOP (1440px and up)
+   ============================================ */
+@media (min-width: 1440px) {
+  .gmw-workshop-section {
+    padding: 120px 80px;
+  }
+
+  .gmw-section-title {
+    font-size: 56px;
+  }
+
+  .gmw-workshop-container {
+    gap: 80px;
+  }
+
+  .gmw-workshop-title {
+    font-size: 40px;
+  }
+}
