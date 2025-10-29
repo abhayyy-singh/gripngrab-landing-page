@@ -1446,8 +1446,10 @@
             </div>
           </div>
 
+
+          
           <!-- What to Bring Card -->
-          <div class="ggw-detail-card">
+          <!-- <div class="ggw-detail-card">
             <div class="ggw-detail-card-header">
               <div class="ggw-detail-icon">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1464,7 +1466,12 @@
               <p><strong>Water Bottle:</strong> Stay hydrated</p>
             </div>
           </div>
-        </div>
+        </div> -->
+
+
+
+
+
 
         <!-- Location Map & Contact -->
         <div class="ggw-location-map">
@@ -1690,15 +1697,16 @@
           submitBtn.disabled = true;
           submitBtn.textContent = "Processing...";
 
-          const formData = {
-            firstName: document.getElementById("firstName").value,
-            lastName: document.getElementById("lastName").value,
-            email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
-            workshopDate: "15th November 2025",
-            location: "Delhi, Saket",
-            fee: "₹1000",
-          };
+              const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        workshopDate: '16th November 2025',  // ✅ FIXED
+        location: 'Lajpat Nagar, Delhi',    // ✅ FIXED
+        fee: '₹1000'
+    };
+
           //rzp_live_RZDqqPc9XD0IjO
           try {
             // Razorpay Payment
@@ -1715,17 +1723,18 @@
                 );
 
                 const emailParams = {
-                  to_email: formData.email,
-                  to_name: `${formData.firstName} ${formData.lastName}`,
-                  from_name: "Grip & Grab",
-                  firstName: formData.firstName,
-                  lastName: formData.lastName,
-                  user_email: formData.email,
-                  phone: formData.phone,
-                  workshopDate: formData.workshopDate,
-                  location: formData.location,
-                  paymentId: response.razorpay_payment_id,
-                };
+    to_email: formData.email,
+    to_name: `${formData.firstName} ${formData.lastName}`,
+    from_name: 'Grip and Grab',
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    user_email: formData.email,
+    phone: formData.phone,
+    workshopDate: '16th November 2025',        // ✅ FIXED
+    location: 'Lajpat Nagar, Delhi',          // ✅ FIXED
+    amount: '₹1000',                           // ✅ ADDED
+    paymentId: response.razorpay_payment_id
+};
 
                 try {
                   // Email 1: User ko confirmation
