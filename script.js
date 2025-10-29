@@ -628,9 +628,23 @@ document.addEventListener("visibilitychange", function () {
 (function() {
   'use strict';
 
-  const CONFIG = {
-    accessKey:'ac6dfa83-49cf-4b5a-a983-1ac5e095dc37'
-  };
+ const CONFIG = {
+  accessKey: 'ac6dfa83-49cf-4b5a-a983-1ac5e095dc37',
+  
+  // EmailJS Configuration
+  emailJS: {
+    serviceId: 'harish@teamgng',
+    templateId: 'template_1k0fnrn',
+    publicKey: 'wwGXMDT6ekGDIkKNg',
+    recipientEmail: 'haristhenics06@gmail.com'
+  },
+  
+  // Razorpay Configuration
+  razorpay: {
+    keyId: 'rzp_live_RZDqaPc9XD0...', // Your Razorpay live key
+    amount: 49900 // ₹499 in paise
+  }
+};
 
   const state = {
     isOpen: false,
@@ -810,6 +824,8 @@ document.addEventListener("visibilitychange", function () {
     }
   }
 
+  
+
   async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -865,11 +881,12 @@ document.addEventListener("visibilitychange", function () {
       });
 
       const result = await response.json();
-
       console.log('📥 Response:', result);
 
       if (result.success) {
-        console.log('✅ Booking confirmed!');
+        console.log('✅ Booking confirmed in database!');
+        
+      
         showSuccess();
         elements.form.reset();
         
@@ -887,6 +904,13 @@ document.addEventListener("visibilitychange", function () {
       resetSubmitButton();
     }
   }
+
+
+
+
+
+
+
 
   function showSuccess() {
     hideMessages();
@@ -1648,6 +1672,7 @@ document.addEventListener("visibilitychange", function () {
   function init() {
     console.log('🚀 GMW Workshop Registration Initialized');
     
+     /* COMMENTED OUT - EmailJS now initialized in HTML head
     // Initialize EmailJS
     if (typeof emailjs !== 'undefined') {
       emailjs.init(CONFIG.emailJS.publicKey);
@@ -1655,6 +1680,8 @@ document.addEventListener("visibilitychange", function () {
     } else {
       console.warn('⚠️ EmailJS not loaded. Please include EmailJS SDK.');
     }
+    */
+
     
     // Check Razorpay SDK
     if (typeof Razorpay === 'undefined') {

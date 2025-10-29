@@ -63,6 +63,29 @@
    <!-- <link rel="stylesheet" href="style.css?v=20251022"> -->
     <link rel="stylesheet" href="./style.css">
     
+
+ 
+    <!-- ========== ADD THESE SCRIPTS - IMPORTANT ========== -->
+    
+    <!-- EmailJS SDK - For Email Functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      // Initialize EmailJS when page loads
+      (function(){
+        if (typeof emailjs !== 'undefined') {
+          emailjs.init('wwGXMDT6ekGDIkKNg'); // Your public key
+          console.log('✅ EmailJS loaded and initialized');
+        } else {
+          console.error('❌ EmailJS failed to load');
+        }
+      })();
+    </script>
+    
+    <!-- Razorpay SDK - For Payment Gateway -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+
     <!-- Structured Data (Schema.org) for Google Rich Results -->
     <script type="application/ld+json">
     {
@@ -183,6 +206,8 @@
       <a href="#timeline" onclick="scrollToSection('timeline')">Why Us?</a>
       <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
       <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
+      <a href="./try.html">Workshop</a>
+
     </div>
     <div class="nav-right">
       <button class="btn join" onclick="scrollToSection('pricing')">Join Now</button>
@@ -202,6 +227,8 @@
     <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
     <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
     <a href="#pricing" onclick="scrollToSection('pricing')">Join Now</a>
+    <a href="./try.html" onclick="toggleMobileMenu()">Workshop</a>
+
   </div>
 
   <!-- Hero Section -->
@@ -244,6 +271,8 @@
         At Grip&Grab, you're not just a member — you're part of a movement.
 
         Grip&Grab – Move Better. Live Stronger
+
+        <a href="./try.html" class="pt-btn"> Explore our Workshops</a>
       </p>
     </div>
 
@@ -426,6 +455,40 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 </div>
   </section>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <!-- Pricing Section -->
   <section class="pricing-section" id="pricing">
     <div class="pricing-container">
@@ -514,22 +577,69 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
           <button class="pricing-btn" onclick="redirectToPayment()">Experience Unmatched Transformation in One Year</button>
         </div>
 
+        <!-- Kids Fitness Plan -->
+<div class="pricing-card">
+  <div class="pricing-badge">For Young Champions</div>
+  <div class="pricing-header-card">
+    <h3>Kids Fitness</h3>
+  </div>
+  <div class="pricing-amount">
+    <span class="currency">₹</span>
+    <span class="price">5,000</span>
+    <span class="period">/month</span>
+  </div>
+  <div class="pricing-save">Mon, Wed, Fri Sessions</div>
+  
+  <div class="pricing-features">
+    <ul>
+      <li><i class="fas fa-check"></i> 4:00 PM - 5:00 PM</li>
+      <li><i class="fas fa-check"></i> 5:00 PM - 6:00 PM</li>
+    </ul>
+  </div>
+  
+  <button class="pricing-btn" onclick="redirectToPayment()">
+    Build Strong Foundations for Your Child
+  </button>
+</div>
+
+
       </div>
       
       <div class="pricing-footer">
         <p>All plans include access to both <a href="https://maps.app.goo.gl/J3rfKoqepiDsr1QW9" target="_blank" class="location-link">Lajpat Nagar</a> and <a href="https://maps.app.goo.gl/nZE5xFQWnohzjvSE6" target="_blank" class="location-link">Saket</a> locations</p>
         <div class="pricing-contact">
   <button class="trial-modal-trigger" data-trial-trigger aria-label="Book your free trial session">
-    <span class="trial-modal-trigger__text" data-form-type="free-trial">Book Your Free Trial</span>
-    <svg class="trial-modal-trigger__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-    </svg>
-  </button>
+  Book Your Free Trial
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+  </svg>
+</button>
+
 </div>
 
       </div>
     </div>
   </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -750,6 +860,12 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
         <i class="fas fa-phone"></i>
         Call Us
       </a>
+
+        <!-- Workshop CTA Button -->
+    <a href="./try.html" class="fbtn joinus" style="background: linear-gradient(135deg, #ff6b6b, #f7d794); color: #000; margin-bottom: 30px; display: inline-block; text-decoration: none;">
+        <i class="fas fa-users"></i> Join Our Latest Workshop
+    </a>
+
 
       <!-- Map Section -->
       <div class="map-section">
@@ -990,7 +1106,211 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
--->
+ -->
+
+<!-- FREE TRIAL MODAL - Add before </body> -->
+<div class="trial-modal" id="trialModal" role="dialog" aria-modal="true" aria-labelledby="trialModalTitle">
+  <div class="trial-modal__overlay" id="trialModalOverlay"></div>
+  
+  <div class="trial-modal__container">
+    <button class="trial-modal__close" id="trialModalClose" aria-label="Close registration form" type="button">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    
+    <div class="trial-modal__header">
+      <h3 class="trial-modal__title"  id="trialModalTitle">Book Your Free Trial</h3>
+      <p class="trial-modal__subtitle">Experience Grip & Grab for free. Choose your preferred location and time slot.</p>
+    </div>
+    
+    <form class="trial-form" id="trialForm" novalidate autocomplete="on">
+      <!-- Name -->
+      <div class="trial-form__group">
+        <label for="trialName" class="trial-form__label">
+          Full Name <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="trialName" 
+          name="name" 
+          class="trial-form__input"
+          placeholder="Enter your full name"
+          required 
+          autocomplete="name"
+          minlength="2"
+        >
+        <span class="trial-form__error" id="nameError"></span>
+      </div>
+      
+      <!-- Email -->
+      <div class="trial-form__group">
+        <label for="trialEmail" class="trial-form__label">
+          Email Address <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="trialEmail" 
+          name="email" 
+          class="trial-form__input"
+          placeholder="your.email@example.com"
+          required 
+          autocomplete="email"
+        >
+        <span class="trial-form__error" id="emailError"></span>
+      </div>
+      
+      <!-- Phone -->
+      <div class="trial-form__group">
+        <label for="trialPhone" class="trial-form__label">
+          Phone Number <span class="required">*</span>
+        </label>
+        <input 
+          type="tel" 
+          id="trialPhone" 
+          name="phone" 
+          class="trial-form__input"
+          placeholder="10-digit mobile number"
+          required 
+          autocomplete="tel"
+          pattern="[0-9]{10}"
+        >
+        <span class="trial-form__error" id="phoneError"></span>
+      </div>
+      
+      <!-- Location -->
+      <div class="trial-form__group">
+        <label for="trialLocation" class="trial-form__label">
+          Preferred Location <span class="required">*</span>
+        </label>
+        <select 
+          id="trialLocation" 
+          name="location" 
+          class="trial-form__select"
+          required
+        >
+          <option value="" disabled selected>Select your preferred gym location</option>
+          <option value="Lajpat Nagar">Lajpat Nagar</option>
+          <option value="Saket">Saket</option>
+        </select>
+        <span class="trial-form__error" id="locationError"></span>
+      </div>
+      
+      <!-- Date -->
+      <div class="trial-form__group">
+        <label for="trialDate" class="trial-form__label">
+          Preferred Date <span class="required">*</span>
+        </label>
+        <input 
+          type="date" 
+          id="trialDate" 
+          name="date" 
+          class="trial-form__input"
+          required
+        >
+        <span class="trial-form__error" id="dateError"></span>
+      </div>
+      
+      <!-- Time Slot -->
+      <div class="trial-form__group">
+        <label for="trialTime" class="trial-form__label">
+          Preferred Time Slot <span class="required">*</span>
+        </label>
+        <select 
+          id="trialTime" 
+          name="time" 
+          class="trial-form__select"
+          required
+        >
+          <option value="" disabled selected>Select your preferred time</option>
+          <optgroup label="Morning Sessions">
+            <option value="6:00 AM - 7:00 AM">6:00 AM - 7:00 AM</option>
+            <option value="7:00 AM - 8:00 AM">7:00 AM - 8:00 AM</option>
+            <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
+          </optgroup>
+          <optgroup label="Evening Sessions">
+            <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
+            <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
+            <option value="7:00 PM - 8:00 PM">7:00 PM - 8:00 PM</option>
+          </optgroup>
+        </select>
+        <span class="trial-form__error" id="timeError"></span>
+      </div>
+      
+      <!-- Personal Training Fields (Hidden by default) -->
+      <div class="trial-form__group" id="serviceGroup" style="display: none;">
+        <label for="trialService" class="trial-form__label">
+          Select Service <span class="required">*</span>
+        </label>
+        <select 
+          id="trialService" 
+          name="service" 
+          class="trial-form__select"
+        >
+          <option value="" disabled selected>Choose a training service</option>
+        </select>
+        <span class="trial-form__error" id="serviceError"></span>
+      </div>
+      
+      <div class="trial-form__group trial-form__group--radio" id="mediumGroup" style="display: none;">
+        <label class="trial-form__label">
+          Preferred Medium <span class="required">*</span>
+        </label>
+        <div class="trial-form__radio-group">
+          <label class="trial-form__radio-label">
+            <input type="radio" name="medium" value="Online" class="trial-form__radio">
+            <span>Online Session</span>
+          </label>
+          <label class="trial-form__radio-label">
+            <input type="radio" name="medium" value="In-person" class="trial-form__radio">
+            <span>In-Person Session</span>
+          </label>
+        </div>
+        <span class="trial-form__error" id="mediumError"></span>
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" class="trial-form__submit" id="trialSubmitBtn">
+        <span class="btn-text">Submit Registration</span>
+        <span class="btn-loader" style="display: none;">
+          <svg class="spinner" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+          </svg>
+        </span>
+      </button>
+    </form>
+    
+    <!-- Success Message -->
+    <div class="trial-success" id="trialSuccess" style="display: none;">
+      <div class="success-icon">✓</div>
+      <h4>Registration Successful!</h4>
+      <p>Thank you for registering. our team will contact you in 48 hours.</p>
+    </div>
+    
+    <!-- Error Message -->
+    <div class="trial-error" id="trialError" style="display: none;">
+      <div class="error-icon">✕</div>
+      <h4>Something Went Wrong</h4>
+      <p>Please try again or contact us directly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Your script.js at the end -->
+<script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+<!-- Existing meta tags -->
+    
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"> </script>
 <script src="script.js?v=20251022"></script>
 
 </body>
