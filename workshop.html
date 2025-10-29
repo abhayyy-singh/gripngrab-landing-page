@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Master the art of Movement - Grip and Grab</title>
+    <title>Master the art of Movement - Grip & Grab</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
@@ -22,9 +22,9 @@
       .ggw-container {
         background: linear-gradient(
           180deg,
-          #2d1b69 0%,
-          #1a0f3d 50%,
-          #5b21b6 100%
+          #000000 0%,
+          #1a1a1a 50%,
+          #000000 100%
         );
         min-height: 100vh;
         position: relative;
@@ -38,9 +38,9 @@
         left: -50px;
         width: 400px;
         height: 400px;
-        background: #6d28d9;
+        background: #ffff;
         border-radius: 50%;
-        opacity: 0.4;
+        opacity: 0.15;
         z-index: 1;
         animation: ggwBlobFloat 8s ease-in-out infinite;
       }
@@ -61,9 +61,9 @@
         right: -100px;
         width: 600px;
         height: 600px;
-        background: #7c3aed;
+        background: #ffff;
         border-radius: 50%;
-        opacity: 0.5;
+        opacity: 0.12;
         z-index: 1;
         animation: ggwBlobFloat 10s ease-in-out infinite reverse;
       }
@@ -74,9 +74,9 @@
         left: -100px;
         width: 400px;
         height: 400px;
-        background: #8b5cf6;
+        background: #ffff;
         border-radius: 50%;
-        opacity: 0.3;
+        opacity: 0.1;
         z-index: 1;
         animation: ggwBlobFloat 12s ease-in-out infinite;
       }
@@ -109,7 +109,8 @@
       }
 
       .ggw-logo img {
-        height: 50px;
+        border-radius: 50%;
+        height: 70px;
         width: auto;
         transition: transform 0.3s ease;
       }
@@ -141,7 +142,7 @@
         left: 0;
         width: 0;
         height: 2px;
-        background: #fbbf24;
+        background: #ff6b6b;
         transition: width 0.3s ease;
       }
 
@@ -150,7 +151,7 @@
       }
 
       .ggw-nav-menu a:hover {
-        color: #fbbf24;
+        color: #ff6b6b;
       }
 
       /* Hamburger Menu */
@@ -190,7 +191,7 @@
         right: -100%;
         width: 70%;
         height: 100vh;
-        background: #2d1b69;
+        background: #1a1a1a;
         padding: 80px 30px 30px;
         transition: right 0.3s ease;
         z-index: 100;
@@ -255,8 +256,8 @@
         aspect-ratio: 1;
         border-radius: 50%;
         overflow: hidden;
-        border: 15px solid rgba(124, 58, 237, 0.4);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        border: 15px solid rgba(255, 107, 107, 0.3);
+        box-shadow: 0 30px 80px rgba(255, 107, 107, 0.2);
         transition: transform 0.5s ease;
       }
 
@@ -296,7 +297,7 @@
       }
 
       .ggw-text-section h1 .ggw-highlight {
-        color: #fbbf24;
+        color: #ff6b6b;
         font-style: italic;
       }
 
@@ -311,7 +312,7 @@
         font-size: 17px;
         line-height: 1.75;
         margin-bottom: 40px;
-        color: rgba(255, 255, 255, 0.92);
+        color: rgba(255, 255, 255, 0.85);
         font-weight: 400;
         letter-spacing: 0.2px;
       }
@@ -334,29 +335,29 @@
       }
 
       .ggw-feature-icon {
-        width: 99px;
+        width: 120px;
         height: 70px;
         margin: 0 auto 15px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         transition: all 0.3s ease;
       }
 
       .ggw-feature-item:hover .ggw-feature-icon {
-        background: rgba(251, 191, 36, 0.2);
-        border-color: rgba(251, 191, 36, 0.5);
+        background: rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.5);
         transform: scale(1.1);
       }
 
       .ggw-counter {
         font-size: 32px;
         font-weight: 800;
-        color: #fbbf24;
+        color: #ff6b6b;
       }
 
       .ggw-feature-text {
@@ -385,14 +386,14 @@
       }
 
       .ggw-btn-primary {
-        background: #6366f1;
+        background: #ff6b6b;
         color: white;
       }
 
       .ggw-btn-primary:hover {
-        background: #4f46e5;
+        background: #ff5252;
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
       }
 
       .ggw-btn-secondary {
@@ -407,7 +408,7 @@
 
       /* Video Section */
       .ggw-video-section {
-        background: linear-gradient(135deg, #2d1b69 0%, #5b21b6 100%);
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
         padding: 80px 60px 80px;
         text-align: center;
       }
@@ -424,8 +425,9 @@
         margin: 0 auto;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 30px 80px rgba(255, 107, 107, 0.2);
         transition: transform 0.3s ease;
+        border: 2px solid rgba(255, 107, 107, 0.2);
       }
 
       .ggw-video-container:hover {
@@ -440,7 +442,7 @@
 
       /* Details Section */
       .ggw-details-section {
-        background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
         padding: 80px 60px 100px;
       }
 
@@ -462,7 +464,7 @@
       }
 
       .ggw-details-header p {
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.7);
         font-size: 18px;
       }
 
@@ -474,17 +476,18 @@
       }
 
       .ggw-detail-card {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
         padding: 30px;
         transition: all 0.3s;
       }
 
       .ggw-detail-card:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.08);
         transform: translateY(-5px);
+        border-color: rgba(255, 107, 107, 0.3);
       }
 
       .ggw-detail-card-header {
@@ -497,7 +500,7 @@
       .ggw-detail-icon {
         width: 50px;
         height: 50px;
-        background: rgba(251, 191, 36, 0.2);
+        background: rgba(255, 107, 107, 0.2);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -507,11 +510,11 @@
       .ggw-detail-icon svg {
         width: 28px;
         height: 28px;
-        fill: #fbbf24;
+        fill: #ff6b6b;
       }
 
       .ggw-detail-title {
-        color: #fbbf24;
+        color: #ff6b6b;
         font-size: 20px;
         font-weight: 700;
       }
@@ -524,15 +527,16 @@
       .ggw-detail-content p {
         margin: 8px 0;
         font-size: 16px;
+        color: rgba(255, 255, 255, 0.85);
       }
 
       .ggw-detail-content strong {
-        color: #fbbf24;
+        color: #ff6b6b;
         font-weight: 600;
       }
 
       .ggw-detail-content a {
-        color: #fbbf24;
+        color: #ff6b6b;
         text-decoration: none;
         transition: opacity 0.3s;
       }
@@ -543,9 +547,9 @@
       }
 
       .ggw-location-map {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
         padding: 40px;
         text-align: center;
@@ -567,7 +571,7 @@
 
       .ggw-map-btn {
         padding: 15px 35px;
-        background: #6366f1;
+        background: #ff6b6b;
         color: white;
         border: none;
         border-radius: 50px;
@@ -582,9 +586,9 @@
       }
 
       .ggw-map-btn:hover {
-        background: #4f46e5;
+        background: #ff5252;
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
       }
 
       .ggw-map-btn svg {
@@ -601,9 +605,9 @@
       }
 
       .ggw-contact-card {
-        background: rgba(251, 191, 36, 0.15);
+        background: rgba(255, 107, 107, 0.1);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(251, 191, 36, 0.3);
+        border: 1px solid rgba(255, 107, 107, 0.3);
         border-radius: 15px;
         padding: 25px;
         text-align: center;
@@ -611,30 +615,30 @@
       }
 
       .ggw-contact-card:hover {
-        background: rgba(251, 191, 36, 0.25);
+        background: rgba(255, 107, 107, 0.2);
         transform: translateY(-3px);
       }
 
       .ggw-contact-card h4 {
-        color: #fbbf24;
+        color: #ff6b6b;
         font-size: 18px;
         font-weight: 700;
         margin-bottom: 12px;
       }
 
       .ggw-contact-card p {
-        color: black;
+        color: white;
         font-size: 16px;
       }
 
       .ggw-contact-card a {
-        color: black;
+        color: white;
         text-decoration: none;
         transition: color 0.3s;
       }
 
       .ggw-contact-card a:hover {
-        color: #fbbf24;
+        color: #ff6b6b;
       }
 
       /* Modal */
@@ -645,7 +649,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.85);
+        background: rgba(0, 0, 0, 0.9);
         z-index: 1000;
         align-items: center;
         justify-content: center;
@@ -666,7 +670,7 @@
       }
 
       .ggw-modal-content {
-        background: white;
+        background: #1a1a1a;
         border-radius: 24px;
         padding: 50px;
         max-width: 550px;
@@ -675,6 +679,7 @@
         overflow-y: auto;
         position: relative;
         animation: ggwSlideUp 0.4s ease;
+        border: 2px solid rgba(255, 107, 107, 0.3);
       }
 
       @keyframes ggwSlideUp {
@@ -694,41 +699,41 @@
         right: 24px;
         font-size: 32px;
         cursor: pointer;
-        color: #666;
+        color: #999;
         line-height: 1;
         font-weight: 300;
         transition: all 0.3s ease;
       }
 
       .ggw-modal-close:hover {
-        color: #000;
+        color: #ff6b6b;
         transform: rotate(90deg);
       }
 
       .ggw-modal h2 {
-        color: #2d1b69;
+        color: white;
         margin-bottom: 12px;
         font-size: 32px;
         font-weight: 700;
       }
 
       .ggw-modal-subtitle {
-        color: #666;
+        color: #999;
         margin-bottom: 30px;
         font-size: 15px;
       }
 
       .ggw-workshop-info {
-        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        background: rgba(255, 107, 107, 0.1);
         padding: 20px;
         border-radius: 12px;
         margin-bottom: 30px;
-        border-left: 5px solid #7c3aed;
+        border-left: 5px solid #ff6b6b;
       }
 
       .ggw-workshop-info p {
         margin: 8px 0;
-        color: #2d1b69;
+        color: white;
         font-weight: 600;
         font-size: 15px;
       }
@@ -740,7 +745,7 @@
       .ggw-form-group label {
         display: block;
         margin-bottom: 10px;
-        color: #333;
+        color: white;
         font-weight: 600;
         font-size: 15px;
       }
@@ -748,16 +753,18 @@
       .ggw-form-group input {
         width: 100%;
         padding: 14px 18px;
-        border: 2px solid #e0e0e0;
+        border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 12px;
         font-size: 16px;
         transition: all 0.3s;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
       }
 
       .ggw-form-group input:focus {
         outline: none;
-        border-color: #7c3aed;
-        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
       }
 
       .ggw-checkbox-group {
@@ -776,7 +783,7 @@
 
       .ggw-checkbox-group label {
         font-size: 14px;
-        color: #666;
+        color: #999;
         font-weight: normal;
         cursor: pointer;
       }
@@ -784,7 +791,7 @@
       .ggw-submit-btn {
         width: 100%;
         padding: 16px;
-        background: #6366f1;
+        background: #ff6b6b;
         color: white;
         border: none;
         border-radius: 12px;
@@ -795,13 +802,13 @@
       }
 
       .ggw-submit-btn:hover {
-        background: #4f46e5;
+        background: #ff5252;
         transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
       }
 
       .ggw-submit-btn:disabled {
-        background: #ccc;
+        background: #444;
         cursor: not-allowed;
         transform: none;
       }
@@ -818,19 +825,19 @@
 
       .ggw-success-icon {
         font-size: 72px;
-        color: #10b981;
+        color: #ff6b6b;
         margin-bottom: 24px;
       }
 
       .ggw-success-message h3 {
-        color: #10b981;
+        color: #ff6b6b;
         font-size: 28px;
         margin-bottom: 12px;
         font-weight: 700;
       }
 
       .ggw-success-message p {
-        color: #666;
+        color: #999;
         font-size: 16px;
         line-height: 1.6;
       }
@@ -839,12 +846,10 @@
 
       /* Tablet: 768px - 1024px */
       @media (max-width: 1024px) {
-        /* Navbar - Tablet */
         .ggw-navbar {
           padding: 20px 40px;
         }
 
-        /* Main Content - Tablet */
         .ggw-main-content {
           grid-template-columns: 1fr;
           gap: 50px;
@@ -872,7 +877,6 @@
           justify-content: center;
         }
 
-        /* Video Section - Tablet */
         .ggw-video-section {
           padding: 70px 40px 70px;
         }
@@ -885,7 +889,6 @@
           height: 450px;
         }
 
-        /* Details Section - Tablet */
         .ggw-details-section {
           padding: 60px 40px 80px;
         }
@@ -901,7 +904,6 @@
 
       /* Mobile: 481px - 767px */
       @media (max-width: 767px) {
-        /* Navbar - Mobile */
         .ggw-navbar {
           padding: 18px 25px;
         }
@@ -922,7 +924,6 @@
           display: block;
         }
 
-        /* Main Content - Mobile */
         .ggw-main-content {
           grid-template-columns: 1fr;
           padding: 30px 25px 60px;
@@ -963,7 +964,6 @@
           border-width: 10px;
         }
 
-        /* Features - Mobile */
         .ggw-features {
           flex-direction: column;
           gap: 30px;
@@ -983,7 +983,6 @@
           font-size: 14px;
         }
 
-        /* Buttons - Mobile */
         .ggw-buttons {
           flex-direction: column;
           gap: 15px;
@@ -994,7 +993,6 @@
           padding: 15px 35px;
         }
 
-        /* Video Section - Mobile */
         .ggw-video-section {
           padding: 50px 25px 60px;
         }
@@ -1008,7 +1006,6 @@
           height: 220px;
         }
 
-        /* Details Section - Mobile */
         .ggw-details-section {
           padding: 50px 25px 60px;
         }
@@ -1087,7 +1084,6 @@
           font-size: 15px;
         }
 
-        /* Modal - Mobile */
         .ggw-modal-content {
           padding: 40px 25px;
           width: 95%;
@@ -1100,7 +1096,6 @@
 
       /* Small Mobile: 320px - 480px */
       @media (max-width: 480px) {
-        /* Navbar - Small Mobile */
         .ggw-navbar {
           padding: 15px 20px;
         }
@@ -1108,7 +1103,6 @@
           height: 36px;
         }
 
-        /* Main Content - Small Mobile */
         .ggw-main-content {
           padding: 25px 20px 50px;
           gap: 35px;
@@ -1132,7 +1126,6 @@
           max-width: 280px;
         }
 
-        /* Features - Small Mobile */
         .ggw-features {
           gap: 25px;
           margin-bottom: 30px;
@@ -1147,13 +1140,11 @@
           font-size: 26px;
         }
 
-        /* Buttons - Small Mobile */
         .ggw-btn {
           padding: 14px 30px;
           font-size: 15px;
         }
 
-        /* Video Section - Small Mobile */
         .ggw-video-section {
           padding: 40px 20px 50px;
         }
@@ -1171,7 +1162,6 @@
           height: 200px;
         }
 
-        /* Details Section - Small Mobile */
         .ggw-details-section {
           padding: 40px 20px 50px;
         }
@@ -1237,7 +1227,6 @@
           font-size: 14px;
         }
 
-        /* Modal - Small Mobile */
         .ggw-modal-content {
           padding: 35px 20px;
         }
@@ -1260,15 +1249,11 @@
   </head>
   <body>
     <div class="ggw-container">
-      <!-- Decorative Blobs -->
-      <div class="ggw-blob-top"></div>
-      <div class="ggw-blob-bottom-right"></div>
-      <div class="ggw-blob-bottom-left"></div>
-
+     
       <!-- Navbar -->
       <nav class="ggw-navbar">
         <div class="ggw-logo">
-          <img src="./logo.png" alt="Grip and Grab Logo" />
+          <img src="./logo.png" alt="Grip & Grab Logo" />
         </div>
 
         <!-- Desktop Menu -->
@@ -1299,10 +1284,11 @@
 
       <!-- Main Content -->
       <div class="ggw-main-content">
+        
         <!-- Text Section (Shows First on Mobile) -->
         <div class="ggw-text-section">
           <h1>Master the art of <span class="ggw-highlight">Movement</span></h1>
-          <h2>Transform Pain into Power</h2>
+          <h2>Train Smart. Move Better. Become Limitless</h2>
           <p>
             Transform Pain into Power The main goal of this movement-based
             workshop is to help you understand your body better and move in a
@@ -1366,14 +1352,14 @@
               <div class="ggw-counter" data-target="14">0</div>
             </div>
             <div class="ggw-feature-text">
-              Years of Pain<br />Management Expertise
+              Years of <br />Experience
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Video Section -->
+    <!-- Video Section
     <section id="video" class="ggw-video-section">
       <h2>See How Movement Transforms Pain into Power</h2>
       <div class="ggw-video-container">
@@ -1382,7 +1368,7 @@
           allowfullscreen
         ></iframe>
       </div>
-    </section>
+    </section> -->
 
     <!-- Details Section -->
     <section id="details" class="ggw-details-section">
@@ -1391,7 +1377,7 @@
           <h2>Workshop Details</h2>
           <p>
             Everything you need to know about the Master the art of Movement
-            workshop/p>
+            workshop
           </p>
         </div>
 
@@ -1430,12 +1416,12 @@
               <div class="ggw-detail-title">Venue</div>
             </div>
             <div class="ggw-detail-content">
-              <p><strong>Location:</strong> Grip and Grab Studio</p>
+              <p><strong>Location:</strong> Grip & Grab Studio</p>
               <p>
                 <strong>Address:</strong> B-32, 3rd Floor, opposite Defence
                 Colony, Lajpat Nagar, New Delhi, Delhi 110024
               </p>
-              <p><strong>Nearest Metro:</strong> Lajpat Nagar (Pink Line)</p>
+              <p><strong>Nearest Metro:</strong> Lajpat Nagar (Pink Line) Pillar no 6-7</p>
             </div>
           </div>
 
@@ -1455,11 +1441,8 @@
               <p><strong>Workshop Fee:</strong> ₹1000</p>
               <p><strong>Payment:</strong> Online</p>
               <p><strong>Refund Policy:</strong> Non-refundable</p>
-              <p><strong>Limited Seats:</strong> Only 20 spots available</p>
-              <p>
-                <strong>Confirmation:</strong> Email sent immediately after
-                payment
-              </p>
+              <p><strong>Limited Seats:</strong> Only 20 Slots</p>
+              
             </div>
           </div>
 
@@ -1477,7 +1460,7 @@
             </div>
             <div class="ggw-detail-content">
               <p><strong>Clothing:</strong> Comfortable workout attire</p>
-              <p><strong>Footwear:</strong> Athletic shoes or bare feet</p>
+              <p><strong>Footwear:</strong> Shoes Not Allowded inside the Arena </p>
               <p><strong>Water Bottle:</strong> Stay hydrated</p>
             </div>
           </div>
@@ -1500,23 +1483,17 @@
               Open in Google Maps
             </a>
             <a
-              href="https://wa.me/919818995513?text=Hi,%20I%20want%20to%20know%20about%20Lower%20Back%20Pain%20Workshop"
-              target="_blank"
-              class="ggw-map-btn"
+              "
+              class="ggw-map-btn" onclick="openModal()"
             >
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-                />
-              </svg>
-              WhatsApp Query
+             Register
             </a>
           </div>
 
           <div class="ggw-contact-cards">
             <div class="ggw-contact-card">
               <h4>📞 Call Us</h4>
-              <p><a href="tel:+919818995513">+91 9818995513</a></p>
+              <p><a href="tel:+919971250050">+91 9971250050</a></p>
             </div>
             <div class="ggw-contact-card">
               <h4>✉️ Email Us</h4>
@@ -1729,8 +1706,8 @@
               key: "rzp_live_RZDqqPc9XD0IjO", // Replace with actual key
               amount: 100000,
               currency: "INR",
-              name: "Grip and Grab",
-              description: "Lower Back Pain Workshop Registration",
+              name: "Grip & Grab",
+              description: "Master the art of Movement Workshop Registration",
               handler: async function (response) {
                 console.log(
                   "💰 Payment successful! Payment ID:",
@@ -1740,7 +1717,7 @@
                 const emailParams = {
                   to_email: formData.email,
                   to_name: `${formData.firstName} ${formData.lastName}`,
-                  from_name: "Grip and Grab",
+                  from_name: "Grip & Grab",
                   firstName: formData.firstName,
                   lastName: formData.lastName,
                   user_email: formData.email,
