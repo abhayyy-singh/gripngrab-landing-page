@@ -1357,13 +1357,13 @@
           </div>
           <div class="ggw-feature-item">
             <div class="ggw-feature-icon">
-              <div class="ggw-counter" data-target="1200">0</div>
+              <div class="ggw-counter" data-target="2000">0</div>
             </div>
             <div class="ggw-feature-text">Clients<br />Trained</div>
           </div>
           <div class="ggw-feature-item">
             <div class="ggw-feature-icon">
-              <div class="ggw-counter" data-target="8">0</div>
+              <div class="ggw-counter" data-target="14">0</div>
             </div>
             <div class="ggw-feature-text">
               Years of Pain<br />Management Expertise
@@ -1452,7 +1452,7 @@
               <div class="ggw-detail-title">Registration Info</div>
             </div>
             <div class="ggw-detail-content">
-              <p><strong>Workshop Fee:</strong> ₹499</p>
+              <p><strong>Workshop Fee:</strong> ₹1000</p>
               <p><strong>Payment:</strong> Online</p>
               <p><strong>Refund Policy:</strong> Non-refundable</p>
               <p><strong>Limited Seats:</strong> Only 20 spots available</p>
@@ -1568,7 +1568,7 @@
           <div class="ggw-workshop-info">
             <p>📅 Date: 16th November 2025</p>
             <p>📍 Location: Delhi, Saket</p>
-            <p>💰 Fee: ₹499 (Non-refundable)</p>
+            <p>💰 Fee: ₹1000 (Non-refundable)</p>
           </div>
 
           <form id="registrationForm">
@@ -1604,7 +1604,7 @@
             </div>
 
             <button type="submit" class="ggw-submit-btn">
-              Confirm Registration & Pay ₹499
+              Proceed
             </button>
           </form>
         </div>
@@ -1720,14 +1720,14 @@
             phone: document.getElementById("phone").value,
             workshopDate: "15th November 2025",
             location: "Delhi, Saket",
-            fee: "₹499",
+            fee: "₹1000",
           };
           //rzp_live_RZDqqPc9XD0IjO
           try {
             // Razorpay Payment
             const options = {
               key: "rzp_live_RZDqqPc9XD0IjO", // Replace with actual key
-              amount: 49900,
+              amount: 100000,
               currency: "INR",
               name: "Grip and Grab",
               description: "Lower Back Pain Workshop Registration",
@@ -1799,13 +1799,13 @@
             razorpay.on("payment.failed", function () {
               alert("Payment failed. Please try again.");
               submitBtn.disabled = false;
-              submitBtn.textContent = "Confirm Registration & Pay ₹499";
+              submitBtn.textContent = "Proceed";
             });
           } catch (error) {
             console.error("Error:", error);
             alert("Something went wrong. Please try again.");
             submitBtn.disabled = false;
-            submitBtn.textContent = "Confirm Registration & Pay ₹499";
+            submitBtn.textContent = "Proceed";
           }
         });
 
