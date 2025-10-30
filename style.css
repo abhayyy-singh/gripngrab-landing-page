@@ -637,16 +637,49 @@ body {
 
 
 
+/* Target only the Kids Fitness card (5th card) */
+.pricing-card:nth-child(5) {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.85), rgba(20, 20, 20, 0.55)),
+                url('./kids\ image.png') center/cover no-repeat;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add overlay for better text readability */
 
 
 
+/* Ensure content stays above background */
+.pricing-card:nth-child(5) > * {
+    position: relative;
+    z-index: 2;
+}
 
+/* Enhance text readability on background */
+/* .pricing-card:nth-child(5) h3,
+.pricing-card:nth-child(5) .price,
+.pricing-card:nth-child(5) .pricing-save {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+} */
 
+.pricing-card:nth-child(5) .pricing-features li {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
 
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+    .pricing-card:nth-child(5) {
+        background-position: center;
+        background-size: cover;
+    }
+}
 
-/* ==================== PRICING SECTION ==================== */
-
-
+/* Tablet responsive */
+@media (min-width: 481px) and (max-width: 767px) {
+    .pricing-card:nth-child(5) {
+        background-position: center;
+    }
+}
 
 
 
@@ -713,6 +746,8 @@ body {
   max-width: 100%;
   min-width: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .pricing-card:hover {
@@ -747,6 +782,8 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 10;
+  white-space: nowrap;
 }
 
 .popular-badge {
@@ -809,6 +846,7 @@ body {
 /* ==================== FEATURES ==================== */
 .pricing-features {
   margin-bottom: 40px;
+  flex-grow: 1;
 }
 
 .pricing-features ul {
@@ -858,6 +896,7 @@ body {
   min-height: 60px;
   word-wrap: break-word;
   hyphens: auto;
+  margin-top: auto;
 }
 
 .pricing-btn:hover {
@@ -1021,10 +1060,13 @@ body {
   .pricing-cards {
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 25px !important;
+    align-items: stretch;
   }
 
   .pricing-card {
     padding: 30px 25px;
+    display: flex;
+    flex-direction: column;
   }
 
   .pricing-btn {
@@ -1053,7 +1095,6 @@ body {
 }
 
 /* ==================== END PRICING SECTION ==================== */
-
 
 
 

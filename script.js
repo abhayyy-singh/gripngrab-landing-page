@@ -1800,6 +1800,19 @@ document.addEventListener("visibilitychange", function () {
 
 
 
+// Kids Fitness Card Click Toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const kidsCard = document.querySelector('.kids-card');
+  const scrollIndicator = document.querySelector('.scroll-indicator');
+  
+  if (scrollIndicator && kidsCard) {
+    scrollIndicator.addEventListener('click', function(e) {
+      e.stopPropagation();
+      kidsCard.classList.toggle('expanded');
+    });
+  }
+});
+
 
 
 
