@@ -319,7 +319,7 @@
         font-size: 56px;
         font-weight: 800;
         line-height: 1.1;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         letter-spacing: -0.5px;
       }
 
@@ -343,6 +343,24 @@
         font-weight: 400;
         letter-spacing: 0.2px;
       }
+
+      .ggw-workshop-title {
+  font-size: 72px;
+  font-weight: 900;
+  color: #ff6b6b;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+.ggw-about-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
 
       /* ========================================
          🔥 LIVE SPOTS COUNTER STYLES 
@@ -1204,9 +1222,20 @@
         }
 
         .ggw-text-section h1 {
-          font-size: 36px;
-          margin-bottom: 12px;
+          font-size: 35px;
+          margin-bottom: 15px;
         }
+
+
+        .ggw-workshop-title {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.ggw-about-heading {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
 
         .ggw-text-section h2 {
           font-size: 22px;
@@ -1364,6 +1393,7 @@
 
       /* Small Mobile: 320px - 480px */
       @media (max-width: 480px) {
+        
         .ggw-navbar {
           padding: 15px 20px;
         }
@@ -1375,9 +1405,19 @@
           padding: 25px 20px 50px;
           gap: 35px;
         }
+.ggw-workshop-title {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
 
+.ggw-about-heading {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
         .ggw-text-section h1 {
-          font-size: 30px;
+          font-size: 25px;
+          
+          margin-bottom: 55px;
         }
 
         .ggw-text-section h2 {
@@ -1513,6 +1553,9 @@
           font-size: 16px;
         }
       }
+
+
+     
     </style>
   </head>
   <body>
@@ -1555,8 +1598,11 @@
         
         <!-- Text Section (Shows First on Mobile) -->
         <div class="ggw-text-section">
-          <h1>Master the art of <span class="ggw-highlight">Movement</span></h1>
-          <h2>" Train Smart Move Better Become Limitless"</h2>
+  <div class="ggw-workshop-title">WORKSHOP</div>
+  <h1>Master the art of <span class="ggw-highlight">Movement</span></h1>
+  <h2>"Train Smart Move Better Become Limitless"</h2>
+  
+  <div class="ggw-about-heading">About Workshop</div>
           <p>
             Transform Pain into Power The main goal of this movement-based
             workshop is to help you understand your body better and move in a
@@ -1590,9 +1636,9 @@
             <button class="ggw-btn ggw-btn-primary" onclick="openModal()">
               Register Now
             </button>
-            <a href="#video" class="ggw-btn ggw-btn-secondary"
+            <!-- <a href="#video" class="ggw-btn ggw-btn-secondary"
               >Watch Intro Video</a
-            >
+            > -->
           </div>
         </div>
 
