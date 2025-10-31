@@ -1,11 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Master the art of Movement - Grip&Grab</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBr9Lga7_vPihQ0siiJ0_c58KkGgrrYVCM",
+    authDomain: "workshop-gng.firebaseapp.com",
+    databaseURL: "https://workshop-gng-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "workshop-gng",
+    storageBucket: "workshop-gng.firebasestorage.app",
+    messagingSenderId: "304234238485",
+    appId: "1:304234238485:web:040417be6f6a7cb35ef41c"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  // Make database accessible globally
+  window.firebaseDB = db;
+  window.firebaseRef = ref;
+  window.firebaseOnValue = onValue;
+  window.firebaseRunTransaction = runTransaction;
+</script>
     <style>
       * {
         margin: 0;
@@ -315,6 +342,247 @@
         color: rgba(255, 255, 255, 0.85);
         font-weight: 400;
         letter-spacing: 0.2px;
+      }
+
+      /* ========================================
+         🔥 LIVE SPOTS COUNTER STYLES 
+         ======================================== */
+      .ggw-spots-counter {
+        margin: 30px auto;
+        max-width: 400px;
+        text-align: center;
+        animation: ggwPulseGlow 2s ease-in-out infinite;
+      }
+
+      @keyframes ggwPulseGlow {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+      }
+
+      .ggw-spots-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+        padding: 12px 24px;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(81, 207, 102, 0.4);
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .ggw-spots-badge.orange {
+        background: linear-gradient(135deg, #ffa94d 0%, #ff922b 100%);
+        box-shadow: 0 4px 15px rgba(255, 169, 77, 0.4);
+      }
+
+      .ggw-spots-badge.red {
+        background: linear-gradient(135deg, #ff6b6b 0%, #fa5252 100%);
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
+        animation: ggwUrgentPulse 1s ease-in-out infinite;
+      }
+
+      @keyframes ggwUrgentPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+
+      .ggw-spots-icon {
+        font-size: 24px;
+        animation: ggwFlameFlicker 1.5s ease-in-out infinite;
+      }
+
+      @keyframes ggwFlameFlicker {
+        0%, 100% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg); }
+      }
+
+      .ggw-spots-text {
+        color: white;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      #spotsRemaining {
+        font-size: 28px;
+        font-weight: 900;
+      }
+
+      .ggw-spots-progress {
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .ggw-spots-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%);
+        border-radius: 10px;
+        transition: width 0.5s ease, background 0.5s ease;
+        width: 100%;
+      }
+
+      .ggw-spots-bar.warning {
+        background: linear-gradient(90deg, #ffa94d 0%, #ff922b 100%);
+      }
+
+      .ggw-spots-bar.danger {
+        background: linear-gradient(90deg, #ff6b6b 0%, #fa5252 100%);
+      }
+
+      .ggw-spots-message {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 14px;
+        margin: 0;
+        font-weight: 500;
+      }
+
+      @keyframes ggwBounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+      }
+
+      /* ========================================
+         🚫 FULLY BOOKED MODAL STYLES 
+         ======================================== */
+      .ggw-fully-booked-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        animation: ggwFadeIn 0.3s ease;
+      }
+
+      .ggw-fully-booked-content {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        margin: 10% auto;
+        padding: 40px;
+        border: 2px solid rgba(255, 107, 107, 0.3);
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(255, 107, 107, 0.3);
+        position: relative;
+        animation: ggwSlideDown 0.4s ease;
+      }
+
+      @keyframes ggwSlideDown {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .ggw-fully-booked-close {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .ggw-fully-booked-close:hover {
+        color: #ff6b6b;
+      }
+
+      .ggw-fully-booked-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+      }
+
+      .ggw-fully-booked-title {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .ggw-fully-booked-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 16px;
+        margin-bottom: 25px;
+        line-height: 1.6;
+      }
+
+      .ggw-fully-booked-cta {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+      }
+
+      .ggw-fully-booked-cta h3 {
+        color: #ffffff;
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      .ggw-fully-booked-input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+
+      .ggw-fully-booked-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .ggw-fully-booked-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .ggw-fully-booked-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .ggw-fully-booked-btn-primary {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+      }
+
+      .ggw-fully-booked-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .ggw-fully-booked-btn-secondary {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .ggw-fully-booked-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
       }
 
       /* Feature Icons */
@@ -1304,6 +1572,20 @@
             workshop will be life-changing.
           </p>
 
+          <!-- 🔥 LIVE SPOTS COUNTER -->
+          <div class="ggw-spots-counter" id="spotsCounter">
+            <div class="ggw-spots-badge">
+              <span class="ggw-spots-icon">🔥</span>
+              <span class="ggw-spots-text">
+                <span id="spotsRemaining">20</span> Spots Left!
+              </span>
+            </div>
+            <div class="ggw-spots-progress">
+              <div class="ggw-spots-bar" id="spotsBar"></div>
+            </div>
+            <p class="ggw-spots-message" id="spotsMessage">Hurry! Limited seats available</p>
+          </div>
+
           <div class="ggw-buttons">
             <button class="ggw-btn ggw-btn-primary" onclick="openModal()">
               Register Now
@@ -1358,17 +1640,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Video Section
-    <section id="video" class="ggw-video-section">
-      <h2>See How Movement Transforms Pain into Power</h2>
-      <div class="ggw-video-container">
-        <iframe
-          src="https://www.youtube.com/embed/SSnNFt_CqLc?rel=0&modestbranding=1"
-          allowfullscreen
-        ></iframe>
-      </div>
-    </section> -->
 
     <!-- Details Section -->
     <section id="details" class="ggw-details-section">
@@ -1445,33 +1716,7 @@
               
             </div>
           </div>
-
-
-          
-          <!-- What to Bring Card -->
-          <!-- <div class="ggw-detail-card">
-            <div class="ggw-detail-card-header">
-              <div class="ggw-detail-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M20 6h-3V4c0-1.11-.89-2-2-2H9c-1.11 0-2 .89-2 2v2H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11z"
-                  />
-                </svg>
-              </div>
-              <div class="ggw-detail-title">What to Bring</div>
-            </div>
-            <div class="ggw-detail-content">
-              <p><strong>Clothing:</strong> Comfortable workout attire</p>
-              <p><strong>Footwear:</strong> Shoes Not Allowded inside the Arena </p>
-              <p><strong>Water Bottle:</strong> Stay hydrated</p>
-            </div>
-          </div>
-        </div> -->
-
-
-
-
-
+        </div>
 
         <!-- Location Map & Contact -->
         <div class="ggw-location-map">
@@ -1490,7 +1735,6 @@
               Open in Google Maps
             </a>
             <a
-              "
               class="ggw-map-btn" onclick="openModal()"
             >
              Register
@@ -1602,7 +1846,233 @@
       </div>
     </div>
 
+    <!-- 🚫 FULLY BOOKED MODAL -->
+    <div id="fullyBookedModal" class="ggw-fully-booked-modal">
+      <div class="ggw-fully-booked-content">
+        <span class="ggw-fully-booked-close" onclick="closeFullyBookedModal()">&times;</span>
+        
+        <div class="ggw-fully-booked-icon">😔</div>
+        <h2 class="ggw-fully-booked-title">Workshop Fully Booked!</h2>
+        <p class="ggw-fully-booked-text">
+          All 20 spots for this workshop have been filled.<br>
+          But don't worry! We'll be conducting more sessions soon.
+        </p>
+        
+        <div class="ggw-fully-booked-cta">
+          <h3>📩 Join the Waitlist</h3>
+          <p class="ggw-fully-booked-text" style="font-size: 14px; margin-bottom: 15px;">
+            Get notified when we announce the next workshop
+          </p>
+          <input 
+            type="email" 
+            id="waitlistEmail" 
+            class="ggw-fully-booked-input" 
+            placeholder="Enter your email address"
+          />
+          <div class="ggw-fully-booked-buttons">
+            <button class="ggw-fully-booked-btn ggw-fully-booked-btn-primary" onclick="submitWaitlist()">
+              Notify Me
+            </button>
+            <button class="ggw-fully-booked-btn ggw-fully-booked-btn-secondary" onclick="closeFullyBookedModal()">
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
+   // SLOT BOOKING SYSTEM WITH FIREBASE
+const MAX_SLOTS = 20;
+let totalBookings = 0;
+
+// Initialize Firebase real-time listener
+function initBookingSystem() {
+    const spotsRef = window.firebaseRef(window.firebaseDB, 'availableSpots');
+    
+    // Real-time listener - sabko same value dikhega
+    window.firebaseOnValue(spotsRef, (snapshot) => {
+        let availableSpots = snapshot.val();
+        
+        // Agar null hai toh initialize karo
+        if (availableSpots === null) {
+            console.log('⚠️ Firebase empty, initializing with 20');
+            window.firebaseRunTransaction(spotsRef, () => 20);
+            availableSpots = 20;
+        }
+        
+        // 0 ko valid value treat karo (|| 20 mat use karo!)
+        totalBookings = MAX_SLOTS - availableSpots;
+        
+        console.log('🔄 Firebase update:', availableSpots, 'spots available');
+
+        
+        updateSpotsCounter();
+        
+        // Check if fully booked
+        if (availableSpots <= 0) {
+            disableAllRegistrationButtons();
+        }
+    });
+}
+
+
+      // Update the spots counter display
+      function updateSpotsCounter() {
+        const remaining = MAX_SLOTS - totalBookings;
+        const percentage = (remaining / MAX_SLOTS) * 100;
+        
+        // Update remaining spots number
+        const remainingEl = document.getElementById('spotsRemaining');
+        if (remainingEl) {
+          remainingEl.textContent = remaining;
+                  // Agar 0 spots hain toh modal automatically show karo
+        if (remaining === 0) {
+            console.log('🚫 0 Spots - Triggering fully booked modal');
+            showFullyBookedModal();
+        }
+
+          
+          // Animate number change
+          remainingEl.style.animation = 'none';
+          setTimeout(() => {
+            remainingEl.style.animation = 'ggwBounce 0.5s ease';
+          }, 10);
+        }
+
+        // Update progress bar
+        const progressBar = document.getElementById('spotsBar');
+        const badge = document.querySelector('.ggw-spots-badge');
+        const message = document.getElementById('spotsMessage');
+        
+        if (progressBar) {
+          progressBar.style.width = percentage + '%';
+          
+          // Color coding based on availability
+          if (remaining > 14) {
+            progressBar.classList.remove('warning', 'danger');
+            if (badge) badge.className = 'ggw-spots-badge';
+            if (message) message.textContent = 'Hurry! Limited seats available';
+          } else if (remaining > 5) {
+            progressBar.classList.add('warning');
+            progressBar.classList.remove('danger');
+            if (badge) badge.className = 'ggw-spots-badge orange';
+            if (message) message.textContent = '⚡ Filling up fast! Reserve your spot now';
+          } else if (remaining > 0) {
+            progressBar.classList.add('danger');
+            progressBar.classList.remove('warning');
+            if (badge) badge.className = 'ggw-spots-badge red';
+            if (message) message.textContent = '🚨 URGENT! Only ' + remaining + ' spots left!';
+          } else {
+            progressBar.style.width = '0%';
+            if (badge) badge.className = 'ggw-spots-badge red';
+            if (message) message.textContent = '❌ Workshop Fully Booked';
+          }
+        }
+      }
+
+      // Disable all registration buttons when fully booked
+      function disableAllRegistrationButtons() {
+    console.log('🔒 Disabling all registration buttons');
+    const registerButtons = document.querySelectorAll('.register-btn, .cta-button');
+    registerButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.textContent = 'Fully Booked'; // Change button text
+    });
+    
+    // Update badge to show "Fully Booked"
+    const badgeEl = document.querySelector('.badge');
+    if (badgeEl) {
+        badgeEl.textContent = '🚫 Fully Booked!';
+        badgeEl.classList.add('badge--urgent');
+    }
+}
+
+
+      // Show fully booked modal
+      function showFullyBookedModal() {
+        const modal = document.getElementById('fullyBookedModal');
+        if (modal) {
+          modal.style.display = 'block';
+        }
+      }
+
+      // Close fully booked modal
+      function closeFullyBookedModal() {
+        const modal = document.getElementById('fullyBookedModal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      }
+
+      // Handle waitlist submission
+      function submitWaitlist() {
+        const emailInput = document.getElementById('waitlistEmail');
+        if (!emailInput) return;
+        
+        const email = emailInput.value.trim();
+        
+        if (!email) {
+          alert('Please enter your email address');
+          return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^ @]+@[^ @]+\.[^ @]+$/;
+        if (!emailRegex.test(email)) {
+          alert('Please enter a valid email address');
+          return;
+        }
+        
+        // Here you can integrate with EmailJS or your backend
+        console.log('Waitlist email:', email);
+        
+        // Show success message
+        alert('Thank you! We will notify you about the next workshop.');
+        
+        // Clear input and close modal
+        emailInput.value = '';
+        closeFullyBookedModal();
+      }
+// Decrement available spots in Firebase
+function decrementAvailableSpots() {
+    const spotsRef = window.firebaseRef(window.firebaseDB, 'availableSpots');
+    
+    window.firebaseRunTransaction(spotsRef, (currentSpots) => {
+        console.log('📝 Transaction running, current value:', currentSpots);
+        
+        // Agar null hai - abort transaction (database not ready)
+        if (currentSpots === null) {
+            console.error('❌ Database value is null - aborting');
+            return; // Return undefined = abort
+        }
+        
+        // Agar 0 ya negative hai - no decrement
+        if (currentSpots <= 0) {
+            console.warn('⚠️ Already at 0, cannot decrement');
+            return 0; // Stay at 0
+        }
+        
+        // Normal case - decrement
+        const newValue = currentSpots - 1;
+        console.log(`📉 Decrementing: ${currentSpots} → ${newValue}`);
+        return newValue;
+
+        
+    }).then(() => {
+        console.log('✅ Spot successfully decremented in Firebase');
+    }).catch((error) => {
+        console.error('❌ Error decrementing spot:', error);
+    });
+}
+
+
+      // ========================================
+      // ORIGINAL CODE (Modified)
+      // ========================================
+      
       // Initialize EmailJS
       emailjs.init("wwGXMDT6ekGDIkKNg");
 
@@ -1658,11 +2128,21 @@
         hamburger.classList.toggle("active");
       }
 
-      // Open Modal
-      function openModal() {
-        document.getElementById("registrationModal").classList.add("active");
-        document.body.style.overflow = "hidden";
-      }
+     // Open Modal - MODIFIED TO CHECK SLOTS
+function openModal() {
+    const remaining = MAX_SLOTS - totalBookings;
+    
+    // CHECK IF SLOTS ARE AVAILABLE
+    if (remaining <= 0) {
+        console.log('🚫 Workshop Fully Booked - Opening waitlist modal');
+        showFullyBookedModal();
+        return;
+    }
+    
+    console.log(`✅ ${remaining} spots available - Opening registration`);
+    document.getElementById('registrationModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
       // Close Modal
       function closeModal() {
@@ -1697,44 +2177,45 @@
           submitBtn.disabled = true;
           submitBtn.textContent = "Processing...";
 
-              const formData = {
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        workshopDate: '16th November 2025',  // ✅ FIXED
-        location: 'Lajpat Nagar, Delhi',    // ✅ FIXED
-        fee: '₹1000'
-    };
+          const formData = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            workshopDate: '16th November 2025',
+            location: 'Lajpat Nagar, Delhi',
+            fee: '₹1000'
+          };
 
-          //rzp_live_RZDqqPc9XD0IjO
           try {
             // Razorpay Payment
             const options = {
-              key: "rzp_live_RZDqqPc9XD0IjO", // Replace with actual key
+              key: "rzp_live_RZDqqPc9XD0IjO",
               amount: 100000,
               currency: "INR",
               name: "Grip&Grab",
               description: "Master the art of Movement Workshop Registration",
               handler: async function (response) {
-                console.log(
-                  "💰 Payment successful! Payment ID:",
-                  response.razorpay_payment_id
-                );
+    console.log("Payment successful! Payment ID:", response.razorpay_payment_id);
+    
+    // DECREMENT AVAILABLE SPOTS IN FIREBASE
+    decrementAvailableSpots();
+
+
 
                 const emailParams = {
-    to_email: formData.email,
-    to_name: `${formData.firstName} ${formData.lastName}`,
-    from_name: 'Grip&Grab',
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    user_email: formData.email,
-    phone: formData.phone,
-    workshopDate: '16th November 2025',        // ✅ FIXED
-    location: 'Lajpat Nagar, Delhi',          // ✅ FIXED
-    amount: '₹1000',                           // ✅ ADDED
-    paymentId: response.razorpay_payment_id
-};
+                  to_email: formData.email,
+                  to_name: `${formData.firstName} ${formData.lastName}`,
+                  from_name: 'Grip&Grab',
+                  firstName: formData.firstName,
+                  lastName: formData.lastName,
+                  user_email: formData.email,
+                  phone: formData.phone,
+                  workshopDate: '16th November 2025',
+                  location: 'Lajpat Nagar, Delhi',
+                  amount: '₹1000',
+                  paymentId: response.razorpay_payment_id
+                };
 
                 try {
                   // Email 1: User ko confirmation
@@ -1755,7 +2236,7 @@
                     "harish@teamgng",
                     "template_axjwehu",
                     emailParams
-                  ); // Replace template_abc456 with your admin template ID
+                  );
                   console.log("✅ Admin email sent successfully");
                 } catch (emailError) {
                   console.error("❌ Email sending failed:", emailError);
@@ -1804,6 +2285,15 @@
           }
         });
 
+      // Close fully booked modal on outside click
+      document
+        .getElementById("fullyBookedModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeFullyBookedModal();
+          }
+        });
+
       // Close mobile menu when clicking outside
       document.addEventListener("click", function (e) {
         const mobileMenu = document.getElementById("mobileMenu");
@@ -1814,6 +2304,13 @@
           hamburger.classList.remove("active");
         }
       });
+
+      // 🔥 INITIALIZE BOOKING SYSTEM ON PAGE LOAD
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBookingSystem);
+      } else {
+        initBookingSystem();
+      }
     </script>
   </body>
 </html>
