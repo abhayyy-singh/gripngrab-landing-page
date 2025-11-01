@@ -1908,11 +1908,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const timeSelect = document.getElementById('trialTime');
   
   if (locationSelect && timeSelect) {
-    // Disable time select initially
-    timeSelect.disabled = true;
-    
     // Listen for location changes
     locationSelect.addEventListener('change', updateTimeSlots);
+    
+    // Don't disable initially - let form validation work properly
+    // If location already selected, populate slots
+    if (locationSelect.value) {
+      updateTimeSlots();
+    }
   }
 });
 
