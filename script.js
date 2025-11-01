@@ -8,6 +8,8 @@ const mobileMenu = document.getElementById("mobileMenu");
 // State variables
 let heroVisible = false;
 let footerVisible = false;
+const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIzbmcxYNvhnvt4_skBAfL9Q2-eSQ7g43FrGmpPyvP2U38NJQt5b4aqwKrrfsXf1HC/exec";
+
 
 // Hamburger menu functionality
 hamburger.addEventListener("click", () => {
@@ -888,6 +890,29 @@ document.addEventListener("visibilitychange", function () {
         
       
         showSuccess();
+                // Send to Google Sheets
+        try {
+          const isPersonalTraining = state.formType === "personal-training";
+          const payload = {
+            formType: isPersonalTraining ? "personal-training" : "free-trial",
+            name: formData.get("name") || "",
+            email: formData.get("email") || "",
+            phone: formData.get("phone") || "",
+            location: formData.get("location") || "",
+            date: formData.get("date") || "",
+            time: formData.get("time") || "",
+            service: formData.get("service") || "",
+            medium: formData.get("medium") || "",
+            source: "index.html"
+          };
+          
+          fetch(SHEETS_WEBHOOK_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }).catch(e => console.log("Sheets sync failed:", e));
+        } catch(e) {}
+
         elements.form.reset();
         
         setTimeout(() => {
