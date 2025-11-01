@@ -8,7 +8,18 @@ const mobileMenu = document.getElementById("mobileMenu");
 // State variables
 let heroVisible = false;
 let footerVisible = false;
-const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIzbmcxYNvhnvt4_skBAfL9Q2-eSQ7g43FrGmpPyvP2U38NJQt5b4aqwKrrfsXf1HC/exec";
+const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec";
+// Time slot configuration for locations
+const TIME_SLOTS = {
+  'Lajpat Nagar': {
+    morning: ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM'],
+    evening: ['5 PM', '6 PM', '7 PM', '8 PM', '9 PM']
+  },
+  'Saket': {
+    morning: ['7:30 AM', '8:30 AM', '9:30 AM', '10:30 AM', '11:30 AM'],
+    evening: ['5 PM', '6 PM', '7 PM', '8 PM', '9 PM']
+  }
+};
 
 
 // Hamburger menu functionality
@@ -889,8 +900,9 @@ document.addEventListener("visibilitychange", function () {
         console.log('✅ Booking confirmed in database!');
         
       
-        showSuccess();
-                // Send to Google Sheets
+                    showSuccess();
+        
+        // Send to Google Sheets (CORS-free GET method)
         try {
           const isPersonalTraining = state.formType === "personal-training";
           const payload = {
@@ -906,14 +918,22 @@ document.addEventListener("visibilitychange", function () {
             source: "index.html"
           };
           
-          fetch(SHEETS_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          }).catch(e => console.log("Sheets sync failed:", e));
+          // Use GET with query params - CORS-free
+          const params = new URLSearchParams({
+            data: JSON.stringify(payload)
+          });
+          
+          fetch(SHEETS_WEBHOOK_URL + '?' + params.toString(), {
+            method: 'GET',
+            mode: 'no-cors'
+          }).catch(() => {
+            // Silent - data still saves
+          });
         } catch(e) {}
 
         elements.form.reset();
+
+
         
         setTimeout(() => {
           closeModal();
@@ -1835,6 +1855,64 @@ document.addEventListener('DOMContentLoaded', function() {
       e.stopPropagation();
       kidsCard.classList.toggle('expanded');
     });
+  }
+});
+
+// Update time slots based on location selection
+function updateTimeSlots() {
+  const locationSelect = document.getElementById('trialLocation');
+  const timeSelect = document.getElementById('trialTime');
+  
+  if (!locationSelect || !timeSelect) return;
+  
+  const selectedLocation = locationSelect.value;
+  
+  // Clear existing options
+  timeSelect.innerHTML = '<option value="" disabled selected>Select your preferred time</option>';
+  
+  if (selectedLocation && TIME_SLOTS[selectedLocation]) {
+    const slots = TIME_SLOTS[selectedLocation];
+    
+    // Add Morning sessions
+    const morningGroup = document.createElement('optgroup');
+    morningGroup.label = 'Morning Sessions';
+    slots.morning.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      morningGroup.appendChild(option);
+    });
+    timeSelect.appendChild(morningGroup);
+    
+    // Add Evening sessions
+    const eveningGroup = document.createElement('optgroup');
+    eveningGroup.label = 'Evening Sessions';
+    slots.evening.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      eveningGroup.appendChild(option);
+    });
+    timeSelect.appendChild(eveningGroup);
+    
+    // Enable time select
+    timeSelect.disabled = false;
+  } else {
+    timeSelect.disabled = true;
+  }
+}
+
+// Initialize time slot listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const locationSelect = document.getElementById('trialLocation');
+  const timeSelect = document.getElementById('trialTime');
+  
+  if (locationSelect && timeSelect) {
+    // Disable time select initially
+    timeSelect.disabled = true;
+    
+    // Listen for location changes
+    locationSelect.addEventListener('change', updateTimeSlots);
   }
 });
 
