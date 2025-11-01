@@ -26,6 +26,8 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwIzbmcxYNvhnvt4_skBAfL9Q2-eSQ7g43FrGmpPyvP2U38NJQt5b4aqwKrrfsXf1HC/exec";
+
   
   // Make database accessible globally
   window.firebaseDB = db;
@@ -2284,6 +2286,28 @@ function openModal() {
                     emailParams
                   );
                   console.log("✅ Admin email sent successfully");
+                                    // Send to Google Sheets
+                  try {
+                    const workshopPayload = {
+                      formType: "workshop",
+                      firstName: document.getElementById("firstName")?.value || "",
+                      lastName: document.getElementById("lastName")?.value || "",
+                      email: document.getElementById("email")?.value || "",
+                      phone: document.getElementById("phone")?.value || "",
+                      workshopDate: "16th November 2025",
+                      amount: "1000",
+                      paymentId: response.razorpay_payment_id,
+                      status: "captured",
+                      source: "workshop.html"
+                    };
+                    
+                    fetch(SHEETS_WEBHOOK_URL, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(workshopPayload)
+                    }).catch(e => console.log("Sheets sync failed:", e));
+                  } catch(e) {}
+
                 } catch (emailError) {
                   console.error("❌ Email sending failed:", emailError);
                   // Don't block user - payment is already done
