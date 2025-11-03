@@ -214,32 +214,61 @@ const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnb
 
       /* Mobile Menu */
       .ggw-mobile-menu {
-        display: none;
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 70%;
-        height: 100vh;
-        background: #1a1a1a;
-        padding: 80px 30px 30px;
-        transition: right 0.3s ease;
-        z-index: 100;
-        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
-      }
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: #000000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 45px !important;
+  z-index: 10000 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease !important;
+}
 
-      .ggw-mobile-menu.active {
-        right: 0;
-      }
+.ggw-mobile-menu.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
 
-      .ggw-mobile-menu a {
-        display: block;
-        color: white;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 500;
-        padding: 15px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
+.ggw-mobile-menu a {
+  color: #ffffff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  text-decoration: none !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ggw-mobile-menu a:hover {
+  color: #32b8c6 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Close Button Inside Menu */
+.ggw-mobile-menu::before {
+  content: '×';
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 42px;
+  color: #ffffff;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.ggw-mobile-menu::before:hover {
+  color: #32b8c6;
+  transform: rotate(90deg);
+}
+
 
       /* Main Content */
       .ggw-main-content {
@@ -1557,6 +1586,27 @@ const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnb
       }
 
 
+.ggw-know-more-btn {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.ggw-know-more-btn:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
+
+
      
     </style>
   </head>
@@ -1886,13 +1936,17 @@ const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnb
         </div>
 
         <div id="successMessage" class="ggw-success-message">
-          <div class="ggw-success-icon">✓</div>
-          <h3>Registration Successful!</h3>
-          <p>Check your email for confirmation details.</p>
-          <p style="margin-top: 20px">See you on 16th November 2025!</p>
-        </div>
-      </div>
-    </div>
+  <div class="ggw-success-icon">✓</div>
+  <h3>Registration Successful!</h3>
+  <p>Check your email for confirmation details.</p>
+  <p style="margin-top: 20px">See you on 16th November 2025!</p>
+  
+  <!-- YEH NEW BUTTON HAI -->
+  <a href="https://gripandgrab.com" class="ggw-know-more-btn">
+    Know More About Grip&Grab
+  </a>
+</div>
+
 
     <!-- 🚫 FULLY BOOKED MODAL -->
     <div id="fullyBookedModal" class="ggw-fully-booked-modal">
@@ -2388,6 +2442,15 @@ function openModal() {
       } else {
         initBookingSystem();
       }
+
+// Close menu when clicking on background
+document.getElementById('mobileMenu').addEventListener('click', function(e) {
+  if (e.target === this) {
+    toggleMobileMenu();
+  }
+});
+
+       
     </script>
   </body>
 </html>
