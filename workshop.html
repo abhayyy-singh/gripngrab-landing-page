@@ -7,6 +7,11 @@
     <title>Master the art of Movement - Grip&Grab</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      <!-- Google Sheets Webhook URL (Global Scope) -->
+  <script>
+    window.SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec";
+  </script>
+
     <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -26,7 +31,7 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec";
+
 
   
   // Make database accessible globally
@@ -2341,6 +2346,7 @@ function openModal() {
                   );
                   console.log("✅ Admin email sent successfully");
                                    // Send to Google Sheets (CORS-free GET method)
+                                    // Send to Google Sheets (CORS-free GET method)
                   try {
                     const workshopPayload = {
                       formType: "workshop",
@@ -2360,13 +2366,18 @@ function openModal() {
                       data: JSON.stringify(workshopPayload)
                     });
                     
-                    fetch(SHEETS_WEBHOOK_URL + '?' + params.toString(), {
-                      method: 'GET',
-                      mode: 'no-cors'
-                    }).catch(() => {
-                      // Silent - data still saves
-                    });
-                  } catch(e) {}
+                    console.log("📤 Sending to Sheets:", workshopPayload);
+                    
+                    fetch(SHEETS_WEBHOOK_URL + "?" + params.toString(), {
+                      method: "GET",
+                      mode: "no-cors"
+                    })
+                    .then(() => console.log("✅ Sheets synced"))
+                    .catch(() => console.log("⚠️ Sheets sync attempted (silent)"));
+                  } catch(e) {
+                    console.log("Sheets sync error:", e);
+                  }
+
 
 
                 } catch (emailError) {
