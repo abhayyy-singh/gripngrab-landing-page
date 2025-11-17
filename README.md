@@ -457,18 +457,18 @@ For portfolio demonstration purposes only. Not licensed for reuse or distributio
 
 ## 📞 Contact
 
-**Developer:** [Your Name]
+**Developer:** Abhay Singh
 
-- **Email:** [your.email@example.com]
-- **LinkedIn:** [linkedin.com/in/yourprofile]
-- **GitHub:** [github.com/yourusername]
-- **Portfolio:** [yourportfolio.com]
+- **Email:** [itsabhaypvt@gmail.com]
+- **LinkedIn:** [https://www.linkedin.com/in/abhayysingh]
+- **GitHub:** [https://github.com/abhayyy-singh]
+- **Portfolio:** [https://github.com/abhayyy-singh]
 
 **Client:** Grip & Grab Fitness
 
 - **Location:** Lajpat Nagar & Saket, Delhi
-- **Contact:** +91 9971250050
-- **Website:** [Live Link]
+- **Contact:** +91 
+- **Website:** [gripandgrab.com]
 
 ---
 
@@ -487,7 +487,7 @@ For portfolio demonstration purposes only. Not licensed for reuse or distributio
 
 ### ⭐ If you found this project interesting, please star this repository!
 
-**Built with 💪 by [Your Name] | Delhi, India | 2025**
+**Built with 💪 by ABHAY | Delhi, India | 2025**
 
 </div>
 
@@ -537,5 +537,3 @@ For portfolio demonstration purposes only. Not licensed for reuse or distributio
 - **Comments:** 300+ lines
 
 ---
-
-**Ready to showcase your full-stack capabilities? This README demonstrates your ability to build production-grade web applications with real business value. Good luck with your portfolio! 🚀**

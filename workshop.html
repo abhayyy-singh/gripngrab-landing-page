@@ -406,6 +406,7 @@
         max-width: 400px;
         text-align: center;
         animation: ggwPulseGlow 2s ease-in-out infinite;
+        display: none;
       }
 
       @keyframes ggwPulseGlow {
@@ -1656,25 +1657,22 @@
         
         <!-- Text Section (Shows First on Mobile) -->
         <div class="ggw-text-section">
-  <div class="ggw-workshop-title">WORKSHOP</div>
-  <h1>Master the art of <span class="ggw-highlight">Movement</span></h1>
-  <h2>"Train Smart Move Better Become Limitless"</h2>
+  <!-- <div class="ggw-workshop-title">THE</div> -->
+  <h1>BACK LEVER <span class="ggw-highlight">WORKSHOP</span></h1>
+  <h2>"Back Lever — One Movement That Changes Everything"</h2>
   
   <div class="ggw-about-heading">About Workshop</div>
           <p>
-            Transform Pain into Power The main goal of this movement-based
-            workshop is to help you understand your body better and move in a
-            smarter, more effective way. Everyone's body is different, so this
-            workshop focuses on how you can adjust your movements based on your
-            own goals, challenges, and weak areas. You'll learn simple and
-            practical techniques to improve the way you move, so your body
-            becomes stronger, more flexible, and less prone to injury. The
-            workshop will also help you understand the root causes of body pain
-            — why it happens and how to fix it. By the end, you'll know how to
-            use movement as a tool to heal, grow, and perform better, all
-            through scientifically backed and easy-to-follow methods. This
-            workshop will be life-changing.
+            The Back Lever is one of the most powerful and effective foundational movements in calisthenics — and one of the best places to begin your journey. It’s a single movement that solves multiple problems at the same time. If you have Tight Traps, try the Back Lever and feel the difference. This movement opens them up and restores ease. Shoulder pain or limited mobility? The Back Lever is completely safe when learned progressively, and it builds remarkably strong, stable, and mobile shoulders.
+
+Because it requires full-body tension and precise body-line control, the Back Lever naturally strengthens your core, supports the lower back, improves scapular mechanics, and enhances overall movement quality. Even your grip strength improves dramatically as you practice it.
+
+In this workshop, you’ll learn a progressive system — from regressions to advanced holds — teaching you how to build strength safely, fix imbalances, and develop true body control. And if you’re a fitness professional, you’ll also learn exactly how to teach this skill to your clients: what cues to give, what mistakes to avoid, how to choose the right progression, and how to identify mobility restrictions.
+
+One movement. Multiple solutions. A complete transformation in how you move and feel — starting from day one.
           </p>
+
+      
 
           <!-- 🔥 LIVE SPOTS COUNTER -->
           <div class="ggw-spots-counter" id="spotsCounter">
@@ -1700,11 +1698,12 @@
           </div>
         </div>
 
+
         <!-- Image Section (Shows After Text on Mobile) -->
         <div class="ggw-image-section">
           <div class="ggw-image-wrapper">
             <div class="ggw-image-circle">
-              <img src="./harishlogo.JPG" alt="Workshop Training" />
+              <img src="./ss.png" alt="Workshop Training" />
             </div>
           </div>
         </div>
@@ -1770,7 +1769,7 @@
               <div class="ggw-detail-title">Date & Time</div>
             </div>
             <div class="ggw-detail-content">
-              <p><strong>Date:</strong> 16th November 2025</p>
+              <p><strong>Date:</strong> 23th November 2025</p>
               <p><strong>Day:</strong> Sunday</p>
               <p><strong>Time:</strong> 11:00 AM - 1:00 PM</p>
               <p><strong>Duration:</strong> 2 Hours</p>
@@ -1816,7 +1815,7 @@
               <p><strong>Workshop Fee:</strong> ₹1000</p>
               <p><strong>Payment:</strong> Online</p>
               <p><strong>Refund Policy:</strong> Non-refundable</p>
-              <p><strong>Limited Seats:</strong> Only 20 Slots</p>
+              
               
             </div>
           </div>
@@ -1898,7 +1897,7 @@
           </p>
 
           <div class="ggw-workshop-info">
-            <p>📅 Date: 16th November 2025</p>
+            <p>📅 Date: 23th November 2025</p>
             <p>📍 Location: Delhi, Lajpat</p>
             <p>💰 Fee: ₹1000 (Non-refundable)</p>
           </div>
@@ -1945,7 +1944,7 @@
   <div class="ggw-success-icon">✓</div>
   <h3>Registration Successful!</h3>
   <p>Check your email for confirmation details.</p>
-  <p style="margin-top: 20px">See you on 16th November 2025!</p>
+  <p style="margin-top: 20px">See you on 23th November 2025!</p>
   
   <!-- YEH NEW BUTTON HAI -->
   <a href="https://gripandgrab.com" class="ggw-know-more-btn">
@@ -1996,6 +1995,14 @@ let totalBookings = 0;
 
 // Initialize Firebase real-time listener
 function initBookingSystem() {
+    // If slot system is disabled, skip Firebase initialization
+    if (!SLOT_CONFIG.enabled) {
+        console.log('Slot system disabled - unlimited registrations allowed');
+        const counterEl = document.getElementById('spotsCounter');
+        if (counterEl) counterEl.style.display = 'none';
+        return;
+    }
+
     const spotsRef = window.firebaseRef(window.firebaseDB, 'availableSpots');
     
     // Real-time listener - sabko same value dikhega
@@ -2146,6 +2153,12 @@ function initBookingSystem() {
       }
 // Decrement available spots in Firebase
 function decrementAvailableSpots() {
+    // If slot system is disabled, don't decrement
+    if (!SLOT_CONFIG.enabled) {
+        console.log('Slot system disabled - skipping decrement');
+        return Promise.resolve();
+    }
+
     const spotsRef = window.firebaseRef(window.firebaseDB, 'availableSpots');
     
     window.firebaseRunTransaction(spotsRef, (currentSpots) => {
@@ -2290,7 +2303,7 @@ function openModal() {
             lastName: document.getElementById('lastName').value,
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
-            workshopDate: '16th November 2025',
+            workshopDate: '23th November 2025',
             location: 'Lajpat Nagar, Delhi',
             fee: '₹1000'
           };
@@ -2319,7 +2332,7 @@ function openModal() {
                   lastName: formData.lastName,
                   user_email: formData.email,
                   phone: formData.phone,
-                  workshopDate: '16th November 2025',
+                  workshopDate: '23th November 2025',
                   location: 'Lajpat Nagar, Delhi',
                   amount: '₹1000',
                   paymentId: response.razorpay_payment_id
@@ -2355,7 +2368,7 @@ function openModal() {
                       lastName: document.getElementById("lastName")?.value || "",
                       email: document.getElementById("email")?.value || "",
                       phone: document.getElementById("phone")?.value || "",
-                      workshopDate: "16th November 2025",
+                      workshopDate: "23th November 2025",
                       amount: "1000",
                       paymentId: response.razorpay_payment_id,
                       status: "captured",
