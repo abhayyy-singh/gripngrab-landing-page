@@ -1991,6 +1991,8 @@ One movement. Multiple solutions. A complete transformation in how you move and 
     <script>
    // SLOT BOOKING SYSTEM WITH FIREBASE
 const MAX_SLOTS = 20;
+const SLOT_CONFIG = { enabled: false, availableSeats: 30 };
+
 let totalBookings = 0;
 
 // Initialize Firebase real-time listener
@@ -2298,15 +2300,16 @@ function openModal() {
           submitBtn.disabled = true;
           submitBtn.textContent = "Processing...";
 
-          const formData = {
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            workshopDate: '23th November 2025',
-            location: 'Lajpat Nagar, Delhi',
-            fee: '₹1000'
-          };
+  // Store formData FIRST
+          
+  // Store formData FIRST
+  const formData = {
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    email: document.getElementById("email").value,
+    phone: document.getElementById("phone").value
+  };
+
 
           try {
             // Razorpay Payment
@@ -2320,29 +2323,36 @@ function openModal() {
     console.log("Payment successful! Payment ID:", response.razorpay_payment_id);
     
     // DECREMENT AVAILABLE SPOTS IN FIREBASE
-    decrementAvailableSpots();
+    // decrementAvailableSpots();
 
 
+
+                                // Get form values directly from DOM
+                const firstName = document.getElementById("firstName").value;
+                const lastName = document.getElementById("lastName").value;
+                const email = document.getElementById("email").value;
+                const phone = document.getElementById("phone").value;
 
                 const emailParams = {
-                  to_email: formData.email,
-                  to_name: `${formData.firstName} ${formData.lastName}`,
+                  to_email: email,
+                  to_name: `${firstName} ${lastName}`,
                   from_name: 'Grip&Grab',
-                  firstName: formData.firstName,
-                  lastName: formData.lastName,
-                  user_email: formData.email,
-                  phone: formData.phone,
+                  firstName: firstName,
+                  lastName: lastName,
+                  user_email: email,
+                  phone: phone,
                   workshopDate: '23th November 2025',
                   location: 'Lajpat Nagar, Delhi',
                   amount: '₹1000',
                   paymentId: response.razorpay_payment_id
                 };
 
+
                 try {
                   // Email 1: User ko confirmation
                   console.log(
                     "📧 Sending user confirmation to:",
-                    formData.email
+                    email
                   );
                   await emailjs.send(
                     "harish@teamgng",
@@ -2407,9 +2417,9 @@ function openModal() {
               },
 
               prefill: {
-                name: `${formData.firstName} ${formData.lastName}`,
-                email: formData.email,
-                contact: formData.phone,
+                name: `${firstName} ${lastName}`,
+                email: email,
+                contact: phone,
               },
               theme: {
                 color: "#7c3aed",
