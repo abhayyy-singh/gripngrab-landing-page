@@ -1,591 +1,1578 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Our Workshops - Grip&Grab</title>
+  
+  <!-- External Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBr9Lga7_vPihQ0siiJ0_c58KkGgrrYVCM",
+      authDomain: "workshop-gng.firebaseapp.com",
+      databaseURL: "https://workshop-gng-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "workshop-gng",
+      storageBucket: "workshop-gng.firebasestorage.app",
+      messagingSenderId: "304234238485",
+      appId: "1:304234238485:web:040417be6f6a7cb35ef41c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
     
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Master the art of Movement - Grip&Grab</title>
-    <link rel="stylesheet" href="./workkshop.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-      <!-- Google Sheets Webhook URL (Global Scope) -->
-  <script>
-    window.SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec";
+    window.firebaseDB = db;
+    window.firebaseRef = ref;
+    window.firebaseOnValue = onValue;
+    window.firebaseRunTransaction = runTransaction;
   </script>
-
-    <!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBr9Lga7_vPihQ0siiJ0_c58KkGgrrYVCM",
-    authDomain: "workshop-gng.firebaseapp.com",
-    databaseURL: "https://workshop-gng-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "workshop-gng",
-    storageBucket: "workshop-gng.firebasestorage.app",
-    messagingSenderId: "304234238485",
-    appId: "1:304234238485:web:040417be6f6a7cb35ef41c"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-
   
-  // Make database accessible globally
-  window.firebaseDB = db;
-  window.firebaseRef = ref;
-  window.firebaseOnValue = onValue;
-  window.firebaseRunTransaction = runTransaction;
-</script>
-   
-  </head>
-  <body>
-    <div class="ggw-container">
-     
-      <!-- Navbar -->
-      <nav class="ggw-navbar">
-        <div class="ggw-logo">
-          <a href="./index.html">
-          <img src="./logo.png" alt="Grip&Grab Logo" /></a>
-        </div>
+  <style>
+    /* ========================================
+       RESET & BASE STYLES
+    ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        <!-- Desktop Menu -->
-        <div class="ggw-nav-menu">
-          <a href="./index.html" target="_blank">Home</a>
-          <a href="#details">Details</a>
-          <a href="#" onclick="openModal(); return false;">Register</a>
-        </div>
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      background: #000;
+    }
 
-        <!-- Hamburger Menu (Mobile) -->
-        <div class="ggw-hamburger" onclick="toggleMobileMenu()">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </nav>
+    /* ========================================
+       NAVBAR STYLES
+    ======================================== */
+    .ggw-navbar {
+      position: relative;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+    }
 
-      <!-- Mobile Menu -->
-      <div class="ggw-mobile-menu" id="mobileMenu">
-        <a href="./index.html" target="_blank" onclick="toggleMobileMenu()"
-          >Home</a
-        >
-        <a href="#details" onclick="toggleMobileMenu()">Details</a>
-        <a href="#" onclick="openModal(); toggleMobileMenu(); return false;"
-          >Register</a
-        >
+    .ggw-logo img {
+      border-radius: 50%;
+      height: 70px;
+      width: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .ggw-logo img:hover {
+      transform: scale(1.05);
+    }
+
+    .ggw-nav-menu {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .ggw-nav-menu a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .ggw-nav-menu a:hover {
+      color: #ff6b6b;
+    }
+
+    .ggw-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .ggw-hamburger span {
+      width: 28px;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .ggw-mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 45px;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(100%);
+    }
+
+    .ggw-mobile-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    .ggw-mobile-menu a {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateX(50px);
+    }
+
+    .ggw-mobile-menu.active a {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .ggw-mobile-menu.active a:nth-child(1) {
+      transition-delay: 0.1s;
+    }
+
+    .ggw-mobile-menu.active a:nth-child(2) {
+      transition-delay: 0.2s;
+    }
+
+    .ggw-mobile-menu a:hover {
+      color: #ff6b6b;
+      transform: scale(1.05);
+    }
+
+    .ggw-mobile-menu::before {
+      content: '×';
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      font-size: 42px;
+      color: #ffffff;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .ggw-mobile-menu::before:hover {
+      color: #ff6b6b;
+      transform: rotate(90deg);
+    }
+
+    /* ========================================
+       TIMELINE SECTION STYLES
+    ======================================== */
+    .timeline-section {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+      padding: 80px 20px;
+      min-height: 100vh;
+    }
+
+    .timeline-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .timeline-header h1 {
+      font-size: 48px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 15px;
+      letter-spacing: -0.5px;
+    }
+
+    .timeline-header p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 60px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 30px;
+      bottom: 30px;
+      width: 3px;
+      background: linear-gradient(180deg, rgba(255, 107, 107, 0.6), rgba(255, 107, 107, 0.1));
+      border-radius: 10px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 40px;
+      cursor: pointer;
+    }
+
+    .timeline-number {
+      position: absolute;
+      left: -60px;
+      top: 5px;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+      z-index: 2;
+    }
+
+    .timeline-card {
+      background: rgba(30, 30, 30, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 107, 107, 0.15);
+      border-radius: 16px;
+      padding: 24px 28px;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-card:hover {
+      border-color: rgba(255, 107, 107, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255, 107, 107, 0.15);
+    }
+
+    .timeline-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .timeline-preview {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 12px;
+    }
+
+    .timeline-quick-info {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .timeline-quick-info span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ========================================
+       HERO WORKSHOP SECTION (EXPANDABLE)
+    ======================================== */
+    .hero-workshop {
+      display: none;
+      background: linear-gradient(180deg, #000 0%, #1a1a1a 50%, #000 100%);
+      padding: 60px 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .hero-workshop.active {
+      display: block;
+      animation: heroFadeIn 0.6s ease forwards;
+    }
+
+    @keyframes heroFadeIn {
+      from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    .hero-close-btn {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .hero-close-btn button {
+      background: rgba(255, 107, 107, 0.2);
+      border: 1px solid rgba(255, 107, 107, 0.5);
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .hero-close-btn button:hover {
+      background: rgba(255, 107, 107, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .hero-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 45% 55%;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-image-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-image-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .hero-image-circle {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 15px solid rgba(255, 107, 107, 0.3);
+      box-shadow: 0 30px 80px rgba(255, 107, 107, 0.2);
+      transition: transform 0.5s ease;
+    }
+
+    .hero-image-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .hero-image-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-text-section {
+      color: white;
+    }
+
+    .hero-text-section h1 {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-text-section h1 .highlight {
+      color: #ff6b6b;
+      font-style: italic;
+    }
+
+    .hero-text-section h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: white;
+    }
+
+    .about-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-text-section p {
+      font-size: 17px;
+      line-height: 1.75;
+      margin-bottom: 40px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .hero-details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .hero-detail-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 107, 107, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .hero-detail-item:hover {
+      background: rgba(255, 107, 107, 0.08);
+      border-color: rgba(255, 107, 107, 0.2);
+    }
+
+    .hero-detail-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .hero-detail-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .hero-register-btn {
+      width: 100%;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+    }
+
+    .hero-register-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(255, 107, 107, 0.5);
+      background: linear-gradient(135deg, #ff5252 0%, #e74c3c 100%);
+    }
+
+    /* ========================================
+       MODAL STYLES
+    ======================================== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10001;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border-radius: 24px;
+      padding: 50px;
+      max-width: 550px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      border: 2px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 32px;
+      cursor: pointer;
+      color: #999;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      color: #ff6b6b;
+      transform: rotate(90deg);
+    }
+
+    .modal h2 {
+      color: white;
+      margin-bottom: 12px;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .modal-subtitle {
+      color: #999;
+      margin-bottom: 30px;
+      font-size: 15px;
+    }
+
+    .workshop-info {
+      background: rgba(255, 107, 107, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border-left: 5px solid #ff6b6b;
+    }
+
+    .workshop-info p {
+      margin: 8px 0;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+    }
+
+    .form-group input.valid {
+      border-color: #4caf50;
+    }
+
+    .form-group input.invalid {
+      border-color: #f44336;
+    }
+
+    .form-group .error-message {
+      color: #f44336;
+      font-size: 13px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .form-group .error-message.show {
+      display: block;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .checkbox-group input {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      font-size: 14px;
+      color: #999;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: #ff5252;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: #444;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .success-message.active {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: 72px;
+      color: #ff6b6b;
+      margin-bottom: 24px;
+    }
+
+    .success-message h3 {
+      color: #ff6b6b;
+      font-size: 28px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .success-message p {
+      color: #999;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* Loading Spinner */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 10002;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 107, 107, 0.2);
+      border-top-color: #ff6b6b;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* ========================================
+       FOOTER STYLES
+    ======================================== */
+    .footer {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      border-top: 1px solid rgba(255, 107, 107, 0.1);
+      padding: 60px 20px 30px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-section h3 {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .footer-logo img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .footer-logo p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-links a i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .footer-links a:hover {
+      color: #ff6b6b;
+      transform: translateX(5px);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .social-links a:hover {
+      background: rgba(255, 107, 107, 0.3);
+      border-color: #ff6b6b;
+      transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-bottom p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 5px 0;
+    }
+
+    .footer-bottom .heart {
+      color: #ff6b6b;
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* ========================================
+       RESPONSIVE STYLES
+    ======================================== */
+    @media (max-width: 768px) {
+      .ggw-navbar {
+        padding: 18px 25px;
+      }
+
+      .ggw-logo img {
+        height: 50px;
+      }
+
+      .ggw-nav-menu {
+        display: none;
+      }
+
+      .ggw-hamburger {
+        display: flex;
+      }
+
+      .timeline-section {
+        padding: 60px 16px;
+      }
+
+      .timeline-header h1 {
+        font-size: 36px;
+      }
+
+      .timeline {
+        padding-left: 50px;
+      }
+
+      .timeline-number {
+        left: -50px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
+
+      .hero-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 0 20px;
+      }
+
+      .hero-text-section {
+        order: 0;
+        text-align: center;
+      }
+
+      .hero-image-section {
+        order: 1;
+      }
+
+      .hero-text-section h1 {
+        font-size: 36px;
+      }
+
+      .hero-text-section h2 {
+        font-size: 22px;
+      }
+
+      .hero-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        padding: 40px 25px;
+        width: 95%;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .footer {
+        padding: 40px 20px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .timeline-header h1 {
+        font-size: 28px;
+      }
+
+      .hero-text-section h1 {
+        font-size: 28px;
+      }
+
+      .hero-text-section h2 {
+        font-size: 20px;
+      }
+
+      .hero-text-section p {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="ggw-navbar">
+    <div class="ggw-logo">
+      <a href="./index.html">
+        <img src="./logo.png" alt="Grip&Grab Logo" />
+      </a>
+    </div>
+
+    <div class="ggw-nav-menu">
+      <a href="./index.html">Home</a>
+      <a href="#workshops">Workshops</a>
+    </div>
+
+    <div class="ggw-hamburger" onclick="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="ggw-mobile-menu" id="mobileMenu">
+    <a href="./index.html" onclick="toggleMobileMenu()">Home</a>
+    <a href="#workshops" onclick="toggleMobileMenu()">Workshops</a>
+  </div>
+
+  <!-- Timeline Section -->
+  <section id="workshops" class="timeline-section">
+    <div class="timeline-container">
+      <div class="timeline-header">
+        <h1>Our Upcoming Workshops</h1>
+        <p>Master your movement, conquer your pain</p>
       </div>
 
-      <!-- Main Content -->
-      <div class="ggw-main-content">
+      <div class="timeline">
+        <!-- Workshop 1: Back Lever -->
+        <div class="timeline-item" onclick="openWorkshop('back-lever')">
+          <div class="timeline-number">1</div>
+          <div class="timeline-card">
+            <h3>Back Lever Mastery</h3>
+            <p class="timeline-preview">Build extraordinary pulling strength and body control</p>
+            <div class="timeline-quick-info">
+              <span>📅 23rd Nov 2025 (Sunday)</span>
+              <span>🕐 11:00 AM - 1:00 PM</span>
+              <span>💰 ₹1,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop 2: Knee Pain -->
+        <div class="timeline-item" onclick="openWorkshop('knee-pain')">
+          <div class="timeline-number">2</div>
+          <div class="timeline-card">
+            <h3>Knee Pain Relief Workshop</h3>
+            <p class="timeline-preview">One approach that fixes multiple issues</p>
+            <div class="timeline-quick-info">
+              <span>📅 7th Dec 2025 (Sunday)</span>
+              <span>🕐 11:00 AM - 1:00 PM</span>
+              <span>💰 ₹1,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop 3: Lower Back Pain -->
+        <div class="timeline-item" onclick="openWorkshop('back-pain')">
+          <div class="timeline-number">3</div>
+          <div class="timeline-card">
+            <h3>Lower Back Pain Solutions</h3>
+            <p class="timeline-preview">One framework that rebuilds your spine</p>
+            <div class="timeline-quick-info">
+              <span>📅 21st Dec 2025 (Sunday)</span>
+              <span>🕐 11:00 AM - 1:00 PM</span>
+              <span>💰 ₹1,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop 4: Handstand -->
+        <div class="timeline-item" onclick="openWorkshop('handstand')">
+          <div class="timeline-number">4</div>
+          <div class="timeline-card">
+            <h3>Handstand Fundamentals</h3>
+            <p class="timeline-preview">One movement that transforms your body</p>
+            <div class="timeline-quick-info">
+              <span>📅 4th Jan 2026 (Sunday)</span>
+              <span>🕐 11:00 AM - 1:00 PM</span>
+              <span>💰 ₹1,000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero Workshop Section (Hidden by default) -->
+  <div id="heroWorkshop" class="hero-workshop">
+    <div class="hero-close-btn">
+      <button onclick="closeWorkshop()">← Back to Workshops</button>
+    </div>
+
+    <div class="hero-content">
+      <!-- Image Section -->
+      <div class="hero-image-section">
+        <div class="hero-image-wrapper">
+          <div class="hero-image-circle">
+            <img id="workshopImage" src="./ss.png" alt="Workshop" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Section -->
+      <div class="hero-text-section">
+        <h1 id="workshopTitle">Workshop <span class="highlight">Title</span></h1>
+        <h2 id="workshopTagline">"Tagline here"</h2>
         
-        <!-- Text Section (Shows First on Mobile) -->
-        <div class="ggw-text-section">
-  <!-- <div class="ggw-workshop-title">THE</div> -->
-  <h1>BACK LEVER <span class="ggw-highlight">WORKSHOP</span></h1>
-  <h2>"Back Lever — One Movement That Changes Everything"</h2>
-  
-  <div class="ggw-about-heading">About Workshop</div>
-          <p>
-            The Back Lever is one of the most powerful and effective foundational movements in calisthenics — and one of the best places to begin your journey. It’s a single movement that solves multiple problems at the same time. If you have Tight Traps, try the Back Lever and feel the difference. This movement opens them up and restores ease. Shoulder pain or limited mobility? The Back Lever is completely safe when learned progressively, and it builds remarkably strong, stable, and mobile shoulders.
+        <div class="about-heading">About Workshop</div>
+        <p id="workshopDescription">Description here...</p>
 
-Because it requires full-body tension and precise body-line control, the Back Lever naturally strengthens your core, supports the lower back, improves scapular mechanics, and enhances overall movement quality. Even your grip strength improves dramatically as you practice it.
-
-In this workshop, you’ll learn a progressive system — from regressions to advanced holds — teaching you how to build strength safely, fix imbalances, and develop true body control. And if you’re a fitness professional, you’ll also learn exactly how to teach this skill to your clients: what cues to give, what mistakes to avoid, how to choose the right progression, and how to identify mobility restrictions.
-
-One movement. Multiple solutions. A complete transformation in how you move and feel — starting from day one.
-          </p>
-
-      
-
-          <!-- 🔥 LIVE SPOTS COUNTER -->
-          <div class="ggw-spots-counter" id="spotsCounter">
-            <div class="ggw-spots-badge">
-              <span class="ggw-spots-icon">🔥</span>
-              <span class="ggw-spots-text">
-                <span id="spotsRemaining">20</span> Spots Left!
-              </span>
-            </div>
-            <div class="ggw-spots-progress">
-              <div class="ggw-spots-bar" id="spotsBar"></div>
-            </div>
-            <p class="ggw-spots-message" id="spotsMessage">Hurry! Limited seats available</p>
+        <div class="hero-details-grid">
+          <div class="hero-detail-item">
+            <div class="hero-detail-label">📅 Date</div>
+            <div class="hero-detail-value" id="workshopDate">Date</div>
           </div>
-
-          <div class="ggw-buttons">
-            <button class="ggw-btn ggw-btn-primary" onclick="openModal()">
-              Register Now
-            </button>
-            <!-- <a href="#video" class="ggw-btn ggw-btn-secondary"
-              >Watch Intro Video</a
-            > -->
+          <div class="hero-detail-item">
+            <div class="hero-detail-label">🕐 Time</div>
+            <div class="hero-detail-value" id="workshopTime">Time</div>
+          </div>
+          <div class="hero-detail-item">
+            <div class="hero-detail-label">📍 Venue</div>
+            <div class="hero-detail-value" id="workshopVenue">Venue</div>
+          </div>
+          <div class="hero-detail-item">
+            <div class="hero-detail-label">💰 Fee</div>
+            <div class="hero-detail-value" id="workshopFee">Fee</div>
           </div>
         </div>
 
-
-        <!-- Image Section (Shows After Text on Mobile) -->
-        <div class="ggw-image-section">
-          <div class="ggw-image-wrapper">
-            <div class="ggw-image-circle">
-              <img src="./ss.png" alt="Workshop Training" />
-            </div>
-          </div>
-        </div>
+        <button class="hero-register-btn" onclick="openModal()">Register Now</button>
       </div>
-
-      <!-- Features Section (After Image on Mobile) -->
-      <div
-        style="
-          position: relative;
-          z-index: 10;
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: 0 60px 100px;
-        "
-      >
-        <div class="ggw-features">
-          <div class="ggw-feature-item">
-            <div class="ggw-feature-icon">
-              <div class="ggw-counter" data-target="500">0</div>
-            </div>
-            <div class="ggw-feature-text">Pain-Free<br />Transformations</div>
-          </div>
-          <div class="ggw-feature-item">
-            <div class="ggw-feature-icon">
-              <div class="ggw-counter" data-target="2000">0</div>
-            </div>
-            <div class="ggw-feature-text">Clients<br />Trained</div>
-          </div>
-          <div class="ggw-feature-item">
-            <div class="ggw-feature-icon">
-              <div class="ggw-counter" data-target="14">0</div>
-            </div>
-            <div class="ggw-feature-text">
-              Years of <br />Experience
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- WORKSHOP TIMELINE SECTION -->
-<section class="wt-timeline-section">
-  <div class="wt-container">
-    <div class="wt-header">
-      <h2>Pain Relief Workshops</h2>
-      <p>Break down the cause, learn the solution</p>
-    </div>
-
-    <div class="wt-timeline">
-      
-      <!-- Workshop 1: Knee Pain -->
-      <div class="wt-timeline-item" data-workshop="knee-pain">
-        <div class="wt-number">1</div>
-        <div class="wt-content">
-          <div class="wt-header-wrapper" onclick="toggleWorkshop(this)">
-            <div class="wt-title-group">
-              <h3>Knee Pain Relief Workshop</h3>
-              <p class="wt-preview">We'll break down the cause, talk about solutions, what to do and what NOT to do...</p>
-            </div>
-            <svg class="wt-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </div>
-          
-          <div class="wt-details">
-            <div class="wt-details-content">
-              <p class="wt-description">
-                Knee pain is one of the most common complaints in fitness training. We'll identify the root causes—improper landing mechanics, muscle imbalances, mobility restrictions, or poor progression. Learn evidence-based solutions including movement re-education, targeted strengthening exercises, and what movements to avoid. Walk away pain-free with a personalized action plan.
-              </p>
-              
-              <div class="wt-info-grid">
-                <div class="wt-info-item">
-                  <span class="wt-label">📅 Date</span>
-                  <span class="wt-value">30th November 2025</span>
-                </div>
-                <div class="wt-info-item">
-                  <span class="wt-label">🕐 Time</span>
-                  <span class="wt-value">10:00 AM - 12:00 PM</span>
-                </div>
-                <div class="wt-info-item">
-                  <span class="wt-label">📍 Venue</span>
-                  <span class="wt-value">GripGrab Studio, Lajpat Nagar</span>
-                </div>
-                <div class="wt-info-item">
-                  <span class="wt-label">💰 Fee</span>
-                  <span class="wt-value">₹1,200</span>
-                </div>
-              </div>
-              
-              <button class="wt-register-btn" onclick="registerWorkshop('knee-pain')">
-                Register Now
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Workshop 2: Back Pain -->
-      <div class="wt-timeline-item" data-workshop="back-pain">
-        <div class="wt-number">2</div>
-        <div class="wt-content">
-          <div class="wt-header-wrapper" onclick="toggleWorkshop(this)">
-            <div class="wt-title-group">
-              <h3>Back Pain Solutions Workshop</h3>
-              <p class="wt-preview">We'll break down the cause, talk about solutions, what to do and what NOT to do...</p>
-            </div>
-            <svg class="wt-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </div>
-          
-          <div class="wt-details">
-            <div class="wt-details-content">
-              <!-- Content will be lazy-loaded when clicked -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Workshop 3: Handstand -->
-      <div class="wt-timeline-item" data-workshop="handstand">
-        <div class="wt-number">3</div>
-        <div class="wt-content">
-          <div class="wt-header-wrapper" onclick="toggleWorkshop(this)">
-            <div class="wt-title-group">
-              <h3>Handstand Fundamentals</h3>
-              <p class="wt-preview">We'll break down the technique, build shoulder stability, and master balance control...</p>
-            </div>
-            <svg class="wt-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </div>
-          
-          <div class="wt-details">
-            <div class="wt-details-content">
-              <!-- Content will be lazy-loaded when clicked -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Workshop 4: Upper Trap & Rhomboid Pain -->
-      <div class="wt-timeline-item" data-workshop="trap-pain">
-        <div class="wt-number">4</div>
-        <div class="wt-content">
-          <div class="wt-header-wrapper" onclick="toggleWorkshop(this)">
-            <div class="wt-title-group">
-              <h3>Upper Trap & Rhomboid Pain Relief</h3>
-              <p class="wt-preview">We'll break down the cause, talk about solutions, what to do and what NOT to do...</p>
-            </div>
-            <svg class="wt-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </div>
-          
-          <div class="wt-details">
-            <div class="wt-details-content">
-              <!-- Content will be lazy-loaded when clicked -->
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
-</section>
 
+  <!-- Registration Modal -->
+  <div id="registrationModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
 
+      <div id="formContainer">
+        <h2>Register for Workshop</h2>
+        <p class="modal-subtitle">Secure your spot now - Limited seats available!</p>
 
-
-    <!-- Details Section -->
-    <section id="details" class="ggw-details-section">
-      <div class="ggw-details-container">
-        <div class="ggw-details-header">
-          <h2>Workshop Details</h2>
-          <p>
-            Everything you need to know about the Master the art of Movement
-            workshop
-          </p>
+        <div class="workshop-info" id="modalWorkshopInfo">
+          <p>📅 Date: TBD</p>
+          <p>📍 Location: Grip&Grab Studio</p>
+          <p>💰 Fee: TBD</p>
         </div>
 
-        <div class="ggw-details-grid">
-          <!-- Date & Time Card -->
-          <div class="ggw-detail-card">
-            <div class="ggw-detail-card-header">
-              <div class="ggw-detail-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"
-                  />
-                </svg>
-              </div>
-              <div class="ggw-detail-title">Date & Time</div>
-            </div>
-            <div class="ggw-detail-content">
-              <p><strong>Date:</strong> 23th November 2025</p>
-              <p><strong>Day:</strong> Sunday</p>
-              <p><strong>Time:</strong> 11:00 AM - 1:00 PM</p>
-              <p><strong>Duration:</strong> 2 Hours</p>
-              <p><strong>Arrival:</strong> Please arrive 15 minutes early</p>
-            </div>
+        <form id="registrationForm">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" required />
+            <div class="error-message">Please enter your first name</div>
           </div>
 
-          <!-- Venue Card -->
-          <div class="ggw-detail-card">
-            <div class="ggw-detail-card-header">
-              <div class="ggw-detail-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                  />
-                </svg>
-              </div>
-              <div class="ggw-detail-title">Venue</div>
-            </div>
-            <div class="ggw-detail-content">
-              <p><strong>Location:</strong> Grip&Grab Studio</p>
-              <p>
-                <strong>Address:</strong> B-32, 3rd Floor, opposite Defence
-                Colony, Lajpat Nagar, New Delhi, Delhi 110024
-              </p>
-              <p><strong>Nearest Metro:</strong> Lajpat Nagar (Pink Line) Pillar no 6-7</p>
-            </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" required />
+            <div class="error-message">Please enter your last name</div>
           </div>
 
-          <!-- Price & Registration Card -->
-          <div class="ggw-detail-card">
-            <div class="ggw-detail-card-header">
-              <div class="ggw-detail-icon">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"
-                  />
-                </svg>
-              </div>
-              <div class="ggw-detail-title">Registration Info</div>
-            </div>
-            <div class="ggw-detail-content">
-              <p><strong>Workshop Fee:</strong> ₹1000</p>
-              <p><strong>Payment:</strong> Online</p>
-              <p><strong>Refund Policy:</strong> Non-refundable</p>
-              
-              
-            </div>
-          </div>
-        </div>
-
-        <!-- Location Map & Contact -->
-        <div class="ggw-location-map">
-          <h3>Find Us & Get in Touch</h3>
-          <div class="ggw-map-buttons">
-            <a
-              href="https://maps.app.goo.gl/Jmwze4hovcgydgDP7"
-              target="_blank"
-              class="ggw-map-btn"
-            >
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-              Open in Google Maps
-            </a>
-            <a
-              class="ggw-map-btn" onclick="openModal()"
-            >
-             Register
-            </a>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required />
+            <div class="error-message">Please enter a valid email address</div>
           </div>
 
-          <div class="ggw-contact-cards">
-            <div class="ggw-contact-card">
-              <h4>📞 Call Us</h4>
-              <p><a href="tel:+919971250050">+91 9971250050</a></p>
-            </div>
-            <div class="ggw-contact-card">
-              <h4>✉️ Email Us</h4>
-              <p>
-                <a href="mailto:haristhenics06@gmail.com"
-                  >haristhenics06@gmail.com</a
-                >
-              </p>
-            </div>
-
-            <div class="ggw-contact-card">
-              <h4>
-                <svg
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style="
-                    width: 20px;
-                    height: 20px;
-                    fill: #fbbf24;
-                    display: inline-block;
-                    vertical-align: middle;
-                    margin-right: 5px;
-                  "
-                >
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 4.17 4.42 9.92 6.24 12.11.4.48 1.13.48 1.53 0C14.58 18.92 19 13.17 19 9c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                  />
-                </svg>
-                How to Reach
-              </h4>
-              <p>2 min walk from Lajpat Metro</p>
-            </div>
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" />
+            <div class="error-message">Please enter a valid 10-digit phone number</div>
           </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="terms" name="terms" required />
+            <label for="terms">I agree to the terms and conditions *</label>
+          </div>
+
+          <button type="submit" class="submit-btn">Proceed to Payment</button>
+        </form>
+      </div>
+
+      <div id="successMessage" class="success-message">
+        <div class="success-icon">✓</div>
+        <h3>Registration Successful!</h3>
+        <p>Check your email for confirmation details.</p>
+        <p style="margin-top: 20px">See you soon!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing Payment...</div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <!-- Logo & About -->
+      <div class="footer-section footer-logo">
+        <img src="./logo.png" alt="Grip&Grab Logo" />
+        <h3>Grip&Grab</h3>
+        <p>Master your movement, conquer your pain. Professional calisthenics and pain relief workshops.</p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <div class="footer-links">
+          <a href="./index.html"><i data-lucide="home"></i> Home</a>
+          <a href="#workshops"><i data-lucide="book-open"></i> Workshops</a>
+          <a href="https://maps.app.goo.gl/bX5Ie1pT7KqtNGIaM" target="_blank"><i data-lucide="map-pin"></i> Location</a>
         </div>
       </div>
-    </section>
 
-    <!-- Registration Modal -->
-    <div id="registrationModal" class="ggw-modal">
-      <div class="ggw-modal-content">
-        <span class="ggw-modal-close" onclick="closeModal()">&times;</span>
-
-        <div id="formContainer">
-          <h2>Register for Workshop</h2>
-          <p class="ggw-modal-subtitle">
-            Secure your spot now - Limited seats available!
-          </p>
-
-          <div class="ggw-workshop-info">
-            <p>📅 Date: 23th November 2025</p>
-            <p>📍 Location: Delhi, Lajpat</p>
-            <p>💰 Fee: ₹1000 (Non-refundable)</p>
-          </div>
-
-          <form id="registrationForm">
-            <div class="ggw-form-group">
-              <label for="firstName">First Name *</label>
-              <input type="text" id="firstName" name="firstName" required />
-            </div>
-
-            <div class="ggw-form-group">
-              <label for="lastName">Last Name *</label>
-              <input type="text" id="lastName" name="lastName" />
-            </div>
-
-            <div class="ggw-form-group">
-              <label for="email">Email Address *</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-
-            <div class="ggw-form-group">
-              <label for="phone">Phone Number *</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                required
-                pattern="[0-9]{10}"
-              />
-            </div>
-
-            <div class="ggw-checkbox-group">
-              <input type="checkbox" id="terms" name="terms" required />
-              <label for="terms">I agree to the terms and conditions *</label>
-            </div>
-
-            <button type="submit" class="ggw-submit-btn">
-              Proceed
-            </button>
-          </form>
+      <!-- Contact -->
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <div class="footer-links">
+          <a href="tel:+919971250050"><i data-lucide="phone"></i> +91 9971250050</a>
+          <a href="mailto:haristhenics06@gmail.com"><i data-lucide="mail"></i> haristhenics06@gmail.com</a>
+          <a href="https://maps.app.goo.gl/bX5Ie1pT7KqtNGIaM" target="_blank"><i data-lucide="map-pin"></i> Lajpat Nagar, Delhi</a>
         </div>
+      </div>
 
-        <div id="successMessage" class="ggw-success-message">
-  <div class="ggw-success-icon">✓</div>
-  <h3>Registration Successful!</h3>
-  <p>Check your email for confirmation details.</p>
-  <p style="margin-top: 20px">See you on 23th November 2025!</p>
-  
-  <!-- YEH NEW BUTTON HAI -->
-  <a href="https://gripandgrab.com" class="ggw-know-more-btn">
-    Know More About Grip&Grab
-  </a>
-</div>
-
-
-    <!-- 🚫 FULLY BOOKED MODAL -->
-    <div id="fullyBookedModal" class="ggw-fully-booked-modal">
-      <div class="ggw-fully-booked-content">
-        <span class="ggw-fully-booked-close" onclick="closeFullyBookedModal()">&times;</span>
-        
-        <div class="ggw-fully-booked-icon">😔</div>
-        <h2 class="ggw-fully-booked-title">Workshop Fully Booked!</h2>
-        <p class="ggw-fully-booked-text">
-          All 20 spots for this workshop have been filled.<br>
-          But don't worry! We'll be conducting more sessions soon.
-        </p>
-        
-        <div class="ggw-fully-booked-cta">
-          <h3>📩 Join the Waitlist</h3>
-          <p class="ggw-fully-booked-text" style="font-size: 14px; margin-bottom: 15px;">
-            Get notified when we announce the next workshop
-          </p>
-          <input 
-            type="email" 
-            id="waitlistEmail" 
-            class="ggw-fully-booked-input" 
-            placeholder="Enter your email address"
-          />
-          <div class="ggw-fully-booked-buttons">
-            <button class="ggw-fully-booked-btn ggw-fully-booked-btn-primary" onclick="submitWaitlist()">
-              Notify Me
-            </button>
-            <button class="ggw-fully-booked-btn ggw-fully-booked-btn-secondary" onclick="closeFullyBookedModal()">
-              Maybe Later
-            </button>
-          </div>
+      <!-- Follow Us -->
+      <div class="footer-section">
+        <h3>Follow Us</h3>
+        <div class="social-links">
+          <a href="https://instagram.com/gripandgrab" target="_blank" title="Instagram"><i data-lucide="instagram"></i></a>
+          <a href="https://facebook.com/gripandgrab" target="_blank" title="Facebook"><i data-lucide="facebook"></i></a>
+          <a href="https://youtube.com/@gripandgrab" target="_blank" title="YouTube"><i data-lucide="youtube"></i></a>
         </div>
       </div>
     </div>
-<script src="./workshop.js"></script>
-  </body>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Grip&Grab. All rights reserved.</p>
+      <p>Made with <span class="heart">❤️</span> in Delhi</p>
+    </div>
+  </footer>
+
+  <script>
+    // ========================================
+    // WORKSHOP DATA
+    // ========================================
+    const workshopData = {
+      'back-lever': {
+        name: 'Back Lever Mastery',
+        title: 'BACK LEVER',
+        highlight: 'MASTERY',
+        tagline: '"Build Extraordinary Pulling Strength"',
+        image: './ss.png',
+        description: 'The back lever is one of the most impressive calisthenics skills, requiring immense back strength, core stability, and total body tension. This workshop breaks down the complete progression system from foundation to mastery. You\'ll learn proper scapular engagement, lat activation, hollow body positioning, and safe progressions from tuck to straddle to full back lever. We\'ll cover common mistakes, regression drills, supplementary exercises, and how to build the pulling strength necessary for this advanced skill. Perfect for intermediate to advanced practitioners ready to take their calisthenics to the next level.',
+        date: '23rd November 2025 (Sunday)',
+        time: '11:00 AM - 1:00 PM',
+        venue: 'Grip&Grab Studio, Lajpat Nagar',
+        fee: '₹1,000',
+        emailTemplateUser: 'template_backlever_user',
+        emailTemplateAdmin: 'template_backlever_admin'
+      },
+      'knee-pain': {
+        name: 'Knee Pain Relief',
+        title: 'KNEE PAIN',
+        highlight: 'RELIEF',
+        tagline: '"One Approach That Fixes Multiple Issues"',
+        image: './knee-pain.jpg',
+        description: 'Knee pain often arises from weakness, poor control, or bad movement patterns — and a carefully designed movement-based workshop can address all of these with a single system. Rather than simply masking pain, this program uses neuromuscular exercises, mind-body techniques, and education about pain science, making it possible to retrain how your muscles support the knee. By improving muscle strength around the knee (especially in the quadriceps, hamstrings, and hip stabilizers), you reduce strain on the joint and help correct biomechanical imbalances. Incorporating progressive load training — tailored to each individual\'s strength — allows you to safely build strength using evidence-based protocols. Moreover, adding controlled, low-impact movements enhances your movement confidence and diminishes protective guarding, leading to better functional mobility and reduced pain in daily life. This workshop teaches not just how to strengthen the knee, but also how to teach clients or yourself: which progressions to pick, how to adjust exercises based on pain feedback, and how to build sustainable joint health.',
+        date: '7th December 2025 (Sunday)',
+        time: '11:00 AM - 1:00 PM',
+        venue: 'Grip&Grab Studio, Lajpat Nagar',
+        fee: '₹1,000',
+        emailTemplateUser: 'template_kneepain_user',
+        emailTemplateAdmin: 'template_kneepain_admin'
+      },
+      'back-pain': {
+        name: 'Lower Back Pain Solutions',
+        title: 'LOWER BACK PAIN',
+        highlight: 'SOLUTIONS',
+        tagline: '"One Framework That Rebuilds Your Spine"',
+        image: './back-pain.jpg',
+        description: 'Lower back pain can be deeply limiting, but a structured movement-based workshop can transform how you move, feel, and recover — all through one cohesive system. This program emphasizes core coordination, spinal mobility, and functional strength — all backed by clinical research showing that coordinated training is as effective as endurance-only training for chronic low back pain. You\'ll learn to engage your spine-stabilizing muscles (such as the deep core) through controlled exercises that improve alignment and decompress the spine safely. To complement this, we\'ll use mobility techniques — like the Cat–Cow stretch — and targeted strengthening exercises that enhance flexibility while minimizing strain. Through a progressive sequence, you\'ll restore proper mechanics, regain control over spinal movement, and reduce pain by building resilient and mobile lumbar musculature. For fitness professionals, this workshop also covers coaching strategies: how to detect compensation patterns, cue spinal alignment, and individualize the progression for clients with mobility restrictions or fear of movement.',
+        date: '21st December 2025 (Sunday)',
+        time: '11:00 AM - 1:00 PM',
+        venue: 'Grip&Grab Studio, Lajpat Nagar',
+        fee: '₹1,000',
+        emailTemplateUser: 'template_backpain_user',
+        emailTemplateAdmin: 'template_backpain_admin'
+      },
+      'handstand': {
+        name: 'Handstand Fundamentals',
+        title: 'HANDSTAND',
+        highlight: 'FUNDAMENTALS',
+        tagline: '"One Movement That Transforms Your Body"',
+        image: './handstand.jpg',
+        description: 'The handstand is more than just an advanced calisthenics skill — it\'s a single powerful movement that builds stability, strength, and alignment throughout your entire body. When practiced with proper progressions, it helps you develop deep core engagement and spinal control by reducing spinal curvature and activating muscles like the erector spinae and transversus abdominis. At the same time, it strengthens your shoulders, wrists, and grip by forcing you to maintain balance in an inverted position. Because maintaining a handstand requires full-body tension — from glutes to quads — it naturally improves posture and joint coordination. On top of that, the balance demands of the handstand improve your proprioception (your internal sense of where your body is), as shown in studies comparing handstand balance to normal standing stability. In this workshop, you\'ll follow a progressive system — starting with regressions like wall-assisted handstands and hollow-body holds, then moving to free-standing drills and stabilization exercises. You\'ll also learn how to safely bail out, correct alignment, and develop confidence in inversion — making the handstand not just a trick, but a profound tool for strength, control, and body awareness.',
+        date: '4th January 2026 (Sunday)',
+        time: '11:00 AM - 1:00 PM',
+        venue: 'Grip&Grab Studio, Lajpat Nagar',
+        fee: '₹1,000',
+        emailTemplateUser: 'template_handstand_user',
+        emailTemplateAdmin: 'template_handstand_admin'
+      }
+    };
+
+    let selectedWorkshopData = null;
+
+    // ========================================
+    // INITIALIZE EMAILJS
+    // ========================================
+    emailjs.init("wwGXMDT6ekGDIkKNg");
+
+    console.log('✅ EmailJS Initialized');
+    console.log('✅ Workshop Data Loaded:', Object.keys(workshopData));
+
+    // ========================================
+    // NAVIGATION FUNCTIONS
+    // ========================================
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById("mobileMenu");
+      const hamburger = document.querySelector(".ggw-hamburger");
+      mobileMenu.classList.toggle("active");
+      hamburger.classList.toggle("active");
+    }
+
+    // ========================================
+    // WORKSHOP FUNCTIONS
+    // ========================================
+    function openWorkshop(workshopId) {
+      const workshop = workshopData[workshopId];
+      if (!workshop) return;
+
+      selectedWorkshopData = workshop;
+      console.log('🎯 Workshop Selected:', workshopId, workshop.name);
+
+      // Update hero section content
+      document.getElementById('workshopImage').src = workshop.image;
+      document.getElementById('workshopTitle').innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
+      document.getElementById('workshopTagline').textContent = workshop.tagline;
+      document.getElementById('workshopDescription').textContent = workshop.description;
+      document.getElementById('workshopDate').textContent = workshop.date;
+      document.getElementById('workshopTime').textContent = workshop.time;
+      document.getElementById('workshopVenue').textContent = workshop.venue;
+      document.getElementById('workshopFee').textContent = workshop.fee;
+
+      // Show hero section
+      const heroSection = document.getElementById('heroWorkshop');
+      heroSection.classList.add('active');
+      
+      // Auto-scroll to hero section smoothly
+      setTimeout(() => {
+        heroSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+
+    function closeWorkshop() {
+      document.getElementById('heroWorkshop').classList.remove('active');
+      selectedWorkshopData = null;
+      console.log('❌ Workshop Closed');
+    }
+
+    // ========================================
+    // MODAL FUNCTIONS
+    // ========================================
+    function openModal() {
+      if (!selectedWorkshopData) return;
+
+      console.log('📝 Opening Registration Modal for:', selectedWorkshopData.name);
+
+      // Update modal info
+      document.getElementById('modalWorkshopInfo').innerHTML = `
+        <p><strong>Workshop:</strong> ${selectedWorkshopData.name}</p>
+        <p><strong>Date:</strong> ${selectedWorkshopData.date}</p>
+        <p><strong>Time:</strong> ${selectedWorkshopData.time}</p>
+        <p><strong>Location:</strong> ${selectedWorkshopData.venue}</p>
+        <p><strong>Fee:</strong> ${selectedWorkshopData.fee}</p>
+      `;
+
+      document.getElementById('registrationModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('registrationModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+      document.getElementById('formContainer').style.display = 'block';
+      document.getElementById('successMessage').classList.remove('active');
+      document.getElementById('registrationForm').reset();
+      
+      // Reset validation states
+      document.querySelectorAll('.form-group input').forEach(input => {
+        input.classList.remove('valid', 'invalid');
+      });
+      document.querySelectorAll('.error-message').forEach(msg => {
+        msg.classList.remove('show');
+      });
+      
+      console.log('❌ Modal Closed');
+    }
+
+    // Close modal on outside click
+    document.getElementById('registrationModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ========================================
+    // FORM VALIDATION
+    // ========================================
+    function validateInput(input) {
+      const errorMessage = input.parentElement.querySelector('.error-message');
+      
+      if (input.type === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input.value)) {
+          input.classList.add('invalid');
+          input.classList.remove('valid');
+          errorMessage.classList.add('show');
+          return false;
+        }
+      } else if (input.type === 'tel') {
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(input.value)) {
+          input.classList.add('invalid');
+          input.classList.remove('valid');
+          errorMessage.classList.add('show');
+          return false;
+        }
+      } else if (input.value.trim() === '') {
+        input.classList.add('invalid');
+        input.classList.remove('valid');
+        errorMessage.classList.add('show');
+        return false;
+      }
+      
+      input.classList.remove('invalid');
+      input.classList.add('valid');
+      errorMessage.classList.remove('show');
+      return true;
+    }
+
+    // Real-time validation
+    document.querySelectorAll('.form-group input').forEach(input => {
+      input.addEventListener('blur', function() {
+        validateInput(this);
+      });
+      
+      input.addEventListener('input', function() {
+        if (this.classList.contains('invalid')) {
+          validateInput(this);
+        }
+      });
+    });
+
+    // ========================================
+    // FORM SUBMISSION
+    // ========================================
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate all inputs
+      let isValid = true;
+      document.querySelectorAll('.form-group input').forEach(input => {
+        if (!validateInput(input)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        console.log('❌ Form validation failed');
+        return;
+      }
+
+      const submitBtn = e.target.querySelector('.submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+
+      const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value
+      };
+
+      console.log('📋 Form Data:', formData);
+      console.log('💳 Initiating Payment for:', selectedWorkshopData.fee);
+
+      try {
+        // Extract fee amount (remove ₹ and comma)
+        const feeString = selectedWorkshopData.fee.replace('₹', '').replace(',', '');
+        const feeAmount = parseInt(feeString) * 100; // Convert to paise
+
+        // Show loading overlay
+        document.getElementById('loadingOverlay').classList.add('active');
+
+        // Razorpay Payment
+        const options = {
+          key: "rzp_live_RZDqqPc9XD0IjO",
+          amount: feeAmount,
+          currency: "INR",
+          name: "Grip&Grab",
+          description: `${selectedWorkshopData.name} Registration`,
+          handler: async function(response) {
+            console.log('✅ Payment successful! Payment ID:', response.razorpay_payment_id);
+
+            const emailParams = {
+              to_email: formData.email,
+              to_name: `${formData.firstName} ${formData.lastName}`,
+              from_name: 'GripGrab',
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              user_email: formData.email,
+              phone: formData.phone,
+              workshop_name: selectedWorkshopData.name,
+              workshop_date: selectedWorkshopData.date,
+              workshop_time: selectedWorkshopData.time,
+              workshop_venue: 'B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi, Delhi 110024',
+              workshop_fee: selectedWorkshopData.fee,
+              amount: selectedWorkshopData.fee,
+              paymentId: response.razorpay_payment_id
+            };
+
+            console.log('📧 Sending confirmation emails...');
+
+            try {
+              // Send user confirmation email
+              await emailjs.send('harishteamgng', selectedWorkshopData.emailTemplateUser, emailParams);
+              console.log('✅ User email sent successfully');
+
+              // Send admin notification email
+              await emailjs.send('harishteamgng', selectedWorkshopData.emailTemplateAdmin, emailParams);
+              console.log('✅ Admin email sent successfully');
+
+            } catch (error) {
+              console.error('❌ Email sending error:', error);
+            }
+
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.remove('active');
+
+            // Show success message
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('successMessage').classList.add('active');
+          },
+          prefill: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            contact: formData.phone
+          },
+          theme: {
+            color: "#ff6b6b"
+          }
+        };
+
+        const razorpay = new Razorpay(options);
+        razorpay.open();
+
+        // Hide loading when Razorpay modal opens
+        document.getElementById('loadingOverlay').classList.remove('active');
+
+        razorpay.on('payment.failed', function(response) {
+          console.error('❌ Payment failed:', response.error);
+          document.getElementById('loadingOverlay').classList.remove('active');
+          alert('Payment failed. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Proceed to Payment';
+        });
+
+      } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById('loadingOverlay').classList.remove('active');
+        alert('Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Proceed to Payment';
+      }
+    });
+
+    // ========================================
+    // SMOOTH SCROLL
+    // ========================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href !== '#' && href !== '#home') {
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+      const mobileMenu = document.getElementById('mobileMenu');
+      const hamburger = document.querySelector('.ggw-hamburger');
+
+      if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        mobileMenu.classList.remove('active');
+        hamburger.classList.remove('active');
+      }
+    });
+
+    // Close mobile menu when clicking the X button
+    document.getElementById('mobileMenu').addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      if (clickX > rect.width - 80 && clickY < 80) {
+        toggleMobileMenu();
+      }
+    });
+
+    // ========================================
+    // INITIALIZE LUCIDE ICONS
+    // ========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      console.log('✅ Lucide Icons Initialized');
+    });
+  </script>
+</body>
 </html>
