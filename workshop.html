@@ -1299,7 +1299,8 @@ You'll learn:
  How to modify exercises based on your current level
  A complete approach to understanding and solving knee pain
 
-We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.`,
+We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.
+And yes—every individual will also receive a personalized KNEE PAIN focused workout plan. By the end of the session, you’ll know exactly how to train safely, move confidently.`,
   date: "30th November 2025 (Sunday)",
   time: "10:00 AM - 12:00 PM",
   venue: "Grip&Grab Studio, Lajpat Nagar",
@@ -1370,43 +1371,49 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
         hamburger.classList.toggle("active");
       }
 
-      // ========================================
-      // WORKSHOP FUNCTIONS
-      // ========================================
-      function openWorkshop(workshopId) {
-        const workshop = workshopData[workshopId];
-        if (!workshop) return;
+      // ======================================== 
+// WORKSHOP FUNCTIONS
+// ========================================
+function openWorkshop(workshopId) {
+  const workshop = workshopData[workshopId];
+  if (!workshop) return;
 
-        selectedWorkshopData = workshop;
-        console.log("🎯 Workshop Selected:", workshopId, workshop.name);
+  selectedWorkshopData = workshop;
+  console.log("🎯 Workshop Selected:", workshopId, workshop.name);
 
-        // Update hero section content
-        document.getElementById("workshopImage").src = workshop.image;
-        document.getElementById(
-          "workshopTitle"
-        ).innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
-        document.getElementById("workshopTagline").textContent =
-          workshop.tagline;
-        document.getElementById("workshopDescription").textContent =
-          workshop.description;
-        document.getElementById("workshopDate").textContent = workshop.date;
-        document.getElementById("workshopTime").textContent = workshop.time;
-        document.getElementById("workshopVenue").textContent = workshop.venue;
-        document.getElementById("workshopFee").textContent = workshop.fee;
+  // Update hero section content
+  const imgElement = document.getElementById("workshopImage");
+  imgElement.src = workshop.image;
+  
+  // ✅ SIRF KNEE PAIN IMAGE KO 10% LEFT POSITION
+  if (workshopId === 'knee-pain') {
+    imgElement.style.objectPosition = '10% center';
+  } else {
+    imgElement.style.objectPosition = 'center center';
+  }
+  
+  document.getElementById("workshopTitle").innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
+  document.getElementById("workshopTagline").textContent = workshop.tagline;
+  document.getElementById("workshopDescription").textContent = workshop.description;
+  document.getElementById("workshopDate").textContent = workshop.date;
+  document.getElementById("workshopTime").textContent = workshop.time;
+  document.getElementById("workshopVenue").textContent = workshop.venue;
+  document.getElementById("workshopFee").textContent = workshop.fee;
 
-        // Show hero section
-        const heroSection = document.getElementById("heroWorkshop");
-        heroSection.classList.add("active");
-        history.pushState({ workshop: workshopId }, "", `#${workshopId}`);
+  // Show hero section
+  const heroSection = document.getElementById("heroWorkshop");
+  heroSection.classList.add("active");
+  history.pushState({ workshop: workshopId }, "", `#${workshopId}`);
 
-        // Auto-scroll to hero section smoothly
-        setTimeout(() => {
-          heroSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }, 100);
-      }
+  // Auto-scroll to hero section smoothly
+  setTimeout(() => {
+    heroSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 100);
+}
+
 
       function closeWorkshop() {
         document.getElementById("heroWorkshop").classList.remove("active");
