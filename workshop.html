@@ -1030,7 +1030,7 @@
                 <span>🕐 11:00 AM - 1:00 PM</span>
                 <span>💰 ₹1,000 </span>
               </div>
-              <span class="limited-slots-badge">Limited Slots 🎯</span>
+              <span class="limited-slots-badge">Limited Slots 🎯</span> 
             </div>
           </div>
 
@@ -1284,90 +1284,85 @@
     </footer>
 
     <script>
-      // ========================================
-      // WORKSHOP DATA
-      // ========================================
-      const workshopData = {
-        "back-lever": {
-          name: "Back Lever / Calisthenics",
-          title: "BACK LEVER /",
-          highlight: "Calisthenics",
 
-          image: "./ss.png",
-          description:
-            "The back lever is one of the most impressive calisthenics skills, requiring immense back strength, core stability, and total body tension. This workshop breaks down the complete progression system from foundation to mastery. You'll learn proper scapular engagement, lat activation, hollow body positioning, and safe progressions from tuck to straddle to full back lever. We'll cover common mistakes, regression drills, supplementary exercises, and how to build the pulling strength necessary for this advanced skill. Perfect for intermediate to advanced practitioners ready to take their calisthenics to the next level.",
-          date: "23rd November 2025 (Sunday)",
-          time: "11:00 AM - 1:00 PM",
-          venue: "Grip&Grab Studio, Lajpat Nagar",
-          fee: "₹1,000",
-          emailTemplateUser: "template_backlever_user",
-          emailTemplateAdmin: "template_backlever_admin",
-        },
-        "knee-pain": {
-          name: "Knee Pain Relief",
-          title: "KNEE PAIN",
-          highlight: "RELIEF",
-          tagline: '"One Approach That Fixes Multiple Issues"',
-          image: "./kneepain.jpg",
-          description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
+      
+ const workshopData = {
+  "back-lever": {
+    name: "Back Lever / Calisthenics",
+    title: "BACK LEVER /",
+    highlight: "Calisthenics",
+    tagline: '"One Exercise That Transforms Your Upper Body"',
+    image: "./ss.png",
+    description: "Build extraordinary pulling strength and body control",
+    date: "23rd November 2025 (Sunday)",
+    time: "11:00 AM - 1:00 PM",
+    venue: "Grip&Grab Studio, Lajpat Nagar",
+    fee: "₹1,000",
+    emailTemplateUser: "template_1k0fnrn",
+    emailTemplateAdmin: "template_axjwehu",
+  },
+  "knee-pain": {
+    name: "Knee Pain Relief",
+    title: "KNEE PAIN",
+    highlight: "RELIEF",
+    tagline: '"One Approach That Fixes Multiple Issues"',
+    image: "./kneepain.jpg",
+    description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
 
 You'll learn:
- Which movements are actually suitable for your knees
- How to add regressions and progressions safely
- How to modify exercises based on your current level
- A complete approach to understanding and solving knee pain
+• Which movements are actually suitable for your knees
+• How to add regressions and progressions safely
+• How to modify exercises based on your current level
+• A complete approach to understanding and solving knee pain
 
-We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.
-And yes—every individual will also receive a personalized KNEE PAIN focused workout plan. By the end of the session, you’ll know exactly how to train safely, move confidently.`,
-          date: "30th November 2025 (Sunday)",
-          time: "10:00 AM - 12:00 PM",
-          venue: "Grip&Grab Studio, Lajpat Nagar",
-          fee: "₹1,000",
-          emailTemplateUser: "template_kneepain_user",
-          emailTemplateAdmin: "template_kneepain_admin",
-        },
-        "back-pain": {
-          name: "Lower Back Pain Solutions",
-          title: "LOWER BACK PAIN",
-          highlight: "SOLUTIONS",
-          tagline: '"One Framework That Rebuilds Your Spine"',
-          image: "./lowerback.jpg",
-          description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
+We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.`,
+    date: "30th November 2025 (Sunday)",
+    time: "10:00 AM - 12:00 PM",
+    venue: "Grip&Grab Studio, Lajpat Nagar",
+    fee: "₹1,000",
+    emailTemplateUser: "template_1k0fnrn",
+    emailTemplateAdmin: "template_axjwehu",
+  },
+  "back-pain": {
+    name: "Lower Back Pain Solutions",
+    title: "LOWER BACK PAIN",
+    highlight: "SOLUTIONS",
+    tagline: '"One Framework That Rebuilds Your Spine"',
+    image: "./lowerback.jpg",
+    description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
 
 You'll also learn why rest and medicine alone won't fix your lower back pain. If you want a permanent solution, you need to move. That movement can be strength-based, mobility-based, or release-based—and we'll discuss all of these in detail.
 
 We will cover:
- Which movements are safe
- Which ones you should avoid when your back feels irritated
- How to modify exercises according to your own needs
+• Which movements are safe
+• Which ones you should avoid when your back feels irritated
+• How to modify exercises according to your own needs
 
 You'll understand how simple and effective movements can reduce pain, improve mobility, and build real strength.
 
 And yes—every individual will also receive a personalized lower-back-pain–focused workout plan. By the end of the session, you'll know exactly how to train safely, move confidently, and finish your workouts without stressing your lower back.`,
-          date: "7th December 2025 (Sunday)",
-          time: "10:00 AM - 12:00 PM",
-          venue: "Grip&Grab Studio, Lajpat Nagar",
-          fee: "₹1,000",
-          emailTemplateUser: "template_backpain_user",
-          emailTemplateAdmin: "template_backpain_admin",
-        },
-
-        handstand: {
-          name: "Handstand Fundamentals",
-          title: "HANDSTAND",
-          highlight: "FUNDAMENTALS",
-          tagline: '"One Movement That Transforms Your Body"',
-          image: "./Handstand_Andrew-Clark.avif",
-          description:
-            "The handstand is more than just an advanced calisthenics skill — it's a single powerful movement that builds stability, strength, and alignment throughout your entire body. When practiced with proper progressions, it helps you develop deep core engagement and spinal control by reducing spinal curvature and activating muscles like the erector spinae and transversus abdominis. At the same time, it strengthens your shoulders, wrists, and grip by forcing you to maintain balance in an inverted position. Because maintaining a handstand requires full-body tension — from glutes to quads — it naturally improves posture and joint coordination. On top of that, the balance demands of the handstand improve your proprioception (your internal sense of where your body is), as shown in studies comparing handstand balance to normal standing stability. In this workshop, you'll follow a progressive system — starting with regressions like wall-assisted handstands and hollow-body holds, then moving to free-standing drills and stabilization exercises. You'll also learn how to safely bail out, correct alignment, and develop confidence in inversion — making the handstand not just a trick, but a profound tool for strength, control, and body awareness.",
-          date: "14th December 2025 (Sunday)",
-          time: "10:00 AM - 12:00 PM",
-          venue: "Grip&Grab Studio, Lajpat Nagar",
-          fee: "₹1,000",
-          emailTemplateUser: "template_handstand_user",
-          emailTemplateAdmin: "template_handstand_admin",
-        },
-      };
+    date: "7th December 2025 (Sunday)",
+    time: "10:00 AM - 12:00 PM",
+    venue: "Grip&Grab Studio, Lajpat Nagar",
+    fee: "₹1,000",
+    emailTemplateUser: "template_1k0fnrn",
+    emailTemplateAdmin: "template_axjwehu",
+  },
+  "handstand": {
+    name: "Handstand Fundamentals",
+    title: "HANDSTAND",
+    highlight: "FUNDAMENTALS",
+    tagline: '"One Movement That Transforms Your Body"',
+    image: "./Handstand_Andrew-Clark.avif",
+    description: "Master the art of balance and body control",
+    date: "14th December 2025 (Sunday)",
+    time: "10:00 AM - 12:00 PM",
+    venue: "Grip&Grab Studio, Lajpat Nagar",
+    fee: "₹1,000",
+    emailTemplateUser: "template_1k0fnrn",
+    emailTemplateAdmin: "template_axjwehu",
+  },
+};
 
       let selectedWorkshopData = null;
 
