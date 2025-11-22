@@ -964,6 +964,19 @@
           font-size: 15px;
         }
       }
+      .limited-slots-badge {
+  display: inline-block;
+  color: #ff6b6b;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 20px;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+
     </style>
   </head>
 
@@ -994,81 +1007,86 @@
       <a href="#workshops" onclick="toggleMobileMenu()">Workshops</a>
     </div>
 
-    <!-- Timeline Section -->
-    <section id="workshops" class="timeline-section">
-      <div class="timeline-container">
-        <div class="timeline-header">
-          <h1>Our Upcoming Workshops</h1>
-          <p>Master your movement, conquer your pain</p>
-        </div>
+   <!-- Timeline Section --> 
+<section id="workshops" class="timeline-section">
+  <div class="timeline-container">
+    <div class="timeline-header">
+      <h1>Our Upcoming Workshops</h1>
+      <p>Master your movement, conquer your pain</p>
+    </div>
 
-        <div class="timeline">
-          <!-- Workshop 1: Back Lever -->
-          <div class="timeline-item" onclick="openWorkshop('back-lever')">
-            <div class="timeline-number">1</div>
-            <div class="timeline-card">
-              <h3>Back lever / Calisthenics</h3>
-              <p class="timeline-preview">
-                Build extraordinary pulling strength and body control
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 23rd Nov 2025 (Sunday)</span>
-                <span>🕐 11:00 AM - 1:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-            </div>
+    <div class="timeline">
+      <!-- Workshop 1: Back Lever -->
+      <div class="timeline-item" onclick="openWorkshop('back-lever')">
+        <div class="timeline-number">1</div>
+        <div class="timeline-card">
+          <h3>Back lever / Calisthenics</h3>
+          <p class="timeline-preview">
+            Build extraordinary pulling strength and body control
+          </p>
+          <div class="timeline-quick-info">
+            <span>📅 23rd Nov 2025 (Sunday)</span>
+            <span>🕐 11:00 AM - 1:00 PM</span>
+            <span>💰 ₹1,000</span>
           </div>
-
-          <!-- Workshop 2: Knee Pain -->
-          <div class="timeline-item" onclick="openWorkshop('knee-pain')">
-            <div class="timeline-number">2</div>
-            <div class="timeline-card">
-              <h3>Knee Pain Relief Workshop</h3>
-              <p class="timeline-preview">
-                One approach that fixes multiple issues
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 30th Nov 2025 (Sunday)</span>
-                <span>🕐 10 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Workshop 3: Lower Back Pain -->
-          <div class="timeline-item" onclick="openWorkshop('back-pain')">
-            <div class="timeline-number">3</div>
-            <div class="timeline-card">
-              <h3>Lower Back Pain Solutions</h3>
-              <p class="timeline-preview">
-                One framework that rebuilds your spine
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 7th Dec 2025 (Sunday)</span>
-                <span>🕐 10:00 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Workshop 4: Handstand -->
-          <div class="timeline-item" onclick="openWorkshop('handstand')">
-            <div class="timeline-number">4</div>
-            <div class="timeline-card">
-              <h3>Handstand Fundamentals</h3>
-              <p class="timeline-preview">
-                One movement that transforms your body
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 14th Dec 2025 (Sunday)</span>
-                <span>🕐 10:00 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-            </div>
-          </div>
+          <span class="limited-slots-badge">Limited Slots 🎯</span>
         </div>
       </div>
-    </section>
+
+      <!-- Workshop 2: Knee Pain -->
+      <div class="timeline-item" onclick="openWorkshop('knee-pain')">
+        <div class="timeline-number">2</div>
+        <div class="timeline-card">
+          <h3>Knee Pain Relief Workshop</h3>
+          <p class="timeline-preview">
+            One approach that fixes multiple issues
+          </p>
+          <div class="timeline-quick-info">
+            <span>📅 30th Nov 2025 (Sunday)</span>
+            <span>🕐 10 AM - 12:00 PM</span>
+            <span>💰 ₹1,000</span>
+          </div>
+          <span class="limited-slots-badge">Limited Slots 🎯</span>
+        </div>
+      </div>
+
+      <!-- Workshop 3: Lower Back Pain -->
+      <div class="timeline-item" onclick="openWorkshop('back-pain')">
+        <div class="timeline-number">3</div>
+        <div class="timeline-card">
+          <h3>Lower Back Pain Solutions</h3>
+          <p class="timeline-preview">
+            One framework that rebuilds your spine
+          </p>
+          <div class="timeline-quick-info">
+            <span>📅 7th Dec 2025 (Sunday)</span>
+            <span>🕐 10:00 AM - 12:00 PM</span>
+            <span>💰 ₹1,000</span>
+          </div>
+          <span class="limited-slots-badge">Limited Slots 🎯</span>
+        </div>
+      </div>
+
+      <!-- Workshop 4: Handstand -->
+      <div class="timeline-item" onclick="openWorkshop('handstand')">
+        <div class="timeline-number">4</div>
+        <div class="timeline-card">
+          <h3>Handstand Fundamentals</h3>
+          <p class="timeline-preview">
+            One movement that transforms your body
+          </p>
+          <div class="timeline-quick-info">
+            <span>📅 14th Dec 2025 (Sunday)</span>
+            <span>🕐 10:00 AM - 12:00 PM</span>
+            <span>💰 ₹1,000</span>
+          </div>
+          <span class="limited-slots-badge">Limited Slots 🎯</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     <!-- Hero Workshop Section (Hidden by default) -->
     <div id="heroWorkshop" class="hero-workshop">
