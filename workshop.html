@@ -274,6 +274,7 @@
     }
 
     .timeline-preview {
+      display: none;
       font-size: 15px;
       color: rgba(255, 255, 255, 0.5);
       margin-bottom: 12px;
@@ -977,7 +978,7 @@
         <div class="timeline-item" onclick="openWorkshop('back-lever')">
           <div class="timeline-number">1</div>
           <div class="timeline-card">
-            <h3>Back Lever Mastery</h3>
+            <h3>Back lever / Calisthenics</h3>
             <p class="timeline-preview">Build extraordinary pulling strength and body control</p>
             <div class="timeline-quick-info">
               <span>📅 23rd Nov 2025 (Sunday)</span>
@@ -1147,12 +1148,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-container">
-      <!-- Logo & About -->
-      <div class="footer-section footer-logo">
-        <img src="./logo.png" alt="Grip&Grab Logo" />
-        <h3>Grip&Grab</h3>
-        <p>Master your movement, conquer your pain. Professional calisthenics and pain relief workshops.</p>
-      </div>
+      
 
       <!-- Quick Links -->
       <div class="footer-section">
@@ -1187,7 +1183,7 @@
 
     <div class="footer-bottom">
       <p>&copy; 2025 Grip&Grab. All rights reserved.</p>
-      <p>Made with <span class="heart">❤️</span> in Delhi</p>
+      
     </div>
   </footer>
 
@@ -1197,10 +1193,10 @@
     // ========================================
     const workshopData = {
       'back-lever': {
-        name: 'Back Lever Mastery',
-        title: 'BACK LEVER',
-        highlight: 'MASTERY',
-        tagline: '"Build Extraordinary Pulling Strength"',
+        name: 'Back Lever / Calisthenics',
+        title: 'BACK LEVER /',
+        highlight: 'Calisthenics',
+       
         image: './ss.png',
         description: 'The back lever is one of the most impressive calisthenics skills, requiring immense back strength, core stability, and total body tension. This workshop breaks down the complete progression system from foundation to mastery. You\'ll learn proper scapular engagement, lat activation, hollow body positioning, and safe progressions from tuck to straddle to full back lever. We\'ll cover common mistakes, regression drills, supplementary exercises, and how to build the pulling strength necessary for this advanced skill. Perfect for intermediate to advanced practitioners ready to take their calisthenics to the next level.',
         date: '23rd November 2025 (Sunday)',
@@ -1297,6 +1293,7 @@
       // Show hero section
       const heroSection = document.getElementById('heroWorkshop');
       heroSection.classList.add('active');
+      history.pushState({ workshop: workshopId }, '', `#${workshopId}`);
       
       // Auto-scroll to hero section smoothly
       setTimeout(() => {
@@ -1310,6 +1307,7 @@
     function closeWorkshop() {
       document.getElementById('heroWorkshop').classList.remove('active');
       selectedWorkshopData = null;
+      history.pushState({}, '', window.location.pathname);
       console.log('❌ Workshop Closed');
     }
 
@@ -1477,11 +1475,12 @@
 
             try {
               // Send user confirmation email
-              await emailjs.send('harishteamgng', selectedWorkshopData.emailTemplateUser, emailParams);
+              await emailjs.send('harish@teamgng', 'template_1k0fnrn', emailParams);
+
               console.log('✅ User email sent successfully');
 
               // Send admin notification email
-              await emailjs.send('harishteamgng', selectedWorkshopData.emailTemplateAdmin, emailParams);
+              await emailjs.send('harish@teamgng', 'template_axjwehu', emailParams);
               console.log('✅ Admin email sent successfully');
 
             } catch (error) {
@@ -1573,6 +1572,18 @@
       lucide.createIcons();
       console.log('✅ Lucide Icons Initialized');
     });
+    // Handle browser back button
+window.addEventListener('popstate', function(event) {
+  const heroSection = document.getElementById('heroWorkshop');
+  
+  if (heroSection.classList.contains('active')) {
+    heroSection.classList.remove('active');
+    selectedWorkshopData = null;
+    document.getElementById('workshops').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (event.state && event.state.workshop) {
+    openWorkshop(event.state.workshop);
+  }
+});
   </script>
 </body>
 </html>
