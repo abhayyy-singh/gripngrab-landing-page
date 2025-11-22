@@ -383,7 +383,6 @@
         position: relative;
         width: 100%;
         max-width: 500px;
-        
       }
 
       .hero-image-circle {
@@ -404,7 +403,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: 10% center;  
+        object-position: 10% center;
       }
 
       .hero-text-section {
@@ -965,18 +964,17 @@
         }
       }
       .limited-slots-badge {
-  display: inline-block;
-  color: #ff6b6b;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 4px 10px;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  border-radius: 20px;
-  margin-top: 8px;
-  letter-spacing: 0.3px;
-}
-
+        display: inline-block;
+        color: #ff6b6b;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 4px 10px;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 20px;
+        margin-top: 8px;
+        letter-spacing: 0.3px;
+      }
     </style>
   </head>
 
@@ -1007,86 +1005,88 @@
       <a href="#workshops" onclick="toggleMobileMenu()">Workshops</a>
     </div>
 
-   <!-- Timeline Section --> 
-<section id="workshops" class="timeline-section">
-  <div class="timeline-container">
-    <div class="timeline-header">
-      <h1>Our Upcoming Workshops</h1>
-      <p>Master your movement, conquer your pain</p>
-    </div>
-
-    <div class="timeline">
-      <!-- Workshop 1: Back Lever -->
-      <div class="timeline-item" onclick="openWorkshop('back-lever')">
-        <div class="timeline-number">1</div>
-        <div class="timeline-card">
-          <h3>Back lever / Calisthenics</h3>
-          <p class="timeline-preview">
-            Build extraordinary pulling strength and body control
+    <!-- Timeline Section -->
+    <section id="workshops" class="timeline-section">
+      <div class="timeline-container">
+        <div class="timeline-header">
+          <h1>Our Upcoming Workshops</h1>
+          <p>
+            Train smart. Move better. Feel the difference. Join our Master the
+            Art of Movement workshops.
           </p>
-          <div class="timeline-quick-info">
-            <span>📅 23rd Nov 2025 (Sunday)</span>
-            <span>🕐 11:00 AM - 1:00 PM</span>
-            <span>💰 ₹1,000</span>
+        </div>
+
+        <div class="timeline">
+          <!-- Workshop 1: Back Lever -->
+          <div class="timeline-item" onclick="openWorkshop('back-lever')">
+            <div class="timeline-number">1</div>
+            <div class="timeline-card">
+              <h3>Back lever / Calisthenics</h3>
+              <p class="timeline-preview">
+                Build extraordinary pulling strength and body control
+              </p>
+              <div class="timeline-quick-info">
+                <span>📅 23rd Nov 2025 (Sunday)</span>
+                <span>🕐 11:00 AM - 1:00 PM</span>
+                <span>💰 ₹1,000 </span>
+              </div>
+              <span class="limited-slots-badge">Limited Slots 🎯</span>
+            </div>
           </div>
-          <span class="limited-slots-badge">Limited Slots 🎯</span>
+
+          <!-- Workshop 2: Knee Pain -->
+          <div class="timeline-item" onclick="openWorkshop('knee-pain')">
+            <div class="timeline-number">2</div>
+            <div class="timeline-card">
+              <h3>Knee Pain Relief Workshop</h3>
+              <p class="timeline-preview">
+                One approach that fixes multiple issues
+              </p>
+              <div class="timeline-quick-info">
+                <span>📅 30th Nov 2025 (Sunday)</span>
+                <span>🕐 10 AM - 12:00 PM</span>
+                <span>💰 ₹1,000</span>
+              </div>
+              <span class="limited-slots-badge">Limited Slots 🎯</span>
+            </div>
+          </div>
+
+          <!-- Workshop 3: Lower Back Pain -->
+          <div class="timeline-item" onclick="openWorkshop('back-pain')">
+            <div class="timeline-number">3</div>
+            <div class="timeline-card">
+              <h3>Lower Back Pain Solutions</h3>
+              <p class="timeline-preview">
+                One framework that rebuilds your spine
+              </p>
+              <div class="timeline-quick-info">
+                <span>📅 7th Dec 2025 (Sunday)</span>
+                <span>🕐 10:00 AM - 12:00 PM</span>
+                <span>💰 ₹1,000</span>
+              </div>
+              <span class="limited-slots-badge">Limited Slots 🎯</span>
+            </div>
+          </div>
+
+          <!-- Workshop 4: Handstand -->
+          <div class="timeline-item" onclick="openWorkshop('handstand')">
+            <div class="timeline-number">4</div>
+            <div class="timeline-card">
+              <h3>Handstand Fundamentals</h3>
+              <p class="timeline-preview">
+                One movement that transforms your body
+              </p>
+              <div class="timeline-quick-info">
+                <span>📅 14th Dec 2025 (Sunday)</span>
+                <span>🕐 10:00 AM - 12:00 PM</span>
+                <span>💰 ₹1,000</span>
+              </div>
+              <span class="limited-slots-badge">Limited Slots 🎯</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- Workshop 2: Knee Pain -->
-      <div class="timeline-item" onclick="openWorkshop('knee-pain')">
-        <div class="timeline-number">2</div>
-        <div class="timeline-card">
-          <h3>Knee Pain Relief Workshop</h3>
-          <p class="timeline-preview">
-            One approach that fixes multiple issues
-          </p>
-          <div class="timeline-quick-info">
-            <span>📅 30th Nov 2025 (Sunday)</span>
-            <span>🕐 10 AM - 12:00 PM</span>
-            <span>💰 ₹1,000</span>
-          </div>
-          <span class="limited-slots-badge">Limited Slots 🎯</span>
-        </div>
-      </div>
-
-      <!-- Workshop 3: Lower Back Pain -->
-      <div class="timeline-item" onclick="openWorkshop('back-pain')">
-        <div class="timeline-number">3</div>
-        <div class="timeline-card">
-          <h3>Lower Back Pain Solutions</h3>
-          <p class="timeline-preview">
-            One framework that rebuilds your spine
-          </p>
-          <div class="timeline-quick-info">
-            <span>📅 7th Dec 2025 (Sunday)</span>
-            <span>🕐 10:00 AM - 12:00 PM</span>
-            <span>💰 ₹1,000</span>
-          </div>
-          <span class="limited-slots-badge">Limited Slots 🎯</span>
-        </div>
-      </div>
-
-      <!-- Workshop 4: Handstand -->
-      <div class="timeline-item" onclick="openWorkshop('handstand')">
-        <div class="timeline-number">4</div>
-        <div class="timeline-card">
-          <h3>Handstand Fundamentals</h3>
-          <p class="timeline-preview">
-            One movement that transforms your body
-          </p>
-          <div class="timeline-quick-info">
-            <span>📅 14th Dec 2025 (Sunday)</span>
-            <span>🕐 10:00 AM - 12:00 PM</span>
-            <span>💰 ₹1,000</span>
-          </div>
-          <span class="limited-slots-badge">Limited Slots 🎯</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
+    </section>
 
     <!-- Hero Workshop Section (Hidden by default) -->
     <div id="heroWorkshop" class="hero-workshop">
@@ -1304,12 +1304,12 @@
           emailTemplateAdmin: "template_backlever_admin",
         },
         "knee-pain": {
-  name: "Knee Pain Relief",
-  title: "KNEE PAIN",
-  highlight: "RELIEF",
-  tagline: '"One Approach That Fixes Multiple Issues"',
-  image: "./kneepain.jpg",
-  description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
+          name: "Knee Pain Relief",
+          title: "KNEE PAIN",
+          highlight: "RELIEF",
+          tagline: '"One Approach That Fixes Multiple Issues"',
+          image: "./kneepain.jpg",
+          description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
 
 You'll learn:
  Which movements are actually suitable for your knees
@@ -1319,20 +1319,20 @@ You'll learn:
 
 We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.
 And yes—every individual will also receive a personalized KNEE PAIN focused workout plan. By the end of the session, you’ll know exactly how to train safely, move confidently.`,
-  date: "30th November 2025 (Sunday)",
-  time: "10:00 AM - 12:00 PM",
-  venue: "Grip&Grab Studio, Lajpat Nagar",
-  fee: "₹1,000",
-  emailTemplateUser: "template_kneepain_user",
-  emailTemplateAdmin: "template_kneepain_admin",
-},
-"back-pain": {
-  name: "Lower Back Pain Solutions",
-  title: "LOWER BACK PAIN",
-  highlight: "SOLUTIONS",
-  tagline: '"One Framework That Rebuilds Your Spine"',
-  image: "./lowerback.jpg",
-  description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
+          date: "30th November 2025 (Sunday)",
+          time: "10:00 AM - 12:00 PM",
+          venue: "Grip&Grab Studio, Lajpat Nagar",
+          fee: "₹1,000",
+          emailTemplateUser: "template_kneepain_user",
+          emailTemplateAdmin: "template_kneepain_admin",
+        },
+        "back-pain": {
+          name: "Lower Back Pain Solutions",
+          title: "LOWER BACK PAIN",
+          highlight: "SOLUTIONS",
+          tagline: '"One Framework That Rebuilds Your Spine"',
+          image: "./lowerback.jpg",
+          description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
 
 You'll also learn why rest and medicine alone won't fix your lower back pain. If you want a permanent solution, you need to move. That movement can be strength-based, mobility-based, or release-based—and we'll discuss all of these in detail.
 
@@ -1344,13 +1344,13 @@ We will cover:
 You'll understand how simple and effective movements can reduce pain, improve mobility, and build real strength.
 
 And yes—every individual will also receive a personalized lower-back-pain–focused workout plan. By the end of the session, you'll know exactly how to train safely, move confidently, and finish your workouts without stressing your lower back.`,
-  date: "7th December 2025 (Sunday)",
-  time: "10:00 AM - 12:00 PM",
-  venue: "Grip&Grab Studio, Lajpat Nagar",
-  fee: "₹1,000",
-  emailTemplateUser: "template_backpain_user",
-  emailTemplateAdmin: "template_backpain_admin",
-},
+          date: "7th December 2025 (Sunday)",
+          time: "10:00 AM - 12:00 PM",
+          venue: "Grip&Grab Studio, Lajpat Nagar",
+          fee: "₹1,000",
+          emailTemplateUser: "template_backpain_user",
+          emailTemplateAdmin: "template_backpain_admin",
+        },
 
         handstand: {
           name: "Handstand Fundamentals",
@@ -1389,49 +1389,52 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
         hamburger.classList.toggle("active");
       }
 
-      // ======================================== 
-// WORKSHOP FUNCTIONS
-// ========================================
-function openWorkshop(workshopId) {
-  const workshop = workshopData[workshopId];
-  if (!workshop) return;
+      // ========================================
+      // WORKSHOP FUNCTIONS
+      // ========================================
+      function openWorkshop(workshopId) {
+        const workshop = workshopData[workshopId];
+        if (!workshop) return;
 
-  selectedWorkshopData = workshop;
-  console.log("🎯 Workshop Selected:", workshopId, workshop.name);
+        selectedWorkshopData = workshop;
+        console.log("🎯 Workshop Selected:", workshopId, workshop.name);
 
-  // Update hero section content
-  const imgElement = document.getElementById("workshopImage");
-  imgElement.src = workshop.image;
-  
-  // ✅ SIRF KNEE PAIN IMAGE KO 10% LEFT POSITION
-  if (workshopId === 'knee-pain') {
-    imgElement.style.objectPosition = '10% center';
-  } else {
-    imgElement.style.objectPosition = 'center center';
-  }
-  
-  document.getElementById("workshopTitle").innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
-  document.getElementById("workshopTagline").textContent = workshop.tagline;
-  document.getElementById("workshopDescription").textContent = workshop.description;
-  document.getElementById("workshopDate").textContent = workshop.date;
-  document.getElementById("workshopTime").textContent = workshop.time;
-  document.getElementById("workshopVenue").textContent = workshop.venue;
-  document.getElementById("workshopFee").textContent = workshop.fee;
+        // Update hero section content
+        const imgElement = document.getElementById("workshopImage");
+        imgElement.src = workshop.image;
 
-  // Show hero section
-  const heroSection = document.getElementById("heroWorkshop");
-  heroSection.classList.add("active");
-  history.pushState({ workshop: workshopId }, "", `#${workshopId}`);
+        // ✅ SIRF KNEE PAIN IMAGE KO 10% LEFT POSITION
+        if (workshopId === "knee-pain") {
+          imgElement.style.objectPosition = "10% center";
+        } else {
+          imgElement.style.objectPosition = "center center";
+        }
 
-  // Auto-scroll to hero section smoothly
-  setTimeout(() => {
-    heroSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 100);
-}
+        document.getElementById(
+          "workshopTitle"
+        ).innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
+        document.getElementById("workshopTagline").textContent =
+          workshop.tagline;
+        document.getElementById("workshopDescription").textContent =
+          workshop.description;
+        document.getElementById("workshopDate").textContent = workshop.date;
+        document.getElementById("workshopTime").textContent = workshop.time;
+        document.getElementById("workshopVenue").textContent = workshop.venue;
+        document.getElementById("workshopFee").textContent = workshop.fee;
 
+        // Show hero section
+        const heroSection = document.getElementById("heroWorkshop");
+        heroSection.classList.add("active");
+        history.pushState({ workshop: workshopId }, "", `#${workshopId}`);
+
+        // Auto-scroll to hero section smoothly
+        setTimeout(() => {
+          heroSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 100);
+      }
 
       function closeWorkshop() {
         document.getElementById("heroWorkshop").classList.remove("active");
@@ -1582,6 +1585,7 @@ function openWorkshop(workshopId) {
 
             // Show loading overlay
             document.getElementById("loadingOverlay").classList.add("active");
+            document.getElementById("loadingOverlay").classList.add("active");
 
             // Razorpay Payment
             const options = {
@@ -1596,40 +1600,43 @@ function openWorkshop(workshopId) {
                   response.razorpay_payment_id
                 );
 
+                // ✅ DYNAMIC EMAIL PARAMS - Workshop-specific data
                 const emailParams = {
                   to_email: formData.email,
                   to_name: `${formData.firstName} ${formData.lastName}`,
-                  from_name: "GripGrab",
+                  from_name: "Grip&Grab",
                   firstName: formData.firstName,
                   lastName: formData.lastName,
                   user_email: formData.email,
                   phone: formData.phone,
-                  workshop_name: selectedWorkshopData.name,
-                  workshop_date: selectedWorkshopData.date,
-                  workshop_time: selectedWorkshopData.time,
-                  workshop_venue:
-                    "B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi, Delhi 110024",
-                  workshop_fee: selectedWorkshopData.fee,
+
+                  // ✅ SELECTED WORKSHOP KA DYNAMIC DATA
+                  workshopname: selectedWorkshopData.name,
+                  workshopdate: selectedWorkshopData.date,
+                  workshoptime: selectedWorkshopData.time,
+                  workshopvenue: selectedWorkshopData.venue,
+                  workshopfee: selectedWorkshopData.fee,
                   amount: selectedWorkshopData.fee,
+                  location: selectedWorkshopData.venue,
                   paymentId: response.razorpay_payment_id,
                 };
 
                 console.log("📧 Sending confirmation emails...");
 
                 try {
-                  // Send user confirmation email
+                  // ✅ Send user confirmation email (Workshop-specific template)
                   await emailjs.send(
                     "harish@teamgng",
-                    "template_1k0fnrn",
+                    selectedWorkshopData.emailTemplateUser,
                     emailParams
                   );
 
                   console.log("✅ User email sent successfully");
 
-                  // Send admin notification email
+                  // ✅ Send admin notification email (Workshop-specific template)
                   await emailjs.send(
                     "harish@teamgng",
-                    "template_axjwehu",
+                    selectedWorkshopData.emailTemplateAdmin,
                     emailParams
                   );
                   console.log("✅ Admin email sent successfully");
@@ -1647,6 +1654,9 @@ function openWorkshop(workshopId) {
                 document
                   .getElementById("successMessage")
                   .classList.add("active");
+
+                // Reset form
+                document.getElementById("registrationForm").reset();
               },
               prefill: {
                 name: `${formData.firstName} ${formData.lastName}`,
@@ -1666,6 +1676,67 @@ function openWorkshop(workshopId) {
               .getElementById("loadingOverlay")
               .classList.remove("active");
 
+            // Handle payment failure
+            razorpay.on("payment.failed", function (response) {
+              console.error("❌ Payment failed:", response.error);
+              document
+                .getElementById("loadingOverlay")
+                .classList.remove("active");
+              alert("Payment failed. Please try again.");
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Proceed to Payment";
+            });
+
+            // ========================================
+            // SMOOTH SCROLL
+            // ========================================
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+              anchor.addEventListener("click", function (e) {
+                const href = this.getAttribute("href");
+                if (href !== "#" && href !== "#home") {
+                  e.preventDefault();
+                  const target = document.querySelector(href);
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth" });
+                  }
+                }
+              });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener("click", function (e) {
+              const mobileMenu = document.getElementById("mobileMenu");
+              const hamburger = document.querySelector(".ggw-hamburger");
+
+              if (
+                !mobileMenu.contains(e.target) &&
+                !hamburger.contains(e.target)
+              ) {
+                mobileMenu.classList.remove("active");
+                hamburger.classList.remove("active");
+              }
+            });
+
+            // Close mobile menu when clicking the X button
+            document
+              .getElementById("mobileMenu")
+              .addEventListener("click", function (e) {
+                const rect = this.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                if (clickX > rect.width - 80 && clickY < 80) {
+                  toggleMobileMenu();
+                }
+              });
+
+            // ========================================
+            // INITIALIZE LUCIDE ICONS
+            // ========================================
+            window.addEventListener("DOMContentLoaded", () => {
+              lucide.createIcons();
+              console.log("✅ Lucide Icons Initialized");
+            });
             razorpay.on("payment.failed", function (response) {
               console.error("❌ Payment failed:", response.error);
               document
@@ -1676,6 +1747,7 @@ function openWorkshop(workshopId) {
               submitBtn.textContent = "Proceed to Payment";
             });
           } catch (error) {
+            // ✅ ADD THIS - closes try block
             console.error("❌ Error:", error);
             document
               .getElementById("loadingOverlay")
@@ -1684,7 +1756,7 @@ function openWorkshop(workshopId) {
             submitBtn.disabled = false;
             submitBtn.textContent = "Proceed to Payment";
           }
-        });
+        }); // ✅ ADD THIS - closes form addEventListener
 
       // ========================================
       // SMOOTH SCROLL
@@ -1733,6 +1805,7 @@ function openWorkshop(workshopId) {
         lucide.createIcons();
         console.log("✅ Lucide Icons Initialized");
       });
+
       // Handle browser back button
       window.addEventListener("popstate", function (event) {
         const heroSection = document.getElementById("heroWorkshop");
