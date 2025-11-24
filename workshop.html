@@ -1018,21 +1018,7 @@
 
         <div class="timeline">
           <!-- Workshop 1: Back Lever -->
-          <!-- <div class="timeline-item" onclick="openWorkshop('back-lever')">
-            <div class="timeline-number">1</div>
-            <div class="timeline-card">
-              <h3>Back lever / Calisthenics</h3>
-              <p class="timeline-preview">
-                Build extraordinary pulling strength and body control
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 23rd Nov 2025 (Sunday)</span>
-                <span>🕐 11:00 AM - 1:00 PM</span>
-                <span>💰 ₹1,000 </span>
-              </div>
-              <span class="limited-slots-badge">Limited Slots 🎯</span> 
-            </div>
-          </div> -->
+          <!--  -->
 
           <!-- Workshop 1: Knee Pain -->
           <div class="timeline-item" onclick="openWorkshop('knee-pain')">
@@ -1053,7 +1039,7 @@
 
           <!-- Workshop 2: Lower Back Pain -->
           <div class="timeline-item" onclick="openWorkshop('back-pain')">
-            <div class="timeline-number">2</div>
+            <div class="timeline-number">1</div>
             <div class="timeline-card">
               <h3>Lower Back Pain Solutions</h3>
               <p class="timeline-preview">
@@ -1070,7 +1056,7 @@
 
           <!-- Workshop 3: Handstand -->
           <div class="timeline-item" onclick="openWorkshop('handstand')">
-            <div class="timeline-number">3</div>
+            <div class="timeline-number">2</div>
             <div class="timeline-card">
               <h3>Handstand Fundamentals</h3>
               <p class="timeline-preview">
@@ -1583,75 +1569,269 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
             document.getElementById("loadingOverlay").classList.add("active");
 
             // Razorpay Payment
-            const options = {
+            
+      // ============================================================
+      // 🛡️ ERROR-PROOF UTILITY FUNCTIONS
+      // ============================================================
+
+      // Email retry with exponential backoff - NEVER CRASHES
+      async function sendEmailWithRetry(serviceId, templateId, params, maxRetries = 3) {
+        let lastError;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            console.log(`📧 [RETRY ${attempt}/${maxRetries}] Attempting to send email...`);
+            console.log(`📧 Template ID: ${templateId}`);
+
+            // Check if emailjs exists
+            if (typeof emailjs === 'undefined' || !emailjs.send) {
+              throw new Error('EmailJS not available');
+            }
+
+            await emailjs.send(serviceId, templateId, params);
+
+            console.log(`✅ [SUCCESS] Email sent on attempt ${attempt}`);
+            return { success: true, attempt };
+
+          } catch (error) {
+            lastError = error;
+            console.error(`❌ [FAIL] Email attempt ${attempt} failed:`, error.message || error);
+
+            // Don't crash - just log and continue
+            if (attempt < maxRetries) {
+              const waitTime = Math.pow(2, attempt - 1) * 1000;
+              console.log(`⏳ Waiting ${waitTime/1000}s before retry...`);
+
+              try {
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+              } catch (e) {
+                console.error('Timer error (non-critical):', e);
+              }
+            }
+          }
+        }
+
+        console.error(`❌ [FINAL FAIL] All ${maxRetries} email attempts failed`);
+        return { success: false, error: lastError };
+      }
+
+      // Firebase save with error protection - NEVER CRASHES
+      async function savePaymentToFirebase(paymentData) {
+        try {
+          console.log("💾 [FIREBASE] Saving payment data...");
+          console.log("💾 Payment ID:", paymentData.paymentId);
+
+          // Check if Firebase is available
+          if (!window.firebaseDB || !window.firebaseRef || !window.firebaseRunTransaction) {
+            throw new Error('Firebase not properly initialized');
+          }
+
+          const paymentsRef = window.firebaseRef(
+            window.firebaseDB,
+            `payments/${paymentData.paymentId}`
+          );
+
+          await window.firebaseRunTransaction(paymentsRef, () => {
+            return {
+              ...paymentData,
+              timestamp: new Date().toISOString(),
+              emailSent: false,
+              createdAt: Date.now()
+            };
+          });
+
+          console.log("✅ [FIREBASE] Payment data saved successfully");
+          return true;
+
+        } catch (error) {
+          // Log but don't crash
+          console.error("❌ [FIREBASE] Save failed:", error.message || error);
+          console.warn("⚠️ Payment successful but backup failed - email will be sent");
+          return false;
+        }
+      }
+
+
+const options = {
               key: "rzp_live_RZDqqPc9XD0IjO",
               amount: feeAmount,
               currency: "INR",
               name: "Grip&Grab",
               description: `${selectedWorkshopData.name} Registration`,
               handler: async function (response) {
-                console.log(
-                  "✅ Payment successful! Payment ID:",
-                  response.razorpay_payment_id
-                );
-
-                // ✅ DYNAMIC EMAIL PARAMS - Workshop-specific data
-                const emailParams = {
-                  to_email: formData.email,
-                  to_name: `${formData.firstName} ${formData.lastName}`,
-                  from_name: "Grip&Grab",
-                  firstName: formData.firstName,
-                  lastName: formData.lastName,
-                  user_email: formData.email,
-                  phone: formData.phone,
-
-                  // ✅ SELECTED WORKSHOP KA DYNAMIC DATA
-                  workshopname: selectedWorkshopData.name,
-                  workshopdate: selectedWorkshopData.date,
-                  workshoptime: selectedWorkshopData.time,
-                  workshopvenue: selectedWorkshopData.venue,
-                  workshopfee: selectedWorkshopData.fee,
-                  amount: selectedWorkshopData.fee,
-                  location: selectedWorkshopData.venue,
-                  paymentId: response.razorpay_payment_id,
-                };
-
-                console.log("📧 Sending confirmation emails...");
-
+                // Wrap everything in try-catch to prevent crashes
                 try {
-                  // ✅ Send user confirmation email (Workshop-specific template)
-                  await emailjs.send(
-                    "harish@teamgng",
-                    selectedWorkshopData.emailTemplateUser,
-                    emailParams
-                  );
+                  console.log("="*60);
+                  console.log("🎉 [PAYMENT] Payment successful!");
+                  console.log("💳 Payment ID:", response.razorpay_payment_id);
+                  console.log("="*60);
 
-                  console.log("✅ User email sent successfully");
+                  document.getElementById("loadingOverlay").classList.add("active");
 
-                  // ✅ Send admin notification email (Workshop-specific template)
-                  await emailjs.send(
-                    "harish@teamgng",
-                    selectedWorkshopData.emailTemplateAdmin,
-                    emailParams
+                  const emailParams = {
+                    to_email: formData.email,
+                    to_name: `${formData.firstName} ${formData.lastName}`,
+                    from_name: "Grip&Grab",
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    user_email: formData.email,
+                    phone: formData.phone,
+                    workshopname: selectedWorkshopData.name,
+                    workshopdate: selectedWorkshopData.date,
+                    workshoptime: selectedWorkshopData.time,
+                    workshopvenue: selectedWorkshopData.venue,
+                    workshopfee: selectedWorkshopData.fee,
+                    amount: selectedWorkshopData.fee,
+                    location: selectedWorkshopData.venue,
+                    paymentId: response.razorpay_payment_id,
+                  };
+
+                  // STEP 1: Firebase Save (optional - won't crash if fails)
+                  console.log("\n" + "="*60);
+                  console.log("STEP 1: FIREBASE BACKUP");
+                  console.log("="*60);
+
+                  let firebaseSaved = false;
+                  try {
+                    firebaseSaved = await savePaymentToFirebase({
+                      paymentId: response.razorpay_payment_id,
+                      email: formData.email,
+                      firstName: formData.firstName,
+                      lastName: formData.lastName,
+                      phone: formData.phone,
+                      workshop: selectedWorkshopData.name,
+                      workshopDate: selectedWorkshopData.date,
+                      workshopTime: selectedWorkshopData.time,
+                      amount: selectedWorkshopData.fee,
+                      status: "captured",
+                      emailSent: false,
+                    });
+                  } catch (e) {
+                    console.warn("⚠️ Firebase save error (non-critical):", e);
+                  }
+
+                  // STEP 2: User Email (with retry)
+                  console.log("\n" + "="*60);
+                  console.log("STEP 2: USER EMAIL");
+                  console.log("="*60);
+
+                  let userEmailResult = { success: false };
+                  try {
+                    userEmailResult = await sendEmailWithRetry(
+                      "harish@teamgng",
+                      selectedWorkshopData.emailTemplateUser,
+                      emailParams,
+                      3
+                    );
+                  } catch (e) {
+                    console.error("User email error:", e);
+                  }
+
+                  // STEP 3: Admin Email (with retry)
+                  console.log("\n" + "="*60);
+                  console.log("STEP 3: ADMIN EMAIL");
+                  console.log("="*60);
+
+                  let adminEmailResult = { success: false };
+                  try {
+                    adminEmailResult = await sendEmailWithRetry(
+                      "harish@teamgng",
+                      selectedWorkshopData.emailTemplateAdmin,
+                      emailParams,
+                      3
+                    );
+                  } catch (e) {
+                    console.error("Admin email error:", e);
+                  }
+
+                  // STEP 4: Update Firebase if emails sent
+                  if (userEmailResult.success && adminEmailResult.success && firebaseSaved) {
+                    console.log("\n" + "="*60);
+                    console.log("STEP 4: UPDATE STATUS");
+                    console.log("="*60);
+
+                    try {
+                      const paymentsRef = window.firebaseRef(
+                        window.firebaseDB,
+                        `payments/${response.razorpay_payment_id}`
+                      );
+                      await window.firebaseRunTransaction(paymentsRef, (current) => {
+                        if (current) {
+                          current.emailSent = true;
+                          current.emailSentAt = new Date().toISOString();
+                        }
+                        return current;
+                      });
+                      console.log("✅ Firebase status updated");
+                    } catch (e) {
+                      console.warn("Firebase update failed (non-critical):", e);
+                    }
+                  }
+
+                  // Always hide loading
+                  try {
+                    document.getElementById("loadingOverlay").classList.remove("active");
+                  } catch (e) {
+                    console.error("UI error:", e);
+                  }
+
+                  // Show result to user
+                  if (userEmailResult.success && adminEmailResult.success) {
+                    console.log("\n✅ ALL SUCCESS - Showing success message");
+
+                    try {
+                      document.getElementById("formContainer").style.display = "none";
+                      document.getElementById("successMessage").classList.add("active");
+                      document.getElementById("registrationForm").reset();
+
+                      setTimeout(() => {
+                        document.getElementById("workshopModal").style.display = "none";
+                        document.getElementById("successMessage").classList.remove("active");
+                      }, 5000);
+                    } catch (e) {
+                      console.error("UI update error:", e);
+                    }
+
+                  } else {
+                    console.warn("\n⚠️ EMAIL ISSUES - Showing payment success with warning");
+
+                    alert(
+                      `Payment Successful! ✅\n\n` +
+                      `Payment ID: ${response.razorpay_payment_id}\n\n` +
+                      `⚠️ Email sending ${userEmailResult.success ? 'partially' : ''} failed after retries.\n\n` +
+                      `Your payment is CONFIRMED.\n` +
+                      `We will send confirmation shortly.\n\n` +
+                      `Contact if needed:\n` +
+                      `📧 haristhenics06@gmail.com\n` +
+                      `📞 +91 9971250050\n\n` +
+                      `Payment ID: ${response.razorpay_payment_id}`
+                    );
+
+                    try {
+                      document.getElementById("workshopModal").style.display = "none";
+                    } catch (e) {
+                      console.error("Modal close error:", e);
+                    }
+                  }
+
+                } catch (criticalError) {
+                  // Even if everything fails, tell user payment succeeded
+                  console.error("❌ CRITICAL ERROR in payment handler:", criticalError);
+
+                  try {
+                    document.getElementById("loadingOverlay").classList.remove("active");
+                  } catch (e) {}
+
+                  alert(
+                    `Payment Successful! ✅\n\n` +
+                    `Payment ID: ${response.razorpay_payment_id}\n\n` +
+                    `There was a technical issue but your payment is confirmed.\n` +
+                    `Please contact us with your payment ID:\n\n` +
+                    `📧 haristhenics06@gmail.com\n` +
+                    `📞 +91 9971250050\n\n` +
+                    `Payment ID: ${response.razorpay_payment_id}`
                   );
-                  console.log("✅ Admin email sent successfully");
-                } catch (error) {
-                  console.error("❌ Email sending error:", error);
                 }
-
-                // Hide loading overlay
-                document
-                  .getElementById("loadingOverlay")
-                  .classList.remove("active");
-
-                // Show success message
-                document.getElementById("formContainer").style.display = "none";
-                document
-                  .getElementById("successMessage")
-                  .classList.add("active");
-
-                // Reset form
-                document.getElementById("registrationForm").reset();
               },
               prefill: {
                 name: `${formData.firstName} ${formData.lastName}`,
