@@ -975,6 +975,31 @@
         margin-top: 8px;
         letter-spacing: 0.3px;
       }
+
+
+      .fully-booked-badge {
+    display: inline-block;
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+}
+
+.fully-booked-message {
+    text-align: center;
+    padding: 20px;
+}
+
+.booked-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
     </style>
   </head>
 
@@ -1021,7 +1046,7 @@
           <!--  -->
 
           <!-- Workshop 1: Knee Pain -->
-          <div class="timeline-item" onclick="openWorkshop('knee-pain')">
+          <div class="timeline-item"  onclick="openWorkshop('knee-pain')">
             <div class="timeline-number">1</div>
             <div class="timeline-card">
               <h3>Knee Pain Relief Workshop</h3>
@@ -1033,7 +1058,7 @@
                 <span>🕐 10 AM - 12:00 PM</span>
                 <span>💰 ₹1,000</span>
               </div>
-              <span class="limited-slots-badge">Limited Slots 🎯</span>
+              <span class="limited-slots-badge" id="badge-knee-pain">Limited Slots 🎯</span>
             </div>
           </div>
 
@@ -1050,7 +1075,7 @@
                 <span>🕐 10:00 AM - 12:00 PM</span>
                 <span>💰 ₹1,000</span>
               </div>
-              <span class="limited-slots-badge">Limited Slots 🎯</span>
+              <span class="limited-slots-badge" id="badge-back-pain">Limited Slots 🎯</span>
             </div>
           </div>
 
@@ -1067,7 +1092,7 @@
                 <span>🕐 10:00 AM - 12:00 PM</span>
                 <span>💰 ₹1,000</span>
               </div>
-              <span class="limited-slots-badge">Limited Slots 🎯</span>
+              <span class="limited-slots-badge" id="badge-handstand">Limited Slots 🎯</span>
             </div>
           </div>
         </div>
@@ -1201,6 +1226,32 @@
       </div>
     </div>
 
+
+
+
+
+
+<!-- Fully Booked Modal -->
+    <div id="fullyBookedModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeFullyBookedModal()">×</span>
+            <div class="fully-booked-message">
+                <div class="booked-icon">🔒</div>
+                <h2><span id="bookedWorkshopName"></span> is Fully Booked</h2>
+                <p style="color: #999; margin: 15px 0;">All slots have been filled for this workshop</p>
+                <p style="color: #999; margin: 15px 0;">Explore our other workshops below:</p>
+                <button class="submit-btn" onclick="closeFullyBookedModalAndScroll()" style="margin-top: 20px;">See More Workshops</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
       <div class="spinner"></div>
@@ -1289,6 +1340,7 @@
   // },
   "knee-pain": {
     name: "Knee Pain Relief",
+    isFullyBooked: false,  
     title: "KNEE PAIN",
     highlight: "RELIEF",
     tagline: '"One Approach That Fixes Multiple Issues"',
@@ -1311,6 +1363,7 @@ We'll cover every important aspect to help you move better, feel stronger, and b
   },
   "back-pain": {
     name: "Lower Back Pain Solutions",
+    isFullyBooked: false,  
     title: "LOWER BACK PAIN",
     highlight: "SOLUTIONS",
     tagline: '"One Framework That Rebuilds Your Spine"',
@@ -1336,6 +1389,7 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
   },
   "handstand": {
     name: "Handstand Fundamentals",
+    isFullyBooked: false,  
     title: "HANDSTAND",
     highlight: "FUNDAMENTALS",
     tagline: '"One Movement That Transforms Your Body"',
@@ -1373,12 +1427,19 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
       // ========================================
       // WORKSHOP FUNCTIONS
       // ========================================
-      function openWorkshop(workshopId) {
-        const workshop = workshopData[workshopId];
-        if (!workshop) return;
+     function openWorkshop(workshopId) {
+    const workshop = workshopData[workshopId];
+    if (!workshop) return;
 
-        selectedWorkshopData = workshop;
-        console.log("🎯 Workshop Selected:", workshopId, workshop.name);
+    // Check if fully booked
+    if (workshop.isFullyBooked) {
+        openFullyBookedModal(workshop.name);
+        return;
+    }
+
+    selectedWorkshopData = workshop;
+    console.log('Workshop Selected:', workshopId, workshop.name);
+
 
         // Update hero section content
         const imgElement = document.getElementById("workshopImage");
@@ -1427,13 +1488,16 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
       // ========================================
       // MODAL FUNCTIONS
       // ========================================
-      function openModal() {
-        if (!selectedWorkshopData) return;
+function openModal() {
+    if (!selectedWorkshopData) return;
+    
+    // Check if fully booked
+    if (selectedWorkshopData.isFullyBooked) {
+        openFullyBookedModal(selectedWorkshopData.name);
+        return;
+    }
 
-        console.log(
-          "📝 Opening Registration Modal for:",
-          selectedWorkshopData.name
-        );
+    console.log('Opening Registration Modal for:', selectedWorkshopData.name);
 
         // Update modal info
         document.getElementById("modalWorkshopInfo").innerHTML = `
@@ -1465,6 +1529,32 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
 
         console.log("❌ Modal Closed");
       }
+
+
+
+// Fully Booked Modal Functions
+function openFullyBookedModal(workshopName) {
+    document.getElementById('bookedWorkshopName').textContent = workshopName;
+    document.getElementById('fullyBookedModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    console.log('Fully Booked Modal Opened for:', workshopName);
+}
+
+function closeFullyBookedModal() {
+    document.getElementById('fullyBookedModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+    console.log('Fully Booked Modal Closed');
+}
+
+function closeFullyBookedModalAndScroll() {
+    closeFullyBookedModal();
+    closeWorkshop();
+    document.getElementById('workshops').scrollIntoView({behavior: 'smooth'});
+}
+
+
+
+
 
       // Close modal on outside click
       document
@@ -1905,13 +1995,19 @@ const options = {
                 }
               });
 
+
+
+
+              // Update timeline badges based on workshop status
+
+
+
             // ========================================
             // INITIALIZE LUCIDE ICONS
             // ========================================
-            window.addEventListener("DOMContentLoaded", () => {
-              lucide.createIcons();
-              console.log("✅ Lucide Icons Initialized");
-            });
+// Initialize on page load
+
+
             razorpay.on("payment.failed", function (response) {
               console.error("❌ Payment failed:", response.error);
               document
@@ -1976,10 +2072,7 @@ const options = {
       // ========================================
       // INITIALIZE LUCIDE ICONS
       // ========================================
-      window.addEventListener("DOMContentLoaded", () => {
-        lucide.createIcons();
-        console.log("✅ Lucide Icons Initialized");
-      });
+     
 
       // Handle browser back button
       window.addEventListener("popstate", function (event) {
@@ -1995,6 +2088,65 @@ const options = {
           openWorkshop(event.state.workshop);
         }
       });
+
+
+
+      // ========================================
+// AUTO-RUN ON SCRIPT LOAD
+// ========================================
+// AUTO-RUN ON SCRIPT LOAD
+// ========================================
+
+console.log('🚀 Initializing...');
+
+// Initialize Lucide Icons
+lucide.createIcons();
+console.log('✅ Lucide Icons ready');
+
+// Function to update badges (CLEAN VERSION)
+function forceUpdateBadges() {
+    console.log('🔄 Updating badges...');
+    
+    // Knee Pain
+    const kneeBadge = document.getElementById('badge-knee-pain');
+    if (kneeBadge && workshopData['knee-pain'].isFullyBooked === true) {
+        kneeBadge.innerHTML = 'Workshop Fully Booked';
+        kneeBadge.setAttribute('class', 'fully-booked-badge');
+        kneeBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
+        console.log('✅ Knee badge updated');
+    }
+    
+    // Back Pain
+    const backBadge = document.getElementById('badge-back-pain');
+    if (backBadge && workshopData['back-pain'].isFullyBooked === true) {
+        backBadge.innerHTML = 'Workshop Fully Booked';
+        backBadge.setAttribute('class', 'fully-booked-badge');
+        backBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
+        console.log('✅ Back badge updated');
+    }
+    
+    // Handstand
+    const handstandBadge = document.getElementById('badge-handstand');
+    if (handstandBadge && workshopData['handstand'].isFullyBooked === true) {
+        handstandBadge.innerHTML = 'Workshop Fully Booked';
+        handstandBadge.setAttribute('class', 'fully-booked-badge');
+        handstandBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
+        console.log('✅ Handstand badge updated');
+    }
+    
+    console.log('✅ Badges processed');
+}
+
+// Run ONCE - smart detection
+if (document.readyState === 'loading') {
+    // DOM still loading, wait for it
+    document.addEventListener('DOMContentLoaded', forceUpdateBadges);
+} else {
+    // DOM already loaded, run now
+    forceUpdateBadges();
+}
+
+
     </script>
   </body>
 </html>
