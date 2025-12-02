@@ -193,126 +193,164 @@
       /* ========================================
        TIMELINE SECTION STYLES
     ======================================== */
-      .timeline-section {
-        background: linear-gradient(
-          135deg,
-          #0a0a0a 0%,
-          #1a1a1a 50%,
-          #0f0f0f 100%
-        );
-        padding: 80px 20px;
-        min-height: 100vh;
-      }
+   /* TIMELINE SECTION STYLES */
+/* TIMELINE SECTION STYLES - FLEXIBLE FOR 1-4 WORKSHOPS */
+.timeline-section {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+    padding: 80px 20px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-      .timeline-container {
-        max-width: 1000px;
-        margin: 0 auto;
-      }
+.timeline-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
 
-      .timeline-header {
-        text-align: center;
-        margin-bottom: 60px;
-      }
+.timeline-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
 
-      .timeline-header h1 {
-        font-size: 48px;
-        font-weight: 800;
-        color: #fff;
-        margin-bottom: 15px;
-        letter-spacing: -0.5px;
-      }
+.timeline-header h1 {
+    font-size: 48px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+}
 
-      .timeline-header p {
-        font-size: 18px;
-        color: rgba(255, 255, 255, 0.6);
-      }
+.timeline-header p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.6);
+}
 
-      .timeline {
-        position: relative;
-        padding-left: 60px;
-      }
+.timeline {
+    position: relative;
+    padding-left: 60px;
+    max-width: 800px;
+    margin: 0 auto;
+    /* Flexible - adjusts based on content */
+}
 
-      .timeline::before {
-        content: "";
-        position: absolute;
-        left: 23px;
-        top: 30px;
-        bottom: 30px;
-        width: 3px;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 107, 107, 0.6),
-          rgba(255, 107, 107, 0.1)
-        );
-        border-radius: 10px;
-      }
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 30px;
+    bottom: 30px;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(255, 107, 107, 0.6), rgba(255, 107, 107, 0.1));
+    border-radius: 10px;
+}
 
-      .timeline-item {
-        position: relative;
-        margin-bottom: 40px;
-        cursor: pointer;
-      }
+/* When only 1-2 workshops remain */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) {
+    max-width: 650px;
+}
 
-      .timeline-number {
-        position: absolute;
-        left: -60px;
-        top: 5px;
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        font-weight: 800;
-        color: #fff;
-        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-        z-index: 2;
-      }
+.timeline-item {
+    position: relative;
+    margin-bottom: 40px;
+    cursor: pointer;
+}
 
-      .timeline-card {
-        background: rgba(30, 30, 30, 0.6);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 107, 107, 0.15);
-        border-radius: 16px;
-        padding: 24px 28px;
-        transition: all 0.3s ease;
-      }
+/* Larger cards when fewer workshops */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-item {
+    margin-bottom: 50px;
+}
 
-      .timeline-card:hover {
-        border-color: rgba(255, 107, 107, 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(255, 107, 107, 0.15);
-      }
+.timeline-number {
+    position: absolute;
+    left: -60px;
+    top: 5px;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+    z-index: 2;
+    transition: all 0.3s ease;
+}
 
-      .timeline-card h3 {
-        font-size: 22px;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 8px;
-      }
+/* Bigger numbers when fewer workshops */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-number {
+    width: 54px;
+    height: 54px;
+    font-size: 24px;
+}
 
-      .timeline-preview {
-        display: none;
-        font-size: 15px;
-        color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 12px;
-      }
+.timeline-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 107, 107, 0.15);
+    border-radius: 16px;
+    padding: 24px 28px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
 
-      .timeline-quick-info {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.7);
-      }
+/* More prominent cards when fewer workshops */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-card {
+    padding: 32px 36px;
+    border: 2px solid rgba(255, 107, 107, 0.2);
+}
 
-      .timeline-quick-info span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
+.timeline-card:hover {
+    border-color: rgba(255, 107, 107, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(255, 107, 107, 0.2);
+}
+
+.timeline-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    transition: font-size 0.3s ease;
+}
+
+/* Bigger heading when fewer workshops */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-card h3 {
+    font-size: 26px;
+}
+
+.timeline-preview {
+    display: block;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 12px;
+}
+
+.timeline-quick-info {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Larger info text when fewer workshops */
+.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-quick-info {
+    font-size: 16px;
+    gap: 20px;
+}
+
+.timeline-quick-info span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 
       /* ========================================
        HERO WORKSHOP SECTION (EXPANDABLE)
@@ -976,30 +1014,28 @@
         letter-spacing: 0.3px;
       }
 
-
       .fully-booked-badge {
-    display: inline-block;
-    background: rgba(255, 107, 107, 0.2);
-    color: #ff6b6b;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 13px;
-    border: 1px solid rgba(255, 107, 107, 0.4);
-    margin-top: 8px;
-    letter-spacing: 0.3px;
-}
+        display: inline-block;
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid rgba(255, 107, 107, 0.4);
+        margin-top: 8px;
+        letter-spacing: 0.3px;
+      }
 
-.fully-booked-message {
-    text-align: center;
-    padding: 20px;
-}
+      .fully-booked-message {
+        text-align: center;
+        padding: 20px;
+      }
 
-.booked-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-}
-
+      .booked-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
     </style>
   </head>
 
@@ -1042,59 +1078,7 @@
         </div>
 
         <div class="timeline">
-          <!-- Workshop 1: Back Lever -->
-          <!--  -->
-
-          <!-- Workshop 1: Knee Pain -->
-          <div class="timeline-item"  onclick="openWorkshop('knee-pain')">
-            <div class="timeline-number">1</div>
-            <div class="timeline-card">
-              <h3>Knee Pain Relief Workshop</h3>
-              <p class="timeline-preview">
-                One approach that fixes multiple issues
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 30th Nov 2025 (Sunday)</span>
-                <span>🕐 10 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-              <span class="limited-slots-badge" id="badge-knee-pain">Limited Slots 🎯</span>
-            </div>
-          </div>
-
-          <!-- Workshop 2: Lower Back Pain -->
-          <div class="timeline-item" onclick="openWorkshop('back-pain')">
-            <div class="timeline-number">2</div>
-            <div class="timeline-card">
-              <h3>Lower Back Pain Solutions</h3>
-              <p class="timeline-preview">
-                One framework that rebuilds your spine
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 7th Dec 2025 (Sunday)</span>
-                <span>🕐 10:00 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-              <span class="limited-slots-badge" id="badge-back-pain">Limited Slots 🎯</span>
-            </div>
-          </div>
-
-          <!-- Workshop 3: Handstand -->
-          <div class="timeline-item" onclick="openWorkshop('handstand')">
-            <div class="timeline-number">3</div>
-            <div class="timeline-card">
-              <h3>Handstand Fundamentals</h3>
-              <p class="timeline-preview">
-                One movement that transforms your body
-              </p>
-              <div class="timeline-quick-info">
-                <span>📅 14th Dec 2025 (Sunday)</span>
-                <span>🕐 10:00 AM - 12:00 PM</span>
-                <span>💰 ₹1,000</span>
-              </div>
-              <span class="limited-slots-badge" id="badge-handstand">Limited Slots 🎯</span>
-            </div>
-          </div>
+         
         </div>
       </div>
     </section>
@@ -1226,31 +1210,29 @@
       </div>
     </div>
 
-
-
-
-
-
-<!-- Fully Booked Modal -->
+    <!-- Fully Booked Modal -->
     <div id="fullyBookedModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeFullyBookedModal()">×</span>
-            <div class="fully-booked-message">
-                <div class="booked-icon">🔒</div>
-                <h2><span id="bookedWorkshopName"></span> is Fully Booked</h2>
-                <p style="color: #999; margin: 15px 0;">All slots have been filled for this workshop</p>
-                <p style="color: #999; margin: 15px 0;">Explore our other workshops below:</p>
-                <button class="submit-btn" onclick="closeFullyBookedModalAndScroll()" style="margin-top: 20px;">See More Workshops</button>
-            </div>
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeFullyBookedModal()">×</span>
+        <div class="fully-booked-message">
+          <div class="booked-icon">🔒</div>
+          <h2><span id="bookedWorkshopName"></span> is Fully Booked</h2>
+          <p style="color: #999; margin: 15px 0">
+            All slots have been filled for this workshop
+          </p>
+          <p style="color: #999; margin: 15px 0">
+            Explore our other workshops below:
+          </p>
+          <button
+            class="submit-btn"
+            onclick="closeFullyBookedModalAndScroll()"
+            style="margin-top: 20px"
+          >
+            See More Workshops
+          </button>
         </div>
+      </div>
     </div>
-
-
-
-
-
-
-
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
@@ -1306,7 +1288,7 @@
               ><i data-lucide="facebook"></i
             ></a>
             <a
-              href="https://youtube.com/@gripandgrab"
+              href="https://www.youtube.com/@haristhenics06"
               target="_blank"
               title="YouTube"
               ><i data-lucide="youtube"></i
@@ -1321,31 +1303,49 @@
     </footer>
 
     <script>
+// Helper function to parse date strings like "30th November 2025 Sunday"
+function parseDate(dateString) {
+    const match = dateString.match(/(\d+)\w+\s+(\w+)\s+(\d+)/);
+    if (!match) return new Date();
+    
+    const day = parseInt(match[1]);
+    const monthName = match[2];
+    const year = parseInt(match[3]);
+    
+    const months = {
+        'January': 0, 'February': 1, 'March': 2, 'April': 3,
+        'May': 4, 'June': 5, 'July': 6, 'August': 7,
+        'September': 8, 'October': 9, 'November': 10, 'December': 11
+    };
+    
+    return new Date(year, months[monthName], day);
+}
 
-      
- const workshopData = {
-  // "back-lever": {
-  //   name: "Back Lever / Calisthenics",
-  //   title: "BACK LEVER /",
-  //   highlight: "Calisthenics",
-  //   tagline: '"One Exercise That Transforms Your Upper Body"',
-  //   image: "./ss.png",
-  //   description: "Build extraordinary pulling strength and body control",
-  //   date: "23rd November 2025 (Sunday)",
-  //   time: "11:00 AM - 1:00 PM",
-  //   venue: "Grip&Grab Studio, Lajpat Nagar",
-  //   fee: "₹1,000",
-  //   emailTemplateUser: "template_1k0fnrn",
-  //   emailTemplateAdmin: "template_axjwehu",
-  // },
-  "knee-pain": {
-    name: "Knee Pain Relief",
-    isFullyBooked: true,  
-    title: "KNEE PAIN",
-    highlight: "RELIEF",
-    tagline: '"One Approach That Fixes Multiple Issues"',
-    image: "./kneepain.jpg",
-    description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
+
+
+      const workshopData = {
+        // "back-lever": {
+        //   name: "Back Lever / Calisthenics",
+        //   title: "BACK LEVER /",
+        //   highlight: "Calisthenics",
+        //   tagline: '"One Exercise That Transforms Your Upper Body"',
+        //   image: "./ss.png",
+        //   description: "Build extraordinary pulling strength and body control",
+        //   date: "23rd November 2025 (Sunday)",
+        //   time: "11:00 AM - 1:00 PM",
+        //   venue: "Grip&Grab Studio, Lajpat Nagar",
+        //   fee: "₹1,000",
+        //   emailTemplateUser: "template_1k0fnrn",
+        //   emailTemplateAdmin: "template_axjwehu",
+        // },
+        "knee-pain": {
+          name: "Knee Pain Relief",
+          isFullyBooked: true,
+          title: "KNEE PAIN",
+          highlight: "RELIEF",
+          tagline: '"One Approach That Fixes Multiple Issues"',
+          image: "./kneepain.jpg",
+          description: `In this workshop, we'll break down the real reasons behind knee pain and show you how to fix it through simple, effective movements. Not just pain relief—but how to restore your natural movement.
 
 You'll learn:
 • Which movements are actually suitable for your knees
@@ -1354,21 +1354,21 @@ You'll learn:
 • A complete approach to understanding and solving knee pain
 
 We'll cover every important aspect to help you move better, feel stronger, and build long-term knee health.`,
-    date: "30th November 2025 (Sunday)",
-    time: "10:00 AM - 12:00 PM",
-    venue: "Grip&Grab Studio, Lajpat Nagar",
-    fee: "₹1,000",
-    emailTemplateUser: "template_1k0fnrn",
-    emailTemplateAdmin: "template_axjwehu",
-  },
-  "back-pain": {
-    name: "Lower Back Pain Solutions",
-    isFullyBooked: false,  
-    title: "LOWER BACK PAIN",
-    highlight: "SOLUTIONS",
-    tagline: '"One Framework That Rebuilds Your Spine"',
-    image: "./lowerback.jpg",
-    description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
+          date: "30th November 2025 (Sunday)",
+          time: "10:00 AM - 12:00 PM",
+          venue: "Grip&Grab Studio, Lajpat Nagar",
+          fee: "₹1,000",
+          emailTemplateUser: "template_1k0fnrn",
+          emailTemplateAdmin: "template_axjwehu",
+        },
+        "back-pain": {
+          name: "Lower Back Pain Solutions",
+          isFullyBooked: false,
+          title: "LOWER BACK PAIN",
+          highlight: "SOLUTIONS",
+          tagline: '"One Framework That Rebuilds Your Spine"',
+          image: "./lowerback.jpg",
+          description: `In this workshop, we'll talk about why so many people experience lower back pain and how you can fix it with the right approach. Most back pain comes from long hours of sitting or standing, weak core and glutes, tight hips, hamstrings, and spine muscles, poor movement patterns, and wrong exercise selection. We'll break down each of these reasons in a simple and practical way.
 
 You'll also learn why rest and medicine alone won't fix your lower back pain. If you want a permanent solution, you need to move. That movement can be strength-based, mobility-based, or release-based—and we'll discuss all of these in detail.
 
@@ -1380,29 +1380,95 @@ We will cover:
 You'll understand how simple and effective movements can reduce pain, improve mobility, and build real strength.
 
 And yes—every individual will also receive a personalized lower-back-pain–focused workout plan. By the end of the session, you'll know exactly how to train safely, move confidently, and finish your workouts without stressing your lower back.`,
-    date: "7th December 2025 (Sunday)",
-    time: "10:00 AM - 12:00 PM",
-    venue: "Grip&Grab Studio, Lajpat Nagar",
-    fee: "₹1,000",
-    emailTemplateUser: "template_1k0fnrn",
-    emailTemplateAdmin: "template_axjwehu",
-  },
-  "handstand": {
-    name: "Handstand Fundamentals",
-    isFullyBooked: false,  
-    title: "HANDSTAND",
-    highlight: "FUNDAMENTALS",
-    tagline: '"One Movement That Transforms Your Body"',
-    image: "./Handstand_Andrew-Clark.avif",
-    description: "Master the art of balance and body control",
-    date: "14th December 2025 (Sunday)",
-    time: "10:00 AM - 12:00 PM",
-    venue: "Grip&Grab Studio, Lajpat Nagar",
-    fee: "₹1,000",
-    emailTemplateUser: "template_1k0fnrn",
-    emailTemplateAdmin: "template_axjwehu",
-  },
-};
+          date: "7th December 2025 (Sunday)",
+          time: "10:00 AM - 12:00 PM",
+          venue: "Grip&Grab Studio, Lajpat Nagar",
+          fee: "1,000",
+          emailTemplateUser: "template_1k0fnrn",
+          emailTemplateAdmin: "template_axjwehu",
+        },
+        handstand: {
+          name: "Handstand Fundamentals",
+          isFullyBooked: false,
+          title: "HANDSTAND",
+          highlight: "FUNDAMENTALS",
+          tagline: '"One Movement That Transforms Your Body"',
+          image: "./Handstand_Andrew-Clark.avif",
+          description: "Master the art of balance and body control",
+          date: "14th December 2025 (Sunday)",
+          time: "10:00 AM - 12:00 PM",
+          venue: "Grip&Grab Studio, Lajpat Nagar",
+          fee: "1,000",
+          emailTemplateUser: "template_1k0fnrn",
+          emailTemplateAdmin: "template_axjwehu",
+        },
+      };
+
+
+
+      // Automatically filter and display only upcoming workshops
+function displayUpcomingWorkshops() {
+    console.log('🔄 Updating workshop display...');
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Filter upcoming workshops only
+    const upcomingWorkshops = Object.entries(workshopData)
+        .filter(([id, workshop]) => {
+            const workshopDate = parseDate(workshop.date);
+            return workshopDate >= today;
+        })
+        .sort((a, b) => {
+            const dateA = parseDate(a[1].date);
+            const dateB = parseDate(b[1].date);
+            return dateA - dateB;
+        });
+    
+    console.log(`✅ Found ${upcomingWorkshops.length} upcoming workshops`);
+    
+    const timeline = document.querySelector('.timeline');
+    timeline.innerHTML = '';
+    
+    if (upcomingWorkshops.length === 0) {
+        timeline.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.6);">
+                <h3 style="font-size: 24px; margin-bottom: 15px;">No Upcoming Workshops</h3>
+                <p>Check back soon for new announcements!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Rebuild timeline
+    upcomingWorkshops.forEach(([workshopId, workshop], index) => {
+        const badgeClass = workshop.isFullyBooked ? 'fully-booked-badge' : 'limited-slots-badge';
+        const badgeText = workshop.isFullyBooked ? '⚠️ Workshop Fully Booked' : '🎯 Limited Slots';
+        
+        timeline.innerHTML += `
+            <div class="timeline-item" onclick="openWorkshop('${workshopId}')">
+                <div class="timeline-number">${index + 1}</div>
+                <div class="timeline-card">
+                    <h3>${workshop.name}</h3>
+                    <p class="timeline-preview">${workshop.tagline}</p>
+                    <div class="timeline-quick-info">
+                        <span>📅 ${workshop.date}</span>
+                        <span>⏰ ${workshop.time}</span>
+                        <span>💰 ₹${workshop.fee}</span>
+                    </div>
+                    <span class="${badgeClass}" id="badge-${workshopId}">
+                        ${badgeText}
+                    </span>
+                </div>
+            </div>
+        `;
+    });
+}
+
+
+
+
+
 
       let selectedWorkshopData = null;
 
@@ -1427,19 +1493,18 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
       // ========================================
       // WORKSHOP FUNCTIONS
       // ========================================
-     function openWorkshop(workshopId) {
-    const workshop = workshopData[workshopId];
-    if (!workshop) return;
+      function openWorkshop(workshopId) {
+        const workshop = workshopData[workshopId];
+        if (!workshop) return;
 
-    // Check if fully booked
-    if (workshop.isFullyBooked) {
-        openFullyBookedModal(workshop.name);
-        return;
-    }
+        // Check if fully booked
+        if (workshop.isFullyBooked) {
+          openFullyBookedModal(workshop.name);
+          return;
+        }
 
-    selectedWorkshopData = workshop;
-    console.log('Workshop Selected:', workshopId, workshop.name);
-
+        selectedWorkshopData = workshop;
+        console.log("Workshop Selected:", workshopId, workshop.name);
 
         // Update hero section content
         const imgElement = document.getElementById("workshopImage");
@@ -1488,16 +1553,19 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
       // ========================================
       // MODAL FUNCTIONS
       // ========================================
-function openModal() {
-    if (!selectedWorkshopData) return;
-    
-    // Check if fully booked
-    if (selectedWorkshopData.isFullyBooked) {
-        openFullyBookedModal(selectedWorkshopData.name);
-        return;
-    }
+      function openModal() {
+        if (!selectedWorkshopData) return;
 
-    console.log('Opening Registration Modal for:', selectedWorkshopData.name);
+        // Check if fully booked
+        if (selectedWorkshopData.isFullyBooked) {
+          openFullyBookedModal(selectedWorkshopData.name);
+          return;
+        }
+
+        console.log(
+          "Opening Registration Modal for:",
+          selectedWorkshopData.name
+        );
 
         // Update modal info
         document.getElementById("modalWorkshopInfo").innerHTML = `
@@ -1530,31 +1598,28 @@ function openModal() {
         console.log("❌ Modal Closed");
       }
 
+      // Fully Booked Modal Functions
+      function openFullyBookedModal(workshopName) {
+        document.getElementById("bookedWorkshopName").textContent =
+          workshopName;
+        document.getElementById("fullyBookedModal").classList.add("active");
+        document.body.style.overflow = "hidden";
+        console.log("Fully Booked Modal Opened for:", workshopName);
+      }
 
+      function closeFullyBookedModal() {
+        document.getElementById("fullyBookedModal").classList.remove("active");
+        document.body.style.overflow = "auto";
+        console.log("Fully Booked Modal Closed");
+      }
 
-// Fully Booked Modal Functions
-function openFullyBookedModal(workshopName) {
-    document.getElementById('bookedWorkshopName').textContent = workshopName;
-    document.getElementById('fullyBookedModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    console.log('Fully Booked Modal Opened for:', workshopName);
-}
-
-function closeFullyBookedModal() {
-    document.getElementById('fullyBookedModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-    console.log('Fully Booked Modal Closed');
-}
-
-function closeFullyBookedModalAndScroll() {
-    closeFullyBookedModal();
-    closeWorkshop();
-    document.getElementById('workshops').scrollIntoView({behavior: 'smooth'});
-}
-
-
-
-
+      function closeFullyBookedModalAndScroll() {
+        closeFullyBookedModal();
+        closeWorkshop();
+        document
+          .getElementById("workshops")
+          .scrollIntoView({ behavior: "smooth" });
+      }
 
       // Close modal on outside click
       document
@@ -1659,90 +1724,112 @@ function closeFullyBookedModalAndScroll() {
             document.getElementById("loadingOverlay").classList.add("active");
 
             // Razorpay Payment
-            
-      // ============================================================
-      // 🛡️ ERROR-PROOF UTILITY FUNCTIONS
-      // ============================================================
 
-      // Email retry with exponential backoff - NEVER CRASHES
-      async function sendEmailWithRetry(serviceId, templateId, params, maxRetries = 3) {
-        let lastError;
+            // ============================================================
+            // 🛡️ ERROR-PROOF UTILITY FUNCTIONS
+            // ============================================================
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            console.log(`📧 [RETRY ${attempt}/${maxRetries}] Attempting to send email...`);
-            console.log(`📧 Template ID: ${templateId}`);
+            // Email retry with exponential backoff - NEVER CRASHES
+            async function sendEmailWithRetry(
+              serviceId,
+              templateId,
+              params,
+              maxRetries = 3
+            ) {
+              let lastError;
 
-            // Check if emailjs exists
-            if (typeof emailjs === 'undefined' || !emailjs.send) {
-              throw new Error('EmailJS not available');
+              for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                  console.log(
+                    `📧 [RETRY ${attempt}/${maxRetries}] Attempting to send email...`
+                  );
+                  console.log(`📧 Template ID: ${templateId}`);
+
+                  // Check if emailjs exists
+                  if (typeof emailjs === "undefined" || !emailjs.send) {
+                    throw new Error("EmailJS not available");
+                  }
+
+                  await emailjs.send(serviceId, templateId, params);
+
+                  console.log(`✅ [SUCCESS] Email sent on attempt ${attempt}`);
+                  return { success: true, attempt };
+                } catch (error) {
+                  lastError = error;
+                  console.error(
+                    `❌ [FAIL] Email attempt ${attempt} failed:`,
+                    error.message || error
+                  );
+
+                  // Don't crash - just log and continue
+                  if (attempt < maxRetries) {
+                    const waitTime = Math.pow(2, attempt - 1) * 1000;
+                    console.log(
+                      `⏳ Waiting ${waitTime / 1000}s before retry...`
+                    );
+
+                    try {
+                      await new Promise((resolve) =>
+                        setTimeout(resolve, waitTime)
+                      );
+                    } catch (e) {
+                      console.error("Timer error (non-critical):", e);
+                    }
+                  }
+                }
+              }
+
+              console.error(
+                `❌ [FINAL FAIL] All ${maxRetries} email attempts failed`
+              );
+              return { success: false, error: lastError };
             }
 
-            await emailjs.send(serviceId, templateId, params);
-
-            console.log(`✅ [SUCCESS] Email sent on attempt ${attempt}`);
-            return { success: true, attempt };
-
-          } catch (error) {
-            lastError = error;
-            console.error(`❌ [FAIL] Email attempt ${attempt} failed:`, error.message || error);
-
-            // Don't crash - just log and continue
-            if (attempt < maxRetries) {
-              const waitTime = Math.pow(2, attempt - 1) * 1000;
-              console.log(`⏳ Waiting ${waitTime/1000}s before retry...`);
-
+            // Firebase save with error protection - NEVER CRASHES
+            async function savePaymentToFirebase(paymentData) {
               try {
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-              } catch (e) {
-                console.error('Timer error (non-critical):', e);
+                console.log("💾 [FIREBASE] Saving payment data...");
+                console.log("💾 Payment ID:", paymentData.paymentId);
+
+                // Check if Firebase is available
+                if (
+                  !window.firebaseDB ||
+                  !window.firebaseRef ||
+                  !window.firebaseRunTransaction
+                ) {
+                  throw new Error("Firebase not properly initialized");
+                }
+
+                const paymentsRef = window.firebaseRef(
+                  window.firebaseDB,
+                  `payments/${paymentData.paymentId}`
+                );
+
+                await window.firebaseRunTransaction(paymentsRef, () => {
+                  return {
+                    ...paymentData,
+                    timestamp: new Date().toISOString(),
+                    emailSent: false,
+                    createdAt: Date.now(),
+                  };
+                });
+
+                console.log("✅ [FIREBASE] Payment data saved successfully");
+                return true;
+              } catch (error) {
+                // Log but don't crash
+                console.error(
+                  "❌ [FIREBASE] Save failed:",
+                  error.message || error
+                );
+                console.warn(
+                  "⚠️ Payment successful but backup failed - email will be sent"
+                );
+                return false;
               }
             }
-          }
-        }
 
-        console.error(`❌ [FINAL FAIL] All ${maxRetries} email attempts failed`);
-        return { success: false, error: lastError };
-      }
-
-      // Firebase save with error protection - NEVER CRASHES
-      async function savePaymentToFirebase(paymentData) {
-        try {
-          console.log("💾 [FIREBASE] Saving payment data...");
-          console.log("💾 Payment ID:", paymentData.paymentId);
-
-          // Check if Firebase is available
-          if (!window.firebaseDB || !window.firebaseRef || !window.firebaseRunTransaction) {
-            throw new Error('Firebase not properly initialized');
-          }
-
-          const paymentsRef = window.firebaseRef(
-            window.firebaseDB,
-            `payments/${paymentData.paymentId}`
-          );
-
-          await window.firebaseRunTransaction(paymentsRef, () => {
-            return {
-              ...paymentData,
-              timestamp: new Date().toISOString(),
-              emailSent: false,
-              createdAt: Date.now()
-            };
-          });
-
-          console.log("✅ [FIREBASE] Payment data saved successfully");
-          return true;
-
-        } catch (error) {
-          // Log but don't crash
-          console.error("❌ [FIREBASE] Save failed:", error.message || error);
-          console.warn("⚠️ Payment successful but backup failed - email will be sent");
-          return false;
-        }
-      }
-
-
-const options = {
+            const options = {
               key: "rzp_live_RZDqqPc9XD0IjO",
               amount: feeAmount,
               currency: "INR",
@@ -1751,12 +1838,14 @@ const options = {
               handler: async function (response) {
                 // Wrap everything in try-catch to prevent crashes
                 try {
-                  console.log("="*60);
+                  console.log("=" * 60);
                   console.log("🎉 [PAYMENT] Payment successful!");
                   console.log("💳 Payment ID:", response.razorpay_payment_id);
-                  console.log("="*60);
+                  console.log("=" * 60);
 
-                  document.getElementById("loadingOverlay").classList.add("active");
+                  document
+                    .getElementById("loadingOverlay")
+                    .classList.add("active");
 
                   const emailParams = {
                     to_email: formData.email,
@@ -1777,9 +1866,9 @@ const options = {
                   };
 
                   // STEP 1: Firebase Save (optional - won't crash if fails)
-                  console.log("\n" + "="*60);
+                  console.log("\n" + "=" * 60);
                   console.log("STEP 1: FIREBASE BACKUP");
-                  console.log("="*60);
+                  console.log("=" * 60);
 
                   let firebaseSaved = false;
                   try {
@@ -1801,9 +1890,9 @@ const options = {
                   }
 
                   // STEP 2: User Email (with retry)
-                  console.log("\n" + "="*60);
+                  console.log("\n" + "=" * 60);
                   console.log("STEP 2: USER EMAIL");
-                  console.log("="*60);
+                  console.log("=" * 60);
 
                   let userEmailResult = { success: false };
                   try {
@@ -1818,9 +1907,9 @@ const options = {
                   }
 
                   // STEP 3: Admin Email (with retry)
-                  console.log("\n" + "="*60);
+                  console.log("\n" + "=" * 60);
                   console.log("STEP 3: ADMIN EMAIL");
-                  console.log("="*60);
+                  console.log("=" * 60);
 
                   let adminEmailResult = { success: false };
                   try {
@@ -1835,23 +1924,30 @@ const options = {
                   }
 
                   // STEP 4: Update Firebase if emails sent
-                  if (userEmailResult.success && adminEmailResult.success && firebaseSaved) {
-                    console.log("\n" + "="*60);
+                  if (
+                    userEmailResult.success &&
+                    adminEmailResult.success &&
+                    firebaseSaved
+                  ) {
+                    console.log("\n" + "=" * 60);
                     console.log("STEP 4: UPDATE STATUS");
-                    console.log("="*60);
+                    console.log("=" * 60);
 
                     try {
                       const paymentsRef = window.firebaseRef(
                         window.firebaseDB,
                         `payments/${response.razorpay_payment_id}`
                       );
-                      await window.firebaseRunTransaction(paymentsRef, (current) => {
-                        if (current) {
-                          current.emailSent = true;
-                          current.emailSentAt = new Date().toISOString();
+                      await window.firebaseRunTransaction(
+                        paymentsRef,
+                        (current) => {
+                          if (current) {
+                            current.emailSent = true;
+                            current.emailSentAt = new Date().toISOString();
+                          }
+                          return current;
                         }
-                        return current;
-                      });
+                      );
                       console.log("✅ Firebase status updated");
                     } catch (e) {
                       console.warn("Firebase update failed (non-critical):", e);
@@ -1860,7 +1956,9 @@ const options = {
 
                   // Always hide loading
                   try {
-                    document.getElementById("loadingOverlay").classList.remove("active");
+                    document
+                      .getElementById("loadingOverlay")
+                      .classList.remove("active");
                   } catch (e) {
                     console.error("UI error:", e);
                   }
@@ -1870,56 +1968,70 @@ const options = {
                     console.log("\n✅ ALL SUCCESS - Showing success message");
 
                     try {
-                      document.getElementById("formContainer").style.display = "none";
-                      document.getElementById("successMessage").classList.add("active");
+                      document.getElementById("formContainer").style.display =
+                        "none";
+                      document
+                        .getElementById("successMessage")
+                        .classList.add("active");
                       document.getElementById("registrationForm").reset();
 
                       setTimeout(() => {
-                        document.getElementById("workshopModal").style.display = "none";
-                        document.getElementById("successMessage").classList.remove("active");
+                        document.getElementById("workshopModal").style.display =
+                          "none";
+                        document
+                          .getElementById("successMessage")
+                          .classList.remove("active");
                       }, 5000);
                     } catch (e) {
                       console.error("UI update error:", e);
                     }
-
                   } else {
-                    console.warn("\n⚠️ EMAIL ISSUES - Showing payment success with warning");
+                    console.warn(
+                      "\n⚠️ EMAIL ISSUES - Showing payment success with warning"
+                    );
 
                     alert(
                       `Payment Successful! ✅\n\n` +
-                      `Payment ID: ${response.razorpay_payment_id}\n\n` +
-                      `⚠️ Email sending ${userEmailResult.success ? 'partially' : ''} failed after retries.\n\n` +
-                      `Your payment is CONFIRMED.\n` +
-                      `We will send confirmation shortly.\n\n` +
-                      `Contact if needed:\n` +
-                      `📧 haristhenics06@gmail.com\n` +
-                      `📞 +91 9971250050\n\n` +
-                      `Payment ID: ${response.razorpay_payment_id}`
+                        `Payment ID: ${response.razorpay_payment_id}\n\n` +
+                        `⚠️ Email sending ${
+                          userEmailResult.success ? "partially" : ""
+                        } failed after retries.\n\n` +
+                        `Your payment is CONFIRMED.\n` +
+                        `We will send confirmation shortly.\n\n` +
+                        `Contact if needed:\n` +
+                        `📧 haristhenics06@gmail.com\n` +
+                        `📞 +91 9971250050\n\n` +
+                        `Payment ID: ${response.razorpay_payment_id}`
                     );
 
                     try {
-                      document.getElementById("workshopModal").style.display = "none";
+                      document.getElementById("workshopModal").style.display =
+                        "none";
                     } catch (e) {
                       console.error("Modal close error:", e);
                     }
                   }
-
                 } catch (criticalError) {
                   // Even if everything fails, tell user payment succeeded
-                  console.error("❌ CRITICAL ERROR in payment handler:", criticalError);
+                  console.error(
+                    "❌ CRITICAL ERROR in payment handler:",
+                    criticalError
+                  );
 
                   try {
-                    document.getElementById("loadingOverlay").classList.remove("active");
+                    document
+                      .getElementById("loadingOverlay")
+                      .classList.remove("active");
                   } catch (e) {}
 
                   alert(
                     `Payment Successful! ✅\n\n` +
-                    `Payment ID: ${response.razorpay_payment_id}\n\n` +
-                    `There was a technical issue but your payment is confirmed.\n` +
-                    `Please contact us with your payment ID:\n\n` +
-                    `📧 haristhenics06@gmail.com\n` +
-                    `📞 +91 9971250050\n\n` +
-                    `Payment ID: ${response.razorpay_payment_id}`
+                      `Payment ID: ${response.razorpay_payment_id}\n\n` +
+                      `There was a technical issue but your payment is confirmed.\n` +
+                      `Please contact us with your payment ID:\n\n` +
+                      `📧 haristhenics06@gmail.com\n` +
+                      `📞 +91 9971250050\n\n` +
+                      `Payment ID: ${response.razorpay_payment_id}`
                   );
                 }
               },
@@ -1995,18 +2107,12 @@ const options = {
                 }
               });
 
-
-
-
-              // Update timeline badges based on workshop status
-
-
+            // Update timeline badges based on workshop status
 
             // ========================================
             // INITIALIZE LUCIDE ICONS
             // ========================================
-// Initialize on page load
-
+            // Initialize on page load
 
             razorpay.on("payment.failed", function (response) {
               console.error("❌ Payment failed:", response.error);
@@ -2072,7 +2178,6 @@ const options = {
       // ========================================
       // INITIALIZE LUCIDE ICONS
       // ========================================
-     
 
       // Handle browser back button
       window.addEventListener("popstate", function (event) {
@@ -2089,64 +2194,74 @@ const options = {
         }
       });
 
-
-
       // ========================================
-// AUTO-RUN ON SCRIPT LOAD
-// ========================================
-// AUTO-RUN ON SCRIPT LOAD
-// ========================================
+      // AUTO-RUN ON SCRIPT LOAD
+      // ========================================
+      // AUTO-RUN ON SCRIPT LOAD
+      // ========================================
 
-console.log('🚀 Initializing...');
+      console.log("🚀 Initializing...");
 
-// Initialize Lucide Icons
-lucide.createIcons();
-console.log('✅ Lucide Icons ready');
+      // Initialize Lucide Icons
+      lucide.createIcons();
+      console.log("✅ Lucide Icons ready");
 
-// Function to update badges (CLEAN VERSION)
-function forceUpdateBadges() {
-    console.log('🔄 Updating badges...');
-    
-    // Knee Pain
-    const kneeBadge = document.getElementById('badge-knee-pain');
-    if (kneeBadge && workshopData['knee-pain'].isFullyBooked === true) {
-        kneeBadge.innerHTML = 'Workshop Fully Booked';
-        kneeBadge.setAttribute('class', 'fully-booked-badge');
-        kneeBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
-        console.log('✅ Knee badge updated');
-    }
-    
-    // Back Pain
-    const backBadge = document.getElementById('badge-back-pain');
-    if (backBadge && workshopData['back-pain'].isFullyBooked === true) {
-        backBadge.innerHTML = 'Workshop Fully Booked';
-        backBadge.setAttribute('class', 'fully-booked-badge');
-        backBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
-        console.log('✅ Back badge updated');
-    }
-    
-    // Handstand
-    const handstandBadge = document.getElementById('badge-handstand');
-    if (handstandBadge && workshopData['handstand'].isFullyBooked === true) {
-        handstandBadge.innerHTML = 'Workshop Fully Booked';
-        handstandBadge.setAttribute('class', 'fully-booked-badge');
-        handstandBadge.setAttribute('style', 'display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;');
-        console.log('✅ Handstand badge updated');
-    }
-    
-    console.log('✅ Badges processed');
-}
+      // Function to update badges (CLEAN VERSION)
+      function forceUpdateBadges() {
+        console.log("🔄 Updating badges...");
 
-// Run ONCE - smart detection
-if (document.readyState === 'loading') {
-    // DOM still loading, wait for it
-    document.addEventListener('DOMContentLoaded', forceUpdateBadges);
-} else {
-    // DOM already loaded, run now
-    forceUpdateBadges();
-}
+        // Knee Pain
+        const kneeBadge = document.getElementById("badge-knee-pain");
+        if (kneeBadge && workshopData["knee-pain"].isFullyBooked === true) {
+          kneeBadge.innerHTML = "Workshop Fully Booked";
+          kneeBadge.setAttribute("class", "fully-booked-badge");
+          kneeBadge.setAttribute(
+            "style",
+            "display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;"
+          );
+          console.log("✅ Knee badge updated");
+        }
 
+        // Back Pain
+        const backBadge = document.getElementById("badge-back-pain");
+        if (backBadge && workshopData["back-pain"].isFullyBooked === true) {
+          backBadge.innerHTML = "Workshop Fully Booked";
+          backBadge.setAttribute("class", "fully-booked-badge");
+          backBadge.setAttribute(
+            "style",
+            "display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;"
+          );
+          console.log("✅ Back badge updated");
+        }
 
+        // Handstand
+        const handstandBadge = document.getElementById("badge-handstand");
+        if (
+          handstandBadge &&
+          workshopData["handstand"].isFullyBooked === true
+        ) {
+          handstandBadge.innerHTML = "Workshop Fully Booked";
+          handstandBadge.setAttribute("class", "fully-booked-badge");
+          handstandBadge.setAttribute(
+            "style",
+            "display:inline-block!important;background:rgba(255,107,107,0.2)!important;color:#ff6b6b!important;padding:6px 14px!important;border-radius:20px!important;font-weight:700!important;font-size:13px!important;border:1px solid rgba(255,107,107,0.4)!important;margin-top:8px!important;"
+          );
+          console.log("✅ Handstand badge updated");
+        }
+
+        console.log("✅ Badges processed");
+      }
+
+      // Run ONCE - smart detection
+      if (document.readyState === "loading") {
+        // DOM still loading, wait for it
+        document.addEventListener("DOMContentLoaded", forceUpdateBadges);
+      } else {
+        // DOM already loaded, run now
+        forceUpdateBadges();
+      }
+      // ⭐ ADD THIS LINE
+displayUpcomingWorkshops();
     </script>
   </body>
 </html>
