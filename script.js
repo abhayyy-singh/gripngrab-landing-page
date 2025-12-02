@@ -697,7 +697,7 @@ document.addEventListener("visibilitychange", function () {
         serviceDropdown.innerHTML = `
           <option value="" disabled selected>Select service</option>
           <optgroup label="Consultation & Programs">
-            <option value="One-Time Consultation (₹4,000)">One-Time Consultation - ₹4,000</option>
+            <option value="One-Time Consultation (₹2,000)">One-Time Consultation - ₹2,000</option>
             <option value="Consultation + Workout Program (₹8,000)">Consultation + Workout Program - ₹8,000</option>
             <option value="Consultation + Workout Program + Daily Guidance (₹12,000)">Consultation + Workout Program + Daily Guidance - ₹12,000</option>
           </optgroup>
