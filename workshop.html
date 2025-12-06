@@ -193,164 +193,178 @@
       /* ========================================
        TIMELINE SECTION STYLES
     ======================================== */
-   /* TIMELINE SECTION STYLES */
-/* TIMELINE SECTION STYLES - FLEXIBLE FOR 1-4 WORKSHOPS */
-.timeline-section {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-    padding: 80px 20px;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+      /* TIMELINE SECTION STYLES */
+      /* TIMELINE SECTION STYLES - FLEXIBLE FOR 1-4 WORKSHOPS */
+      .timeline-section {
+        background: linear-gradient(
+          135deg,
+          #0a0a0a 0%,
+          #1a1a1a 50%,
+          #0f0f0f 100%
+        );
+        padding: 80px 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-.timeline-container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-}
+      .timeline-container {
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+      }
 
-.timeline-header {
-    text-align: center;
-    margin-bottom: 60px;
-}
+      .timeline-header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
 
-.timeline-header h1 {
-    font-size: 48px;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 15px;
-    letter-spacing: -0.5px;
-}
+      .timeline-header h1 {
+        font-size: 48px;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 15px;
+        letter-spacing: -0.5px;
+      }
 
-.timeline-header p {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.6);
-}
+      .timeline-header p {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.6);
+      }
 
-.timeline {
-    position: relative;
-    padding-left: 60px;
-    max-width: 800px;
-    margin: 0 auto;
-    /* Flexible - adjusts based on content */
-}
+      .timeline {
+        position: relative;
+        padding-left: 60px;
+        max-width: 800px;
+        margin: 0 auto;
+        /* Flexible - adjusts based on content */
+      }
 
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 23px;
-    top: 30px;
-    bottom: 30px;
-    width: 3px;
-    background: linear-gradient(180deg, rgba(255, 107, 107, 0.6), rgba(255, 107, 107, 0.1));
-    border-radius: 10px;
-}
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 23px;
+        top: 30px;
+        bottom: 30px;
+        width: 3px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 107, 107, 0.6),
+          rgba(255, 107, 107, 0.1)
+        );
+        border-radius: 10px;
+      }
 
-/* When only 1-2 workshops remain */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) {
-    max-width: 650px;
-}
+      /* When only 1-2 workshops remain */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2)) {
+        max-width: 650px;
+      }
 
-.timeline-item {
-    position: relative;
-    margin-bottom: 40px;
-    cursor: pointer;
-}
+      .timeline-item {
+        position: relative;
+        margin-bottom: 40px;
+        cursor: pointer;
+      }
 
-/* Larger cards when fewer workshops */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-item {
-    margin-bottom: 50px;
-}
+      /* Larger cards when fewer workshops */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2))
+        .timeline-item {
+        margin-bottom: 50px;
+      }
 
-.timeline-number {
-    position: absolute;
-    left: -60px;
-    top: 5px;
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-    z-index: 2;
-    transition: all 0.3s ease;
-}
+      .timeline-number {
+        position: absolute;
+        left: -60px;
+        top: 5px;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
 
-/* Bigger numbers when fewer workshops */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-number {
-    width: 54px;
-    height: 54px;
-    font-size: 24px;
-}
+      /* Bigger numbers when fewer workshops */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2))
+        .timeline-number {
+        width: 54px;
+        height: 54px;
+        font-size: 24px;
+      }
 
-.timeline-card {
-    background: rgba(30, 30, 30, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 107, 107, 0.15);
-    border-radius: 16px;
-    padding: 24px 28px;
-    transition: all 0.3s ease;
-    width: 100%;
-}
+      .timeline-card {
+        background: rgba(30, 30, 30, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 107, 107, 0.15);
+        border-radius: 16px;
+        padding: 24px 28px;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
 
-/* More prominent cards when fewer workshops */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-card {
-    padding: 32px 36px;
-    border: 2px solid rgba(255, 107, 107, 0.2);
-}
+      /* More prominent cards when fewer workshops */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2))
+        .timeline-card {
+        padding: 32px 36px;
+        border: 2px solid rgba(255, 107, 107, 0.2);
+      }
 
-.timeline-card:hover {
-    border-color: rgba(255, 107, 107, 0.4);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(255, 107, 107, 0.2);
-}
+      .timeline-card:hover {
+        border-color: rgba(255, 107, 107, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(255, 107, 107, 0.2);
+      }
 
-.timeline-card h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 8px;
-    transition: font-size 0.3s ease;
-}
+      .timeline-card h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+        transition: font-size 0.3s ease;
+      }
 
-/* Bigger heading when fewer workshops */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-card h3 {
-    font-size: 26px;
-}
+      /* Bigger heading when fewer workshops */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2))
+        .timeline-card
+        h3 {
+        font-size: 26px;
+      }
 
-.timeline-preview {
-    display: none;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 12px;
-}
+      .timeline-preview {
+        display: none;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 12px;
+      }
 
-.timeline-quick-info {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-}
+      .timeline-quick-info {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+      }
 
-/* Larger info text when fewer workshops */
-.timeline:has(.timeline-item:first-child:nth-last-child(-n+2)) .timeline-quick-info {
-    font-size: 16px;
-    gap: 20px;
-}
+      /* Larger info text when fewer workshops */
+      .timeline:has(.timeline-item:first-child:nth-last-child(-n + 2))
+        .timeline-quick-info {
+        font-size: 16px;
+        gap: 20px;
+      }
 
-.timeline-quick-info span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
+      .timeline-quick-info span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
 
       /* ========================================
        HERO WORKSHOP SECTION (EXPANDABLE)
@@ -1077,9 +1091,7 @@
           </p>
         </div>
 
-        <div class="timeline">
-         
-        </div>
+        <div class="timeline"></div>
       </div>
     </section>
 
@@ -1109,7 +1121,6 @@
           <h1 id="workshopTitle">
             Workshop <span class="highlight">Title</span>
           </h1>
-          
 
           <div class="about-heading">About Workshop</div>
           <p id="workshopDescription">Description here...</p>
@@ -1303,25 +1314,32 @@
     </footer>
 
     <script>
-// Helper function to parse date strings like "30th November 2025 Sunday"
-function parseDate(dateString) {
-    const match = dateString.match(/(\d+)\w+\s+(\w+)\s+(\d+)/);
-    if (!match) return new Date();
-    
-    const day = parseInt(match[1]);
-    const monthName = match[2];
-    const year = parseInt(match[3]);
-    
-    const months = {
-        'January': 0, 'February': 1, 'March': 2, 'April': 3,
-        'May': 4, 'June': 5, 'July': 6, 'August': 7,
-        'September': 8, 'October': 9, 'November': 10, 'December': 11
-    };
-    
-    return new Date(year, months[monthName], day);
-}
+      // Helper function to parse date strings like "30th November 2025 Sunday"
+      function parseDate(dateString) {
+        const match = dateString.match(/(\d+)\w+\s+(\w+)\s+(\d+)/);
+        if (!match) return new Date();
 
+        const day = parseInt(match[1]);
+        const monthName = match[2];
+        const year = parseInt(match[3]);
 
+        const months = {
+          January: 0,
+          February: 1,
+          March: 2,
+          April: 3,
+          May: 4,
+          June: 5,
+          July: 6,
+          August: 7,
+          September: 8,
+          October: 9,
+          November: 10,
+          December: 11,
+        };
+
+        return new Date(year, months[monthName], day);
+      }
 
       const workshopData = {
         // "back-lever": {
@@ -1338,7 +1356,7 @@ function parseDate(dateString) {
         //   emailTemplateUser: "template_1k0fnrn",
         //   emailTemplateAdmin: "template_axjwehu",
         // },
- 
+
         "back-pain": {
           name: "Lower Back Pain Solutions",
           isFullyBooked: false,
@@ -1363,13 +1381,14 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
           fee: "1,000",
           emailTemplateUser: "template_1k0fnrn",
           emailTemplateAdmin: "template_axjwehu",
+          isFullyBooked: true,
         },
         handstand: {
           name: "Handstand Fundamentals",
           isFullyBooked: false,
           title: "HANDSTAND",
           highlight: "FUNDAMENTALS",
-         
+
           image: "./Handstand_Andrew-Clark.avif",
           description: "Master the art of balance and body control",
           date: "14th December 2025 (Sunday)",
@@ -1379,7 +1398,7 @@ And yes—every individual will also receive a personalized lower-back-pain–fo
           emailTemplateUser: "template_1k0fnrn",
           emailTemplateAdmin: "template_axjwehu",
         },
-               "knee-pain": {
+        "knee-pain": {
           name: "Knee Pain Relief",
           isFullyBooked: false,
           title: "KNEE PAIN",
@@ -1403,49 +1422,53 @@ We'll cover every important aspect to help you move better, feel stronger, and b
           emailTemplateAdmin: "template_axjwehu",
         },
       };
-
-
-
-      // Automatically filter and display only upcoming workshops
+// Automatically filter and display only upcoming workshops
 function displayUpcomingWorkshops() {
-    console.log('🔄 Updating workshop display...');
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Filter upcoming workshops only
-    const upcomingWorkshops = Object.entries(workshopData)
-        .filter(([id, workshop]) => {
-            const workshopDate = parseDate(workshop.date);
-            return workshopDate >= today;
-        })
-        .sort((a, b) => {
-            const dateA = parseDate(a[1].date);
-            const dateB = parseDate(b[1].date);
-            return dateA - dateB;
-        });
-    
-    console.log(`✅ Found ${upcomingWorkshops.length} upcoming workshops`);
-    
-    const timeline = document.querySelector('.timeline');
-    timeline.innerHTML = '';
-    
-    if (upcomingWorkshops.length === 0) {
-        timeline.innerHTML = `
-            <div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.6);">
-                <h3 style="font-size: 24px; margin-bottom: 15px;">No Upcoming Workshops</h3>
-                <p>Check back soon for new announcements!</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Rebuild timeline
-    upcomingWorkshops.forEach(([workshopId, workshop], index) => {
-        const badgeClass = workshop.isFullyBooked ? 'fully-booked-badge' : 'limited-slots-badge';
-        const badgeText = workshop.isFullyBooked ? '⚠️ Workshop Fully Booked' : '🎯 Limited Slots';
-        
-        timeline.innerHTML += `
+  console.log("🔄 Updating workshop display...");
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // 1 din aage shift - workshop apni date ki raat 12 baje se pehle hi hat jayegi
+  today.setDate(today.getDate() + 1);
+
+  // Filter upcoming workshops only
+  const upcomingWorkshops = Object.entries(workshopData)
+    .filter(([id, workshop]) => {
+      const workshopDate = parseDate(workshop.date);
+      return workshopDate >= today;
+    })
+    .sort((a, b) => {
+      const dateA = parseDate(a[1].date);
+      const dateB = parseDate(b[1].date);
+      return dateA - dateB;
+    });
+
+  console.log(`✅ Found ${upcomingWorkshops.length} upcoming workshops`);
+
+  const timeline = document.querySelector(".timeline");
+  timeline.innerHTML = "";
+
+  if (upcomingWorkshops.length === 0) {
+    timeline.innerHTML = `
+      <div style="text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.6);">
+          <h3 style="font-size: 24px; margin-bottom: 15px;">No Upcoming Workshops</h3>
+          <p>Check back soon for new announcements!</p>
+      </div>
+  `;
+    return;
+  }
+
+        // Rebuild timeline
+        upcomingWorkshops.forEach(([workshopId, workshop], index) => {
+          const badgeClass = workshop.isFullyBooked
+            ? "fully-booked-badge"
+            : "limited-slots-badge";
+          const badgeText = workshop.isFullyBooked
+            ? "⚠️ Workshop Fully Booked"
+            : "🎯 Limited Slots";
+
+          timeline.innerHTML += `
             <div class="timeline-item" onclick="openWorkshop('${workshopId}')">
                 <div class="timeline-number">${index + 1}</div>
                 <div class="timeline-card">
@@ -1462,13 +1485,8 @@ function displayUpcomingWorkshops() {
                 </div>
             </div>
         `;
-    });
-}
-
-
-
-
-
+        });
+      }
 
       let selectedWorkshopData = null;
 
@@ -1520,7 +1538,7 @@ function displayUpcomingWorkshops() {
         document.getElementById(
           "workshopTitle"
         ).innerHTML = `${workshop.title} <span class="highlight">${workshop.highlight}</span>`;
-        
+
         document.getElementById("workshopDescription").textContent =
           workshop.description;
         document.getElementById("workshopDate").textContent = workshop.date;
@@ -2260,7 +2278,7 @@ function displayUpcomingWorkshops() {
         forceUpdateBadges();
       }
       // ⭐ ADD THIS LINE
-displayUpcomingWorkshops();
+      displayUpcomingWorkshops();
     </script>
   </body>
 </html>
