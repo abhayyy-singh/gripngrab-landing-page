@@ -515,15 +515,10 @@ document.getElementById('mobileMenu').addEventListener('click', function(e) {
 
 
 
+// ========================================
+// WORKSHOP DATA (NEW - 4 Workshops)
+// ========================================
 
-
-
-
-
-
-// WORKSHOP TIMELINE FUNCTIONS
-
-// Workshop data for lazy loading + email templates
 const workshopData = {
   'knee-pain': {
     name: 'Knee Pain Relief Workshop',
@@ -567,9 +562,13 @@ const workshopData = {
   }
 };
 
-
 // Global variable to store selected workshop
 let selectedWorkshopData = null;
+  
+
+
+
+
 
 // Toggle workshop expansion
 function toggleWorkshop(element) {
@@ -687,6 +686,95 @@ function updateModalWithWorkshopDetails(workshop) {
 
 
 
+// ========================================
+// WORKSHOP CARD EXPANSION FUNCTIONS
+// ========================================
+
+// Toggle workshop detail expansion
+function toggleWorkshopDetail(element) {
+  const workshopCard = element.closest('.ggw-workshop-card');
+  const workshopId = workshopCard.getAttribute('data-workshop');
+  const detailsContent = workshopCard.querySelector('.ggw-workshop-details-content');
+  
+  // Check if already active
+  const isActive = workshopCard.classList.contains('active');
+  
+  // Close all other workshops
+  document.querySelectorAll('.ggw-workshop-card').forEach(card => {
+    if (card !== workshopCard) {
+      card.classList.remove('active');
+    }
+  });
+  
+  // Toggle current workshop
+  if (!isActive) {
+    workshopCard.classList.add('active');
+    
+    // Lazy load content if not already loaded
+    if (workshopData[workshopId] && detailsContent.children.length === 0) {
+      loadWorkshopDetails(workshopId, detailsContent);
+    }
+  } else {
+    workshopCard.classList.remove('active');
+  }
+}
+
+// Lazy load workshop details
+function loadWorkshopDetails(workshopId, container) {
+  const data = workshopData[workshopId];
+  
+  if (!data) return;
+  
+  const content = `
+    <div class="ggw-about-section">
+      <h4 class="ggw-section-heading">ABOUT WORKSHOP</h4>
+      <p class="ggw-description">${data.description}</p>
+    </div>
+    
+    <div class="ggw-details-grid-mini">
+      <div class="ggw-detail-mini">
+        <span class="ggw-detail-label">📅 Date</span>
+        <span class="ggw-detail-value">${data.date}</span>
+      </div>
+      <div class="ggw-detail-mini">
+        <span class="ggw-detail-label">🕐 Time</span>
+        <span class="ggw-detail-value">${data.time}</span>
+      </div>
+      <div class="ggw-detail-mini">
+        <span class="ggw-detail-label">📍 Venue</span>
+        <span class="ggw-detail-value">${data.venue}</span>
+      </div>
+      <div class="ggw-detail-mini">
+        <span class="ggw-detail-label">💰 Fee</span>
+        <span class="ggw-detail-value">${data.fee}</span>
+      </div>
+    </div>
+    
+    <button class="ggw-register-btn-inline" onclick="registerForWorkshop('${workshopId}'); event.stopPropagation();">
+      Register Now
+    </button>
+  `;
+  
+  container.innerHTML = content;
+}
+
+// Register for workshop
+function registerForWorkshop(workshopId) {
+  // Store selected workshop data globally
+  selectedWorkshopData = workshopData[workshopId];
+  
+  if (!selectedWorkshopData) {
+    alert('Workshop not found!');
+    return;
+  }
+  
+  console.log('✅ Selected Workshop:', selectedWorkshopData.name);
+  console.log('✅ Workshop Fee:', selectedWorkshopData.fee);
+  console.log('✅ Email Templates:', selectedWorkshopData.emailTemplateUser, selectedWorkshopData.emailTemplateAdmin);
+  
+  // Open registration modal (existing function)
+  openModal();
+}
 
 
 

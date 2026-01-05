@@ -4897,7 +4897,7 @@ media screen and (max-width: 768px) {
 
 /* Button */
 .pt-btn {
-  padding: 11px 32px;
+  padding: 11px 38px;
   background: linear-gradient(135deg, #ff9b82 0%, #ff7b5f 100%);
   border: none;
   border-radius: 8px;
@@ -4909,6 +4909,8 @@ media screen and (max-width: 768px) {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  
+
 }
 
 .pt-btn:hover {
