@@ -4046,7 +4046,7 @@ body {
 @media screen and (max-width: 768px) {
     .image-bg img {
         width: 100vw;
-        min-width: 550px;
+        min-width: 450px;
         /* max-width: 1000px */
         position: relative;
         bottom: 40px;
@@ -4066,7 +4066,7 @@ media screen and (max-width: 768px) {
 @media screen and (max-Swidth: 480px) {
     .image-bg img {
         width: 100vw; /* Increased for mobile */
-        min-width: 450px; /* Fixed - was 400px which made no sense */
+        min-width: 400px; /* Fixed - was 400px which made no sense */
         max-width: 350px;
     }
 }
