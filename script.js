@@ -1,1930 +1,934 @@
-// DOM Elements
-const navbar = document.getElementById("navbar");
-const hero = document.querySelector(".hero");
-const footer = document.querySelector(".footer");
-const hamburger = document.getElementById("hamburger");
-const mobileMenu = document.getElementById("mobileMenu");
+/* ============================================================================
+   script.js — Grip & Grab
+   ============================================================================
+   Sections:
+     1.  CONFIG & CONSTANTS
+     2.  DOM REFERENCES
+     3.  NAVBAR
+     4.  MOBILE MENU
+     5.  SCROLL ANIMATIONS
+     6.  VIDEO CONTROLS
+     7.  TIMELINE ANIMATION
+     8.  GALLERY
+     9.  FAQ
+    10.  FREE TRIAL MODAL (time-slot helper — modal itself in trial-paid.js)
+    11.  MEMBERSHIP MODAL
+          Step 1 — center selection + availability check
+          Step 2 — plan + details form + payment
+    12.  PAYMENT ABSTRACTION LAYER
+    13.  UTILITY FUNCTIONS
+   ============================================================================ */
 
-// State variables
-let heroVisible = false;
-let footerVisible = false;
-const SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec";
-// Time slot configuration for locations
+'use strict';
+
+/* ============================================================================
+   1. CONFIG & CONSTANTS
+   ============================================================================ */
+
+/* ── Center availability
+   To mark a center as full:  set available: false
+   alternateCenter must match a key in this same object exactly.
+   Change here + redeploy — nothing else needs touching.               ── */
+const CENTER_CONFIG = {
+  'Grip&Grab Lajpat Nagar': {
+    available:       false,
+    alternateCenter: 'Grip&Grab Saket',
+  },
+  'Grip&Grab Saket': {
+    available:       true,
+    alternateCenter: 'Grip&Grab Lajpat Nagar',
+  },
+};
+
+/* ── Time slots — single source of truth for all modals ── */
 const TIME_SLOTS = {
-  'Lajpat Nagar': {
-    morning: ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM'],
-    evening: ['5 PM', '6 PM', '7 PM', '8 PM', '9 PM']
+  'Grip&Grab Lajpat Nagar': {
+    morning: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM'],
+    evening: ['5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'],
   },
-  'Saket': {
-    morning: ['7:30 AM', '8:30 AM', '9:30 AM', '10:30 AM', '11:30 AM'],
-    evening: ['5 PM', '6 PM', '7 PM', '8 PM', '9 PM']
-  }
+  'Grip&Grab Saket': {
+    morning: ['7:30 AM', '8:30 AM', '9:30 AM', '10:30 AM'],
+    evening: ['5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'],
+  },
 };
 
+/* ── Membership plans ── */
+const MEMBERSHIP_PLANS = [
+  { id: 'monthly',    label: 'Monthly',     price: 8000,  period: '/month',    badge: 'Most Flexible', save: '' },
+  { id: 'quarterly',  label: 'Quarterly',   price: 21000, period: '/3 months', badge: 'Great Value',   save: 'Save ₹3,000' },
+  { id: 'halfyearly', label: 'Half Yearly', price: 36000, period: '/6 months', badge: 'Most Popular',  save: 'Save ₹12,000' },
+  { id: 'yearly',     label: 'Yearly',      price: 60000, period: '/year',     badge: 'Best Deal',     save: 'Save ₹36,000' },
+];
 
-// Hamburger menu functionality
-hamburger.addEventListener("click", () => {
-  hamburger.classList.toggle("active");
-  mobileMenu.classList.toggle("active");
+/* ── Google Sheets CRM webhook ── */
+const SHEETS_WEBHOOK_URL =
+  'https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec';
 
-  document.body.style.overflow = mobileMenu.classList.contains("active")
-    ? "hidden"
-    : "auto";
-});
+/* ============================================================================
+   2. DOM REFERENCES
+   ============================================================================ */
 
-// Close mobile menu when clicking on a link
-const mobileLinks = mobileMenu.querySelectorAll("a");
-mobileLinks.forEach((link) => {
-  link.addEventListener("click", () => {
-    hamburger.classList.remove("active");
-    mobileMenu.classList.remove("active");
-    document.body.style.overflow = "auto";
-  });
-});
+const navbar     = document.getElementById('navbar');
+const hero       = document.querySelector('.hero');
+const footer     = document.querySelector('.footer');
+const hamburger  = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
 
-// Navbar visibility toggle function
+/* ============================================================================
+   3. NAVBAR
+   ============================================================================ */
+
+let heroVisible   = false;
+let footerVisible = false;
+
 function toggleNavbar() {
-  if (footerVisible || heroVisible) {
-    navbar.style.opacity = "1";
-    navbar.style.pointerEvents = "auto";
-    navbar.style.transform = "translateY(0)";
-  } else {
-    navbar.style.opacity = "0";
-    navbar.style.pointerEvents = "none";
-    navbar.style.transform = "translateY(-100%)";
-  }
+  const visible          = footerVisible || heroVisible;
+  navbar.style.opacity       = visible ? '1' : '0';
+  navbar.style.pointerEvents = visible ? 'auto' : 'none';
+  navbar.style.transform     = visible ? 'translateY(0)' : 'translateY(-100%)';
 }
 
-// Navbar scroll effect
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 100) {
-    navbar.classList.add("scrolled");
-  } else {
-    navbar.classList.remove("scrolled");
-  }
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 100);
 });
 
-// Intersection observers for navbar visibility
-const footerObserver = new IntersectionObserver(
-  (entries) => {
-    footerVisible = entries.some((entry) => entry.isIntersecting);
-    toggleNavbar();
-  },
-  {
-    threshold: 0.1,
-  }
-);
+new IntersectionObserver(
+  (entries) => { footerVisible = entries.some((e) => e.isIntersecting); toggleNavbar(); },
+  { threshold: 0.1 }
+).observe(footer);
 
-const heroObserver = new IntersectionObserver(
-  (entries) => {
-    heroVisible = entries.some((entry) => entry.isIntersecting);
-    toggleNavbar();
-  },
-  {
-    threshold: 0.2,
-  }
-);
+new IntersectionObserver(
+  (entries) => { heroVisible = entries.some((e) => e.isIntersecting); toggleNavbar(); },
+  { threshold: 0.2 }
+).observe(hero);
 
-// Observe hero and footer sections
-footerObserver.observe(footer);
-heroObserver.observe(hero);
+/* ============================================================================
+   4. MOBILE MENU
+   ============================================================================ */
 
-// Timeline Animation
-const timelineItems = document.querySelectorAll(".timeline-item");
-const timelineProgress = document.getElementById("timelineProgress");
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  mobileMenu.classList.toggle('active');
+  document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+});
 
-const timelineObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const item = entry.target;
-        if (item.classList.contains("active")) {
-          return;
-        }
-        const number = item.querySelector(".timeline-number");
-        const content = item.querySelector(".timeline-content");
-        const step = parseInt(item.dataset.step);
-
-        item.classList.add("active");
-        number.classList.add("active");
-        content.classList.add("active");
-
-        const progressHeight = (step / timelineItems.length) * 100;
-        timelineProgress.style.height = `${progressHeight}%`;
-      }
-    });
-  },
-  {
-    threshold: 0.5,
-    rootMargin: "-10% 0px -10% 0px",
-  }
-);
-
-// Detect mobile device
-const isMobile =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-
-// Autoplay Video
-const video = document.getElementById("autoPlayVideo");
-
-if (video) {
-  let userHasInteracted = false;
-  
-  const handleFirstInteraction = () => {
-    if (!userHasInteracted) {
-      userHasInteracted = true;
-      video.muted = false;
-      console.log('Autoplay video permanently unmuted after user interaction');
-    }
-  };
-  
-  const interactionEvents = ['click', 'touchstart', 'touchmove', 'scroll'];
-  interactionEvents.forEach(eventType => {
-    document.addEventListener(eventType, handleFirstInteraction, { once: true });
+mobileMenu.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = 'auto';
   });
-  
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry.isIntersecting) {
-        if (!userHasInteracted) {
-          video.muted = isMobile ? true : false;
-        } else {
-          video.muted = false;
-        }
-        
-        video.play().catch((e) => {
-          console.log("Autoplay failed:", e);
-        });
-      } else {
-        video.pause();
-      }
-    },
-    {
-      threshold: 0.5,
-    }
-  );
-
-  observer.observe(video);
-}
-
-// Observe timeline items
-timelineItems.forEach((item) => {
-  timelineObserver.observe(item);
 });
 
-let currentGallery = null;
-let currentSlideIndex = 0;
+/* ============================================================================
+   5. SCROLL ANIMATIONS
+   ============================================================================ */
 
-function openGallery(gymLocation) {
-  currentGallery = galleryData[gymLocation];
-  currentSlideIndex = 0;
-
-  const modal = document.getElementById("galleryModal");
-  const title = document.getElementById("galleryTitle");
-  const mainImage = document.getElementById("galleryMainImage");
-  const currentSlideSpan = document.getElementById("currentSlide");
-  const totalSlidesSpan = document.getElementById("totalSlides");
-
-  title.textContent = currentGallery.title;
-  mainImage.src = currentGallery.images[0];
-  mainImage.alt = currentGallery.title;
-  currentSlideSpan.textContent = "1";
-  totalSlidesSpan.textContent = currentGallery.images.length;
-
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
-
-function closeGallery() {
-  const modal = document.getElementById("galleryModal");
-  modal.classList.remove("active");
-  document.body.style.overflow = "auto";
-  currentGallery = null;
-}
-
-function changeSlide(direction) {
-  if (!currentGallery) return;
-
-  currentSlideIndex += direction;
-
-  if (currentSlideIndex < 0) {
-    currentSlideIndex = currentGallery.images.length - 1;
-  } else if (currentSlideIndex >= currentGallery.images.length) {
-    currentSlideIndex = 0;
-  }
-
-  const mainImage = document.getElementById("galleryMainImage");
-  const currentSlideSpan = document.getElementById("currentSlide");
-
-  mainImage.src = currentGallery.images[currentSlideIndex];
-  currentSlideSpan.textContent = currentSlideIndex + 1;
-}
-
-// Keyboard navigation for gallery
-document.addEventListener("keydown", (e) => {
-  if (currentGallery) {
-    if (e.key === "ArrowLeft") {
-      changeSlide(-1);
-    } else if (e.key === "ArrowRight") {
-      changeSlide(1);
-    } else if (e.key === "Escape") {
-      closeGallery();
-    }
-  }
-});
-
-// TESTIMONIAL VIDEO CONTROLS
-document.querySelectorAll(".testimonial-card").forEach((card) => {
-  const video = card.querySelector("video");
-
-  if (!video) return;
-
-  video.setAttribute("controls", "false");
-  
-  if (isMobile) {
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (video.paused) {
-        video.setAttribute("controls", "true");
-        video.muted = false;
-        video.play().catch((e) => console.log("Video play failed:", e));
-        
-        setTimeout(() => {
-          video.setAttribute("controls", "false");
-        }, 1000);
-      } else {
-        video.setAttribute("controls", "true");
-        video.pause();
-        video.muted = true;
-        video.currentTime = 0;
-        
-        setTimeout(() => {
-          video.setAttribute("controls", "false");
-        }, 1000);
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!card.contains(e.target)) {
-        video.setAttribute("controls", "false");
-      }
-    });
-
-    video.addEventListener("play", () => {
-      setTimeout(() => {
-        video.setAttribute("controls", "false");
-      }, 1000);
-    });
-
-    video.addEventListener("pause", () => {
-      setTimeout(() => {
-        video.setAttribute("controls", "false");
-      }, 1000);
-    });
-
-  } else {
-    card.addEventListener("mouseenter", () => {
-      video.muted = false;
-      video.play().catch((e) => console.log("Video play failed:", e));
-    });
-
-    card.addEventListener("mouseleave", () => {
-      video.pause();
-      video.muted = true;
-      video.currentTime = 0;
-    });
-  }
-});
-
-// Scroll-based reveal animations
-const animatedElements = document.querySelectorAll(
-  ".animate-left, .animate-right, .animate-up, .animate-fade"
-);
-
-const revealOnScroll = (entries, observer) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
-      observer.unobserve(entry.target);
-    }
-  });
-};
-
-const scrollObserver = new IntersectionObserver(revealOnScroll, {
-  threshold: 0.1,
-  rootMargin: "0px 0px -50px 0px",
-});
-
-animatedElements.forEach((el) => scrollObserver.observe(el));
-
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-
-    if (target) {
-      if (mobileMenu.classList.contains("active")) {
-        hamburger.classList.remove("active");
-        mobileMenu.classList.remove("active");
-        document.body.style.overflow = "auto";
-      }
-
-      target.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+(() => {
+  const obs = new IntersectionObserver(
+    (entries, o) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add('show'); o.unobserve(entry.target); }
       });
-    }
-  });
-});
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+  );
+  document.querySelectorAll('.animate-left, .animate-right, .animate-up, .animate-fade')
+    .forEach((el) => obs.observe(el));
+})();
 
-// Enhanced form submission
-const form = document.querySelector(".forms");
-if (form) {
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = form.querySelector(".emailinput").value;
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-
-    const submitBtn = form.querySelector(".getnotify");
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = "Submitting...";
-    submitBtn.disabled = true;
-
-    setTimeout(() => {
-      alert(`Thank you! We'll notify you at ${email}`);
-      form.reset();
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-    }, 1500);
-  });
-}
-
-// Enhanced video loading and error handling
-const videos = document.querySelectorAll("video");
-videos.forEach((video) => {
-  video.addEventListener("loadstart", () => {
-    video.style.backgroundColor = "#1a1a1a";
-  });
-
-  video.addEventListener("canplay", () => {
-    video.style.backgroundColor = "transparent";
-  });
-
-  video.addEventListener("error", (e) => {
-    console.log("Video loading error:", e);
-    video.style.backgroundColor = "#2a2a2a";
-  });
-
-  video.muted = true;
-});
-
-// Parallax effect for floating labels
-window.addEventListener("scroll", () => {
+window.addEventListener('scroll', () => {
   const scrolled = window.pageYOffset;
-  const parallaxElements = document.querySelectorAll(".floating-label");
-
-  parallaxElements.forEach((element, index) => {
-    const speed = 0.3 + index * 0.1;
-    const yPos = -(scrolled * speed);
-    element.style.transform = `translateY(${yPos}px)`;
+  document.querySelectorAll('.floating-label').forEach((el, i) => {
+    el.style.transform = `translateY(${-(scrolled * (0.3 + i * 0.1))}px)`;
   });
 });
 
-// Enhanced button interactions
-const buttons = document.querySelectorAll(".btn, .fbtn, .cta-button");
-buttons.forEach((button) => {
-  button.addEventListener("mouseenter", () => {
-    button.style.transform = "translateY(-2px) scale(1.02)";
-  });
-
-  button.addEventListener("mouseleave", () => {
-    button.style.transform = "translateY(0) scale(1)";
-  });
-
-  button.addEventListener("mousedown", () => {
-    button.style.transform = "translateY(0) scale(0.98)";
-  });
-
-  button.addEventListener("mouseup", () => {
-    button.style.transform = "translateY(-2px) scale(1.02)";
-  });
-
-  button.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      button.style.transform = "translateY(0) scale(0.98)";
-    }
-  });
-
-  button.addEventListener("keyup", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      button.style.transform = "translateY(-2px) scale(1.02)";
-    }
+window.addEventListener('load', () => {
+  document.body.style.opacity = '1';
+  document.querySelectorAll('.hero-content > *').forEach((el, i) => {
+    setTimeout(() => { el.style.animationDelay = `${i * 0.2}s`; el.classList.add('animate-fade-in'); }, i * 100);
   });
 });
 
-// Keyboard navigation improvements
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && mobileMenu.classList.contains("active")) {
-    hamburger.classList.remove("active");
-    mobileMenu.classList.remove("active");
-    document.body.style.overflow = "auto";
-  }
-
-  if (e.key === "ArrowDown" && e.ctrlKey) {
-    e.preventDefault();
-    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
-  }
-
-  if (e.key === "ArrowUp" && e.ctrlKey) {
-    e.preventDefault();
-    window.scrollBy({ top: -window.innerHeight, behavior: "smooth" });
-  }
-});
-
-// Performance optimization: Lazy loading for videos
-const videoObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const video = entry.target;
-        if (video.dataset.src) {
-          video.src = video.dataset.src;
-          video.load();
-          videoObserver.unobserve(video);
-        }
-      }
-    });
-  },
-  {
-    rootMargin: "100px",
-  }
-);
-
-videos.forEach((video) => {
-  const rect = video.getBoundingClientRect();
-  if (rect.top > window.innerHeight * 1.5) {
-    video.dataset.src = video.src;
-    video.src = "";
-    videoObserver.observe(video);
-  }
-});
-
-// Window load event for initial animations
-window.addEventListener("load", () => {
-  document.body.style.opacity = "1";
-
-  const heroElements = document.querySelectorAll(".hero-content > *");
-  heroElements.forEach((el, index) => {
-    setTimeout(() => {
-      el.style.animationDelay = `${index * 0.2}s`;
-      el.classList.add("animate-fade-in");
-    }, index * 100);
-  });
-});
-
-// Resize event handler
 let resizeTimeout;
-window.addEventListener("resize", () => {
+window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    if (window.innerWidth > 768 && mobileMenu.classList.contains("active")) {
-      hamburger.classList.remove("active");
-      mobileMenu.classList.remove("active");
-      document.body.style.overflow = "auto";
+    if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+      hamburger.classList.remove('active');
+      mobileMenu.classList.remove('active');
+      document.body.style.overflow = 'auto';
     }
-
-    if (currentGallery && window.innerWidth < 768) {
-      closeGallery();
-    }
-
-    videos.forEach((video) => {
-      if (video.videoWidth && video.videoHeight) {
-        const aspectRatio = video.videoWidth / video.videoHeight;
-        const containerWidth = video.parentElement.offsetWidth;
-        video.style.height = `${containerWidth / aspectRatio}px`;
-      }
-    });
   }, 250);
 });
 
-// Initialize tooltips
-const initializeTooltips = () => {
-  const tooltipElements = document.querySelectorAll("[data-tooltip]");
-  tooltipElements.forEach((element) => {
-    element.addEventListener("mouseenter", (e) => {
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
-      tooltip.textContent = e.target.dataset.tooltip;
-      document.body.appendChild(tooltip);
+/* ============================================================================
+   6. VIDEO CONTROLS
+   ============================================================================ */
 
-      const rect = e.target.getBoundingClientRect();
-      tooltip.style.top = `${rect.top - 40}px`;
-      tooltip.style.left = `${rect.left + rect.width / 2}px`;
-      tooltip.style.transform = "translateX(-50%)";
-    });
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    element.addEventListener("mouseleave", () => {
-      const tooltip = document.querySelector(".tooltip");
-      if (tooltip) {
-        tooltip.remove();
+/* Hero auto-play video */
+const heroVideo = document.getElementById('autoPlayVideo');
+if (heroVideo) {
+  let userHasInteracted = false;
+  const onFirstInteraction = () => {
+    if (!userHasInteracted) { userHasInteracted = true; heroVideo.muted = false; }
+  };
+  ['click', 'touchstart', 'touchmove', 'scroll'].forEach((evt) =>
+    document.addEventListener(evt, onFirstInteraction, { once: true })
+  );
+  new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        heroVideo.muted = !userHasInteracted && isMobile;
+        heroVideo.play().catch(() => {});
+      } else { heroVideo.pause(); }
+    },
+    { threshold: 0.5 }
+  ).observe(heroVideo);
+}
+
+/* Testimonial videos */
+document.querySelectorAll('.testimonial-card').forEach((card) => {
+  const video = card.querySelector('video');
+  if (!video) return;
+  video.setAttribute('controls', 'false');
+  if (isMobile) {
+    card.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (video.paused) {
+        video.setAttribute('controls', 'true'); video.muted = false;
+        video.play().catch(() => {});
+        setTimeout(() => video.setAttribute('controls', 'false'), 1000);
+      } else {
+        video.setAttribute('controls', 'true'); video.pause();
+        video.muted = true; video.currentTime = 0;
+        setTimeout(() => video.setAttribute('controls', 'false'), 1000);
       }
     });
-  });
+  } else {
+    card.addEventListener('mouseenter', () => { video.muted = false; video.play().catch(() => {}); });
+    card.addEventListener('mouseleave', () => { video.pause(); video.muted = true; video.currentTime = 0; });
+  }
+});
+
+/* Lazy-load off-screen videos */
+document.querySelectorAll('video').forEach((v) => {
+  v.muted = true;
+  v.addEventListener('loadstart', () => { v.style.backgroundColor = '#1a1a1a'; });
+  v.addEventListener('canplay',   () => { v.style.backgroundColor = 'transparent'; });
+  v.addEventListener('error',     () => { v.style.backgroundColor = '#2a2a2a'; });
+  if (v.getBoundingClientRect().top > window.innerHeight * 1.5) {
+    v.dataset.src = v.src; v.src = '';
+    new IntersectionObserver(([entry], obs) => {
+      if (entry.isIntersecting) { v.src = v.dataset.src; v.load(); obs.unobserve(v); }
+    }, { rootMargin: '100px' }).observe(v);
+  }
+});
+
+/* ============================================================================
+   7. TIMELINE ANIMATION
+   ============================================================================ */
+
+(() => {
+  const items    = document.querySelectorAll('.timeline-item');
+  const progress = document.getElementById('timelineProgress');
+  new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || entry.target.classList.contains('active')) return;
+        const item = entry.target;
+        const step = parseInt(item.dataset.step, 10);
+        item.classList.add('active');
+        item.querySelector('.timeline-number')?.classList.add('active');
+        item.querySelector('.timeline-content')?.classList.add('active');
+        if (progress) progress.style.height = `${(step / items.length) * 100}%`;
+      });
+    },
+    { threshold: 0.5, rootMargin: '-10% 0px -10% 0px' }
+  ).observe = (() => {
+    const o = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.target.classList.contains('active')) return;
+          const item = entry.target;
+          const step = parseInt(item.dataset.step, 10);
+          item.classList.add('active');
+          item.querySelector('.timeline-number')?.classList.add('active');
+          item.querySelector('.timeline-content')?.classList.add('active');
+          if (progress) progress.style.height = `${(step / items.length) * 100}%`;
+        });
+      },
+      { threshold: 0.5, rootMargin: '-10% 0px -10% 0px' }
+    );
+    items.forEach((item) => o.observe(item));
+    return o.observe.bind(o);
+  })();
+})();
+
+/* ============================================================================
+   8. GALLERY
+   ============================================================================ */
+
+let currentGallery    = null;
+let currentSlideIndex = 0;
+
+function openGallery(gymLocation) {
+  if (!window.galleryData?.[gymLocation]) return;
+  currentGallery = window.galleryData[gymLocation]; currentSlideIndex = 0;
+  const modal = document.getElementById('galleryModal');
+  if (!modal) return;
+  document.getElementById('galleryTitle').textContent   = currentGallery.title;
+  document.getElementById('galleryMainImage').src        = currentGallery.images[0];
+  document.getElementById('galleryMainImage').alt        = currentGallery.title;
+  document.getElementById('currentSlide').textContent    = '1';
+  document.getElementById('totalSlides').textContent     = currentGallery.images.length;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeGallery() {
+  document.getElementById('galleryModal')?.classList.remove('active');
+  document.body.style.overflow = 'auto'; currentGallery = null;
+}
+function changeSlide(direction) {
+  if (!currentGallery) return;
+  currentSlideIndex = (currentSlideIndex + direction + currentGallery.images.length) % currentGallery.images.length;
+  document.getElementById('galleryMainImage').src     = currentGallery.images[currentSlideIndex];
+  document.getElementById('currentSlide').textContent = currentSlideIndex + 1;
+}
+document.addEventListener('keydown', (e) => {
+  if (!currentGallery) return;
+  if (e.key === 'ArrowLeft')  changeSlide(-1);
+  if (e.key === 'ArrowRight') changeSlide(1);
+  if (e.key === 'Escape')     closeGallery();
+});
+window.openGallery = openGallery; window.closeGallery = closeGallery; window.changeSlide = changeSlide;
+
+/* ============================================================================
+   9. FAQ
+   ============================================================================ */
+
+function toggleFaq(element) {
+  const faqItem  = element.parentElement;
+  const isActive = faqItem.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach((item) => item.classList.remove('active'));
+  if (!isActive) faqItem.classList.add('active');
+}
+window.toggleFaq = toggleFaq;
+
+/* ============================================================================
+   10. FREE TRIAL MODAL — time-slot helper
+   trial-paid.js reads window.TIME_SLOTS (full center names).
+   Legacy trial form uses short names — bridged here.
+   ============================================================================ */
+
+const TRIAL_TIME_SLOTS = {
+  'Lajpat Nagar': TIME_SLOTS['Grip&Grab Lajpat Nagar'],
+  'Saket':        TIME_SLOTS['Grip&Grab Saket'],
 };
 
-// Smooth scroll function
-function scrollToSection(sectionId) {
-  const element = document.getElementById(sectionId);
-  if (element) {
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }
+function updateTimeSlots() {
+  const locationEl = document.getElementById('trialLocation');
+  const timeEl     = document.getElementById('trialTime');
+  if (!locationEl || !timeEl) return;
+  const slots = TRIAL_TIME_SLOTS[locationEl.value];
+  timeEl.innerHTML = '<option value="" disabled selected>Select your preferred time</option>';
+  if (slots) {
+    const mg = document.createElement('optgroup'); mg.label = 'Morning Sessions';
+    slots.morning.forEach((t) => { const o = document.createElement('option'); o.value = o.textContent = t; mg.appendChild(o); });
+    const eg = document.createElement('optgroup'); eg.label = 'Evening Sessions';
+    slots.evening.forEach((t) => { const o = document.createElement('option'); o.value = o.textContent = t; eg.appendChild(o); });
+    timeEl.appendChild(mg); timeEl.appendChild(eg); timeEl.disabled = false;
+  } else { timeEl.disabled = true; }
 }
+window.updateTimeSlots = updateTimeSlots;
 
-// Payment redirect function
-function redirectToPayment() {
-  window.open(
-    "https://wa.me/+919971250050?text=Hey%2C%20I%20want%20to%20join%20Grip%20and%20Grab.%20What%20is%20the%20procedure%3F",
-    "_blank"
-  );
-}
-
-// FAQ functionality
-function toggleFaq(element) {
-  const faqItem = element.parentElement;
-  const isActive = faqItem.classList.contains("active");
-
-  document.querySelectorAll(".faq-item").forEach((item) => {
-    item.classList.remove("active");
-  });
-
-  if (!isActive) {
-    faqItem.classList.add("active");
-  }
-}
-
-// Initialize
-document.addEventListener("DOMContentLoaded", () => {
-  initializeTooltips();
-  console.log("Grip&Grab website initialized successfully!");
-});
-
-// Expose gallery functions
-window.openGallery = openGallery;
-window.closeGallery = closeGallery;
-window.changeSlide = changeSlide;
-
-// Logo GIF control
-document.addEventListener("DOMContentLoaded", function () {
-  const logoImg = document.getElementById("logoBackground");
-  const gifSrc = "./images/logo.gif";
-  const staticSrc = "./images/logo-static.png";
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  logoImg.onload = function () {
-    canvas.width = this.naturalWidth;
-    canvas.height = this.naturalHeight;
-    ctx.drawImage(this, 0, 0);
-    const staticFrame = canvas.toDataURL();
-
-    setTimeout(() => {
-      logoImg.src = staticFrame;
-    }, 3000);
-  };
-
-  logoImg.onerror = function () {
-    console.log("GIF loading failed, using fallback");
-    if (staticSrc) {
-      this.src = staticSrc;
-    }
-  };
-
-  if (logoImg.complete) {
-    logoImg.onload();
+document.addEventListener('DOMContentLoaded', () => {
+  const locationEl = document.getElementById('trialLocation');
+  if (locationEl) {
+    locationEl.addEventListener('change', updateTimeSlots);
+    if (locationEl.value) updateTimeSlots();
   }
 });
 
-function playLogoOnce() {
-  const logoImg = document.getElementById("logoBackground");
-  const originalSrc = logoImg.src;
+/* ============================================================================
+   11. MEMBERSHIP MODAL
+   ----------------------------------------------------------------------------
+   Step 1 — center selection + availability check
+   Step "full" — center at capacity message
+   Step 2 — plan cards + details form + payment
+   ============================================================================ */
 
-  logoImg.src = "";
-  logoImg.src = originalSrc + "?t=" + Date.now();
-
-  setTimeout(() => {
-    logoImg.style.opacity = "0.08";
-  }, 3000);
-}
-
-document.addEventListener("visibilitychange", function () {
-  if (!document.hidden) {
-    // Uncomment if needed: playLogoOnce();
-  }
-});
-
-/* ==================== FREE TRIAL MODAL SCRIPT ==================== */
-
-(function() {
+(function () {
   'use strict';
 
- const CONFIG = {
-  accessKey: 'ac6dfa83-49cf-4b5a-a983-1ac5e095dc37',
-  
-  // EmailJS Configuration
-  emailJS: {
-    serviceId: 'harish@teamgng',
-    templateId: 'template_1k0fnrn',
-    publicKey: 'wwGXMDT6ekGDIkKNg',
-    recipientEmail: 'haristhenics06@gmail.com'
-  },
-  
-  // Razorpay Configuration
-  razorpay: {
-    keyId: 'rzp_live_RZDqaPc9XD0...', // Your Razorpay live key
-    amount: 49900 // ₹499 in paise
-  }
-};
-
+  /* ── State ── */
   const state = {
-    isOpen: false,
-    isSubmitting: false,
-    formType: 'free-trial'
+    isOpen:         false,
+    isSubmitting:   false,
+    selectedCenter: null,
+    selectedPlan:   null,
   };
 
-  const elements = {
-    modal: null,
-    overlay: null,
-    closeBtn: null,
-    form: null,
-    submitBtn: null,
-    dateInput: null,
-    successMsg: null,
-    errorMsg: null,
-    triggers: []
-  };
+  /* ── DOM refs ── */
+  let modal, backdrop, closeBtn, form, submitBtn,
+      successEl, errorEl, retryBtn,
+      stepCenter, stepFull, stepForm;
 
-  function updateFormForType(formType) {
-    const modalTitle = document.querySelector('.trial-modal__title');
-    const modalSubtitle = document.querySelector('.trial-modal__subtitle');
-    const serviceGroup = document.querySelector('.trial-form__group:has(#trialService)');
-    const mediumGroup = document.querySelector('.trial-form__group:has([name="medium"])');
-    
-    if (formType === 'personal-training') {
-      // Personal Training Form
-      modalTitle.textContent = 'Book Personal Training';
-      modalSubtitle.textContent = 'Choose your preferred training plan and schedule your session.';
-      
-      // Show service and medium fields
-      if (serviceGroup) serviceGroup.style.display = 'flex';
-      if (mediumGroup) mediumGroup.style.display = 'flex';
-      
-      const serviceDropdown = document.getElementById('trialService');
-      if (serviceDropdown) {
-        serviceDropdown.innerHTML = `
-          <option value="" disabled selected>Select service</option>
-          <optgroup label="Consultation & Programs">
-            <option value="One-Time Consultation (₹2,000)">One-Time Consultation - ₹2,000</option>
-            <option value="Consultation + Workout Program (₹8,000)">Consultation + Workout Program - ₹8,000</option>
-            <option value="Consultation + Workout Program + Daily Guidance (₹12,000)">Consultation + Workout Program + Daily Guidance - ₹12,000</option>
-          </optgroup>
-          <optgroup label="Training Sessions">
-            <option value="Per Session (₹3,000)">Per Session - ₹3,000</option>
-            <option value="12 Sessions Package (₹30,000)">12 Sessions Package - ₹30,000 (Save ₹6K)</option>
-          </optgroup>
-        `;
-        serviceDropdown.required = true;
-      }
-      
-      // Make medium required
-      const mediumInputs = document.querySelectorAll('[name="medium"]');
-      mediumInputs.forEach(input => input.required = true);
-      
-    } else {
-      // Free Trial Form (Original - NO dropdown, NO medium)
-      modalTitle.textContent = 'Book Your Free Trial';
-      modalSubtitle.textContent = 'Experience Grip & Grab for free. Choose your preferred location and time slot.';
-      
-      // Hide service and medium fields
-      if (serviceGroup) serviceGroup.style.display = 'none';
-      if (mediumGroup) mediumGroup.style.display = 'none';
-      
-      const serviceDropdown = document.getElementById('trialService');
-      if (serviceDropdown) {
-        serviceDropdown.required = false;
-      }
-      
-      // Make medium not required
-      const mediumInputs = document.querySelectorAll('[name="medium"]');
-      mediumInputs.forEach(input => input.required = false);
-    }
+  /* ==========================================================
+     INJECT HTML
+     ========================================================== */
+  function injectModal() {
+    const centerCardsHTML = Object.keys(CENTER_CONFIG).map((name) => `
+      <div class="mm-center-card" data-center="${name}" tabindex="0" role="button" aria-label="Select ${name}">
+        <div class="mm-center-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <span class="mm-center-card__name">${name}</span>
+      </div>
+    `).join('');
+
+    const planCardsHTML = MEMBERSHIP_PLANS.map((p) => `
+      <div class="mm-plan ${p.id === 'halfyearly' ? 'mm-plan--popular' : ''}"
+           data-plan-id="${p.id}" data-plan-price="${p.price}"
+           tabindex="0" role="button" aria-label="${p.label} plan">
+        <div class="mm-plan__badge">${p.badge}</div>
+        <div class="mm-plan__name">${p.label}</div>
+        <div class="mm-plan__price">
+          <span class="mm-plan__currency">₹</span>${p.price.toLocaleString('en-IN')}
+          <span class="mm-plan__period">${p.period}</span>
+        </div>
+        ${p.save ? `<div class="mm-plan__save">${p.save}</div>` : '<div class="mm-plan__save">&nbsp;</div>'}
+        <div class="mm-plan__gst">+ 18% GST</div>
+      </div>
+    `).join('');
+
+    document.body.insertAdjacentHTML('beforeend', `
+<div id="mmModal" class="mm-overlay" role="dialog" aria-modal="true" aria-labelledby="mmModalTitle" style="display:none;">
+  <div class="mm-backdrop" id="mmBackdrop"></div>
+  <div class="mm-container">
+    <div class="mm-handle"></div>
+    <button class="mm-close" id="mmClose" aria-label="Close" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- STEP 1: Center select -->
+    <div id="mmStepCenter">
+      <div class="mm-header">
+        <h3 id="mmModalTitle">Join Grip&amp;Grab</h3>
+        <p>Which center would you like to join?</p>
+      </div>
+      <div class="mm-center-cards">${centerCardsHTML}</div>
+      <span class="mm-err" id="mmCenterErr"></span>
+    </div>
+
+    <!-- STEP FULL: Center at capacity -->
+    <div id="mmStepFull" style="display:none;">
+      <div class="mm-full-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+        </svg>
+      </div>
+      <h4 class="mm-full-title" id="mmFullTitle"></h4>
+      <p  class="mm-full-msg"   id="mmFullMsg"></p>
+      <button class="mm-alt-btn"   id="mmAltBtn"        type="button"></button>
+      <button class="mm-back-link" id="mmBackFromFull"  type="button">← Choose a different center</button>
+    </div>
+
+    <!-- STEP 2: Plan + form -->
+    <div id="mmStepForm" style="display:none;">
+      <button class="mm-back-link" id="mmBackFromForm" type="button">← Change center</button>
+      <div class="mm-header mm-header--compact">
+        <h3 id="mmFormTitle">Join Grip&amp;Grab</h3>
+        <p  id="mmFormSubtitle">Choose your plan and fill in your details.</p>
+      </div>
+      <div class="mm-plans" id="mmPlans" role="radiogroup">${planCardsHTML}</div>
+      <span class="mm-err" id="mmPlanErr"></span>
+      <form id="mmForm" class="mm-form" novalidate autocomplete="on">
+        <div class="mm-group">
+          <label for="mmName">Full Name <span>*</span></label>
+          <input type="text"  id="mmName"  name="name"  placeholder="Your full name"           required autocomplete="name"  minlength="2">
+          <span class="mm-err" id="mmNameErr"></span>
+        </div>
+        <div class="mm-group">
+          <label for="mmEmail">Email Address <span>*</span></label>
+          <input type="email" id="mmEmail" name="email" placeholder="your@email.com"            required autocomplete="email">
+          <span class="mm-err" id="mmEmailErr"></span>
+        </div>
+        <div class="mm-group">
+          <label for="mmPhone">Phone Number <span>*</span></label>
+          <input type="tel"   id="mmPhone" name="phone" placeholder="10-digit mobile number"   required autocomplete="tel" pattern="[0-9]{10}">
+          <span class="mm-err" id="mmPhoneErr"></span>
+        </div>
+        <div class="mm-group">
+          <label for="mmDob">Date of Birth <span>*</span></label>
+          <input type="date"  id="mmDob"   name="dob"                                          required autocomplete="bday">
+          <span class="mm-err" id="mmDobErr"></span>
+        </div>
+        <button type="submit" class="mm-submit" id="mmSubmit">
+          <span class="mm-btn-text">Pay &amp; Join Now</span>
+          <span class="mm-btn-loader" style="display:none;">
+            <svg class="mm-spinner" viewBox="0 0 50 50">
+              <circle cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="mmSuccess" class="mm-success" style="display:none;">
+      <div class="mm-success-icon">✓</div>
+      <h4>Welcome to Grip&amp;Grab!</h4>
+      <p>Payment confirmed. A confirmation email is on its way.</p>
+      <p class="mm-payment-ref" id="mmPaymentRef"></p>
+    </div>
+
+    <!-- ERROR -->
+    <div id="mmError" class="mm-error" style="display:none;">
+      <div class="mm-error-icon">✕</div>
+      <h4>Something went wrong</h4>
+      <p id="mmErrorMsg">Payment could not be completed. Please try again.</p>
+      <button class="mm-retry-btn" id="mmRetry" type="button">Try Again</button>
+    </div>
+  </div>
+</div>`);
+
+    injectStyles();
   }
 
-  function init() {
-    elements.modal = document.getElementById('trialModal');
-    elements.overlay = document.querySelector('.trial-modal__overlay');
-    elements.closeBtn = document.querySelector('.trial-modal__close');
-    elements.form = document.getElementById('trialForm');
-    elements.submitBtn = elements.form?.querySelector('.trial-form__submit');
-    elements.dateInput = document.getElementById('trialDate');
-    elements.successMsg = document.getElementById('trialSuccess');
-    elements.errorMsg = document.getElementById('trialError');
-    elements.triggers = Array.from(document.querySelectorAll('[data-trial-trigger]'));
-
-    if (!elements.modal || !elements.form) {
-      console.warn('Trial modal elements not found');
-      return;
-    }
-
-    setupEventListeners();
-    setupDatePicker();
-
-    console.log('✅ Free Trial Modal initialized');
+  /* ==========================================================
+     STYLES
+     ========================================================== */
+  function injectStyles() {
+    const s = document.createElement('style');
+    s.textContent = `
+.mm-overlay { position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center; }
+@media(min-width:560px){.mm-overlay{align-items:center;}}
+.mm-backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px); }
+.mm-container {
+  position:relative;background:#141414;color:#f0f0f0;font-family:'Poppins',sans-serif;
+  width:100%;max-width:100%;max-height:93dvh;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;border-radius:24px 24px 0 0;
+  padding:24px 20px 40px;box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.08);
+}
+@media(min-width:560px){.mm-container{max-width:520px;border-radius:20px;padding:32px 32px 40px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 32px 80px rgba(0,0,0,0.65);}}
+.mm-handle{width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:0 auto 20px;}
+@media(min-width:560px){.mm-handle{display:none;}}
+.mm-close{position:absolute;top:8px;right:14px;background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:#f0f0f0;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.mm-close:hover{background:rgba(255,255,255,0.16);}
+.mm-header{margin-bottom:20px;padding-right:44px;}
+.mm-header--compact{margin-bottom:14px;padding-right:0;}
+.mm-header h3{font-size:22px;font-weight:700;margin:0 0 4px;color:#fff;}
+.mm-header p{font-size:13px;color:rgba(255,255,255,0.45);margin:0;}
+.mm-back-link{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;font-family:'Poppins',sans-serif;padding:0;margin-bottom:16px;display:block;transition:color 0.2s;}
+.mm-back-link:hover{color:rgba(255,255,255,0.75);}
+/* Center cards */
+.mm-center-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+.mm-center-card{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:22px 16px;cursor:pointer;text-align:center;transition:border-color 0.2s,background 0.2s;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.mm-center-card:hover{border-color:rgba(255,107,107,0.5);background:rgba(255,107,107,0.06);}
+.mm-center-card--selected{border-color:#ff6b6b!important;background:rgba(255,107,107,0.1)!important;}
+.mm-center-card__icon{color:rgba(255,255,255,0.45);}
+.mm-center-card__name{font-size:14px;font-weight:600;color:#fff;line-height:1.3;}
+/* Full state */
+#mmStepFull{text-align:center;padding:12px 0 8px;}
+.mm-full-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,180,0,0.1);border:1.5px solid rgba(255,180,0,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#f7d794;}
+.mm-full-title{font-size:18px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;}
+.mm-full-msg{font-size:14px;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.7;}
+.mm-alt-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s;margin-bottom:12px;}
+.mm-alt-btn:hover{opacity:0.9;}
+/* Plans */
+.mm-plans{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:6px;}
+@media(min-width:440px){.mm-plans{grid-template-columns:repeat(4,1fr);}}
+.mm-plan{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 8px 10px;cursor:pointer;text-align:center;transition:border-color 0.2s,background 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.mm-plan:hover{border-color:rgba(255,107,107,0.5);background:rgba(255,107,107,0.06);}
+.mm-plan--selected{border-color:#ff6b6b!important;background:rgba(255,107,107,0.1)!important;}
+.mm-plan--popular{border-color:rgba(247,215,148,0.4);}
+.mm-plan__badge{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;}
+.mm-plan__name{font-size:13px;font-weight:700;color:#fff;}
+.mm-plan__price{font-size:15px;font-weight:800;color:#f7d794;line-height:1.1;}
+.mm-plan__currency{font-size:11px;vertical-align:super;}
+.mm-plan__period{font-size:10px;font-weight:400;color:rgba(255,255,255,0.4);}
+.mm-plan__save{font-size:10px;color:#7dd87d;font-weight:500;}
+.mm-plan__gst{font-size:9px;color:rgba(255,255,255,0.3);}
+/* Form */
+.mm-form{display:flex;flex-direction:column;gap:14px;margin-top:18px;}
+.mm-group{display:flex;flex-direction:column;gap:5px;}
+.mm-group label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.05em;text-transform:uppercase;}
+.mm-group label span{color:#ff6b6b;}
+.mm-group input{width:100%;padding:13px 15px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;font-size:15px;font-family:'Poppins',sans-serif;background:rgba(255,255,255,0.05);color:#f0f0f0;box-sizing:border-box;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none;}
+.mm-group input:focus{outline:none;border-color:rgba(255,107,107,0.6);background:rgba(255,255,255,0.07);}
+.mm-group input[type="date"]{color-scheme:dark;}
+.mm-group input.mm-invalid{border-color:#ff5252!important;}
+.mm-err{font-size:11px;color:#ff5252;min-height:14px;display:block;}
+/* Submit */
+.mm-submit{width:100%;padding:16px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:15px;font-weight:700;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.15s;margin-top:4px;}
+.mm-submit:hover{opacity:0.92;transform:translateY(-1px);}
+.mm-submit:active{transform:translateY(0);}
+.mm-submit:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.mm-spinner{width:20px;height:20px;animation:mmSpin 0.8s linear infinite;}
+.mm-spinner circle{stroke:#000;stroke-linecap:round;stroke-dasharray:80;stroke-dashoffset:60;}
+@keyframes mmSpin{to{transform:rotate(360deg);}}
+/* Success / Error */
+.mm-success,.mm-error{text-align:center;padding:32px 20px 8px;}
+.mm-success-icon{width:60px;height:60px;border-radius:50%;background:rgba(100,220,100,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;color:#7dd87d;margin:0 auto 16px;}
+.mm-error-icon{width:60px;height:60px;border-radius:50%;background:rgba(255,82,82,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;color:#ff5252;margin:0 auto 16px;}
+.mm-success h4,.mm-error h4{font-size:18px;font-weight:700;margin:0 0 8px;}
+.mm-success p,.mm-error p{font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 6px;}
+.mm-payment-ref{font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3)!important;}
+.mm-retry-btn{margin-top:16px;padding:12px 32px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:30px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;transition:background 0.2s;}
+.mm-retry-btn:hover{background:rgba(255,255,255,0.14);}
+`;
+    document.head.appendChild(s);
   }
 
-  function setupEventListeners() {
-    elements.triggers.forEach(trigger => {
-      trigger.addEventListener('click', openModal);
-    });
-
-    if (elements.closeBtn) {
-      elements.closeBtn.addEventListener('click', closeModal);
-    }
-
-    if (elements.overlay) {
-      elements.overlay.addEventListener('click', closeModal);
-    }
-
-    document.addEventListener('keydown', handleEscKey);
-
-    if (elements.form) {
-      elements.form.addEventListener('submit', handleFormSubmit);
-    }
-
-    const modalContainer = elements.modal?.querySelector('.trial-modal__container');
-    if (modalContainer) {
-      modalContainer.addEventListener('click', (e) => e.stopPropagation());
-    }
+  /* ==========================================================
+     CACHE REFS
+     ========================================================== */
+  function cacheRefs() {
+    modal      = document.getElementById('mmModal');
+    backdrop   = document.getElementById('mmBackdrop');
+    closeBtn   = document.getElementById('mmClose');
+    form       = document.getElementById('mmForm');
+    submitBtn  = document.getElementById('mmSubmit');
+    successEl  = document.getElementById('mmSuccess');
+    errorEl    = document.getElementById('mmError');
+    retryBtn   = document.getElementById('mmRetry');
+    stepCenter = document.getElementById('mmStepCenter');
+    stepFull   = document.getElementById('mmStepFull');
+    stepForm   = document.getElementById('mmStepForm');
   }
 
-  function setupDatePicker() {
-    if (!elements.dateInput) return;
-
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    elements.dateInput.setAttribute('min', todayStr);
-
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 60);
-    const maxDateStr = maxDate.toISOString().split('T')[0];
-    elements.dateInput.setAttribute('max', maxDateStr);
-
-    elements.dateInput.addEventListener('change', function() {
-      const selectedDate = new Date(this.value + 'T00:00:00');
-      const dayOfWeek = selectedDate.getDay();
-
-      if (dayOfWeek === 0) {
-        alert('Sorry, we are closed on Sundays. Please select Monday to Saturday.');
-        this.value = '';
-      }
-    });
-  }
-
+  /* ==========================================================
+     OPEN / CLOSE / STEPS
+     ========================================================== */
   function openModal(e) {
     if (e) e.preventDefault();
-    
-    const clickedButton = e.target.closest('[data-trial-trigger]');
-    const formType = clickedButton?.getAttribute('data-form-type') || 'free-trial';
-    
     state.isOpen = true;
-    state.formType = formType;
-    elements.modal.classList.add('active');
+    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    
-    updateFormForType(formType);
-    resetForm();
-    
-    setTimeout(() => {
-      const firstInput = elements.form.querySelector('input');
-      if (firstInput) firstInput.focus();
-    }, 300);
+    showStep('center');
   }
 
-  function closeModal(e) {
-    if (e) e.preventDefault();
-    
-    state.isOpen = false;
-    elements.modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  function handleEscKey(e) {
-    if (e.key === 'Escape' && state.isOpen) {
-      closeModal();
-    }
-  }
-
-  
-
-  async function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    if (state.isSubmitting) return;
-
-    if (!elements.form.checkValidity()) {
-      elements.form.reportValidity();
-      return;
-    }
-
-    const formData = new FormData(elements.form);
-    const data = Object.fromEntries(formData);
-
-    const selectedDate = new Date(data.date + 'T00:00:00');
-    if (selectedDate.getDay() === 0) {
-      showError('Sundays are closed. Please select Monday to Saturday.');
-      return;
-    }
-
-    try {
-      state.isSubmitting = true;
-      elements.submitBtn.classList.add('loading');
-      elements.submitBtn.disabled = true;
-      hideMessages();
-
-      const payload = {
-        access_key: CONFIG.accessKey,
-        subject: state.formType === 'personal-training' 
-          ? 'New Personal Training Booking - Grip & Grab'
-          : 'New Free Trial Booking - Grip & Grab',
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        location: data.location,
-        date: data.date,
-        time: data.time,
-        medium: data.medium || 'Not specified',
-        service: data.service || 'Not specified',
-        message: state.formType === 'personal-training'
-          ? `🎯 Personal Training Booking\n\n👤 Name: ${data.name}\n📧 Email: ${data.email}\n📞 Phone: ${data.phone}\n📍 Location: ${data.location}\n📅 Date: ${data.date}\n⏰ Time: ${data.time}\n💻 Medium: ${data.medium || 'Not specified'}\n🏋️ Service: ${data.service || 'Not specified'}`
-          : `🎯 Free Trial Booking Request\n\n👤 Name: ${data.name}\n📧 Email: ${data.email}\n📞 Phone: ${data.phone}\n📍 Location: ${data.location}\n📅 Date: ${data.date}\n⏰ Time: ${data.time}`
-      };
-
-      console.log('📤 Sending booking request...');
-
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-      console.log('📥 Response:', result);
-
-      if (result.success) {
-        console.log('✅ Booking confirmed in database!');
-        
-      
-                    showSuccess();
-        
-        // Send to Google Sheets (CORS-free GET method)
-        try {
-          const isPersonalTraining = state.formType === "personal-training";
-          const payload = {
-            formType: isPersonalTraining ? "personal-training" : "free-trial",
-            name: formData.get("name") || "",
-            email: formData.get("email") || "",
-            phone: formData.get("phone") || "",
-            location: formData.get("location") || "",
-            date: formData.get("date") || "",
-            time: formData.get("time") || "",
-            service: formData.get("service") || "",
-            medium: formData.get("medium") || "",
-            source: "index.html"
-          };
-          
-          // Use GET with query params - CORS-free
-          const params = new URLSearchParams({
-            data: JSON.stringify(payload)
-          });
-          
-          fetch(SHEETS_WEBHOOK_URL + '?' + params.toString(), {
-            method: 'GET',
-            mode: 'no-cors'
-          }).catch(() => {
-            // Silent - data still saves
-          });
-        } catch(e) {}
-
-        elements.form.reset();
-
-
-        
-        setTimeout(() => {
-          closeModal();
-        }, 3000);
-      } else {
-        throw new Error(result.message || 'Submission failed');
-      }
-
-    } catch (error) {
-      console.error('❌ Error:', error);
-      showError();
-    } finally {
-      resetSubmitButton();
-    }
-  }
-
-
-
-
-
-
-
-
-  function showSuccess() {
-    hideMessages();
-    if (elements.successMsg) {
-      elements.successMsg.classList.add('show');
-    }
-  }
-
-  function showError(message) {
-    hideMessages();
-    if (elements.errorMsg) {
-      if (message) {
-        const errorText = elements.errorMsg.querySelector('span');
-        if (errorText) errorText.textContent = message;
-      }
-      elements.errorMsg.classList.add('show');
-    }
-  }
-
-  function hideMessages() {
-    if (elements.successMsg) {
-      elements.successMsg.classList.remove('show');
-    }
-    if (elements.errorMsg) {
-      elements.errorMsg.classList.remove('show');
-    }
-  }
-
-  function resetForm() {
-    if (elements.form) {
-      elements.form.reset();
-    }
-    hideMessages();
-  }
-
-  function resetSubmitButton() {
-    state.isSubmitting = false;
-    if (elements.submitBtn) {
-      elements.submitBtn.classList.remove('loading');
-      elements.submitBtn.disabled = false;
-    }
-  }
-
-  window.TrialModal = {
-    open: openModal,
-    close: closeModal,
-    isOpen: () => state.isOpen
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-})();
-
-/* ==================== PERSONAL TRAINING SECTION SCRIPT ==================== */
-
-(function() {
-  'use strict';
-
-  function init() {
-    console.log('✅ Personal Training section loaded');
-    enhanceScrollBehavior();
-    trackCardInteractions();
-  }
-
-  function enhanceScrollBehavior() {
-    const ptSection = document.getElementById('personal-training');
-    
-    if (!ptSection) return;
-
-    const hash = window.location.hash;
-    if (hash === '#personal-training') {
-      setTimeout(() => {
-        ptSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }, 100);
-    }
-  }
-
-  function trackCardInteractions() {
-    const cards = document.querySelectorAll('.pt-card');
-    
-    cards.forEach((card, index) => {
-      card.addEventListener('mouseenter', function() {
-        const cardTitle = card.querySelector('.pt-card-title')?.textContent;
-        console.log(`User viewing: ${cardTitle}`);
-      });
-    });
-
-    const ctaButton = document.querySelector('.pt-btn');
-    if (ctaButton) {
-      ctaButton.addEventListener('click', function() {
-        console.log('Personal Training CTA clicked');
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-})();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ============================================
-   GRIP AND GRAB - WORKSHOP REGISTRATION
-   Isolated JavaScript Module with gmw- prefix
-   ============================================ */
-
-(function() {
-  'use strict';
-
-  /* ============================================
-     CONFIGURATION
-     ============================================ */
-  const CONFIG = {
-    // EmailJS Configuration
-    emailJS: {
-      serviceId: 'harish@teamgng',
-      templateId: 'template_1k0fnrn', // TODO: Add your EmailJS template ID
-      publicKey: 'wwGXMDT6ekGDIkKNg',
-      recipientEmail: 'haristhenics06@gmail.com'
-    },
-    
-    // Razorpay Configuration
-    razorpay: {
-      keyId: 'YOUR_RAZORPAY_KEY_ID', // TODO: Add your Razorpay Key ID after setup
-      amount: 49900, // Amount in paise (₹499)
-      currency: 'INR',
-      name: 'Grip and Grab',
-      description: 'Lower Back Pain Workshop Registration',
-      image: 'https://yourdomain.com/logo.png', // Optional: Add your logo URL
-      theme: {
-        color: '#2a2a2a'
-      }
-    },
-    
-    // Workshop Details
-    workshop: {
-      title: 'Lower Back Pain Workshop',
-      date: '15th November 2025',
-      time: '11:00 AM - 2:00 PM',
-      location: 'Delhi, Saket',
-      venue: '241, 2nd Floor, Westend Marg\nNear Garden of Five Senses\nMittal Garden, Saket\nNew Delhi, Delhi 110030',
-      amount: '₹499',
-      businessName: 'Grip and Grab'
-    },
-    
-    // LocalStorage Key
-    storageKey: 'gmw_workshop_registrations'
-  };
-
-  /* ============================================
-     DOM ELEMENTS
-     ============================================ */
-  const elements = {
-    registerBtn: document.getElementById('gmwRegisterBtn'),
-    modal: document.getElementById('gmwModal'),
-    modalOverlay: document.getElementById('gmwModalOverlay'),
-    modalClose: document.getElementById('gmwModalClose'),
-    form: document.getElementById('gmwRegistrationForm'),
-    successMessage: document.getElementById('gmwSuccessMessage'),
-    successClose: document.getElementById('gmwSuccessClose'),
-    
-    // Form Inputs
-    firstName: document.getElementById('gmwFirstName'),
-    lastName: document.getElementById('gmwLastName'),
-    email: document.getElementById('gmwEmail'),
-    phone: document.getElementById('gmwPhone'),
-    workshopDate: document.getElementById('gmwWorkshopDate'),
-    terms: document.getElementById('gmwTerms'),
-    submitBtn: document.getElementById('gmwSubmitBtn'),
-    
-    // Error Spans
-    firstNameError: document.getElementById('gmwFirstNameError'),
-    lastNameError: document.getElementById('gmwLastNameError'),
-    emailError: document.getElementById('gmwEmailError'),
-    phoneError: document.getElementById('gmwPhoneError'),
-    workshopDateError: document.getElementById('gmwWorkshopDateError'),
-    termsError: document.getElementById('gmwTermsError')
-  };
-
-  /* ============================================
-     UTILITY FUNCTIONS
-     ============================================ */
-  
-  // Generate unique registration ID
-  function generateRegistrationId() {
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 9);
-    return `GMW-${timestamp}-${random}`.toUpperCase();
-  }
-  
-  // Get current date and time
-  function getCurrentDateTime() {
-    const now = new Date();
-    const date = now.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-    const time = now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    return { date, time, timestamp: now.toISOString() };
-  }
-  
-  // Validate email format
-  function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-  
-  // Validate phone number (Indian format)
-  function isValidPhone(phone) {
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    return phoneRegex.test(phone.replace(/\s/g, ''));
-  }
-
-  /* ============================================
-     MODAL FUNCTIONS
-     ============================================ */
-  
-  function openModal() {
-    elements.modal.classList.add('gmw-modal--active');
-    document.body.style.overflow = 'hidden';
-    // Reset form when opening
-    resetForm();
-  }
-  
   function closeModal() {
-    elements.modal.classList.remove('gmw-modal--active');
+    state.isOpen = false;
+    modal.style.display = 'none';
     document.body.style.overflow = '';
   }
-  
-  function showSuccessMessage() {
-    elements.form.style.display = 'none';
-    elements.successMessage.classList.add('gmw-success-message--visible');
-  }
-  
-  function resetForm() {
-    elements.form.reset();
-    elements.form.style.display = 'flex';
-    elements.successMessage.classList.remove('gmw-success-message--visible');
-    clearAllErrors();
+
+  function showStep(step) {
+    stepCenter.style.display = step === 'center'  ? 'block' : 'none';
+    stepFull.style.display   = step === 'full'    ? 'block' : 'none';
+    stepForm.style.display   = step === 'form'    ? 'block' : 'none';
+    successEl.style.display  = step === 'success' ? 'block' : 'none';
+    errorEl.style.display    = step === 'error'   ? 'block' : 'none';
   }
 
-  /* ============================================
-     VALIDATION FUNCTIONS
-     ============================================ */
-  
-  function showError(input, errorElement, message) {
-    input.classList.add('gmw-form-input--error');
-    errorElement.textContent = message;
-    errorElement.classList.add('gmw-form-error--visible');
+  /* ==========================================================
+     STEP 1 — CENTER SELECTION
+     ========================================================== */
+  function onCenterSelect(centerName) {
+    state.selectedCenter = centerName;
+    const config = CENTER_CONFIG[centerName];
+
+    /* Highlight card */
+    document.querySelectorAll('.mm-center-card').forEach((c) =>
+      c.classList.toggle('mm-center-card--selected', c.dataset.center === centerName)
+    );
+
+    if (config.available) {
+      document.getElementById('mmFormTitle').textContent    = `Join ${centerName}`;
+      document.getElementById('mmFormSubtitle').textContent = 'Choose your plan and fill in your details.';
+      resetFormOnly();
+      showStep('form');
+    } else {
+      const alt = config.alternateCenter;
+      document.getElementById('mmFullTitle').textContent =
+        `${centerName} is currently full`;
+      document.getElementById('mmFullMsg').textContent =
+        `We're not taking new joinings at ${centerName} right now. You can join at ${alt} — spots are open there.`;
+      const altBtn = document.getElementById('mmAltBtn');
+      altBtn.textContent = `Join ${alt} instead`;
+      altBtn.onclick = () => onCenterSelect(alt);
+      showStep('full');
+    }
   }
-  
-  function clearError(input, errorElement) {
-    input.classList.remove('gmw-form-input--error', 'gmw-form-select--error');
-    errorElement.textContent = '';
-    errorElement.classList.remove('gmw-form-error--visible');
+
+  /* ==========================================================
+     STEP 2 — PLAN SELECTION
+     ========================================================== */
+  function selectPlan(planEl) {
+    document.querySelectorAll('.mm-plan').forEach((p) => p.classList.remove('mm-plan--selected'));
+    planEl.classList.add('mm-plan--selected');
+    state.selectedPlan = MEMBERSHIP_PLANS.find((p) => p.id === planEl.dataset.planId);
+    clearErr('mmPlanErr');
+    if (state.selectedPlan) {
+      const total = state.selectedPlan.price + Math.round(state.selectedPlan.price * 0.18);
+      submitBtn.querySelector('.mm-btn-text').textContent =
+        `Pay ₹${total.toLocaleString('en-IN')} & Join Now`;
+    }
   }
-  
-  function clearAllErrors() {
-    const inputs = [
-      elements.firstName,
-      elements.lastName,
-      elements.email,
-      elements.phone,
-      elements.workshopDate
-    ];
-    const errors = [
-      elements.firstNameError,
-      elements.lastNameError,
-      elements.emailError,
-      elements.phoneError,
-      elements.workshopDateError,
-      elements.termsError
-    ];
-    
-    inputs.forEach((input, index) => clearError(input, errors[index]));
-  }
-  
+
+  /* ==========================================================
+     VALIDATION
+     ========================================================== */
+  function showErr(id, msg)            { const el = document.getElementById(id); if (el) el.textContent = msg; }
+  function clearErr(id)                { const el = document.getElementById(id); if (el) el.textContent = ''; }
+  function markInvalid(el, id, msg)    { el.classList.add('mm-invalid');    showErr(id, msg); }
+  function markValid(el, id)           { el.classList.remove('mm-invalid'); clearErr(id); }
+
   function validateForm() {
-    let isValid = true;
-    clearAllErrors();
-    
-    // Validate First Name
-    if (elements.firstName.value.trim() === '') {
-      showError(elements.firstName, elements.firstNameError, 'First name is required');
-      isValid = false;
-    } else if (elements.firstName.value.trim().length < 2) {
-      showError(elements.firstName, elements.firstNameError, 'First name must be at least 2 characters');
-      isValid = false;
-    }
-    
-    // Validate Last Name
-    if (elements.lastName.value.trim() === '') {
-      showError(elements.lastName, elements.lastNameError, 'Last name is required');
-      isValid = false;
-    } else if (elements.lastName.value.trim().length < 2) {
-      showError(elements.lastName, elements.lastNameError, 'Last name must be at least 2 characters');
-      isValid = false;
-    }
-    
-    // Validate Email
-    if (elements.email.value.trim() === '') {
-      showError(elements.email, elements.emailError, 'Email address is required');
-      isValid = false;
-    } else if (!isValidEmail(elements.email.value.trim())) {
-      showError(elements.email, elements.emailError, 'Please enter a valid email address');
-      isValid = false;
-    }
-    
-    // Validate Phone
-    if (elements.phone.value.trim() === '') {
-      showError(elements.phone, elements.phoneError, 'Phone number is required');
-      isValid = false;
-    } else if (!isValidPhone(elements.phone.value.trim())) {
-      showError(elements.phone, elements.phoneError, 'Please enter a valid phone number');
-      isValid = false;
-    }
-    
-    // Validate Workshop Date
-    if (elements.workshopDate.value === '') {
-      showError(elements.workshopDate, elements.workshopDateError, 'Please select a workshop date');
-      elements.workshopDate.classList.add('gmw-form-select--error');
-      isValid = false;
-    }
-    
-    // Validate Terms
-    if (!elements.terms.checked) {
-      showError(elements.terms, elements.termsError, 'You must agree to the terms and conditions');
-      isValid = false;
-    }
-    
-    return isValid;
+    let ok = true;
+    if (!state.selectedPlan) { showErr('mmPlanErr', 'Please select a membership plan.'); ok = false; }
+    const n = document.getElementById('mmName');
+    const e = document.getElementById('mmEmail');
+    const p = document.getElementById('mmPhone');
+    const d = document.getElementById('mmDob');
+    if (!n.value.trim() || n.value.trim().length < 2)            { markInvalid(n, 'mmNameErr',  'Please enter your full name.');           ok = false; } else markValid(n, 'mmNameErr');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value.trim()))      { markInvalid(e, 'mmEmailErr', 'Please enter a valid email address.');    ok = false; } else markValid(e, 'mmEmailErr');
+    if (!/^[0-9]{10}$/.test(p.value.trim()))                     { markInvalid(p, 'mmPhoneErr', 'Please enter a valid 10-digit number.'); ok = false; } else markValid(p, 'mmPhoneErr');
+    if (!d.value)                                                  { markInvalid(d, 'mmDobErr',   'Please enter your date of birth.');      ok = false; } else markValid(d, 'mmDobErr');
+    return ok;
   }
 
-  /* ============================================
-     LOCAL STORAGE FUNCTIONS
-     ============================================ */
-  
-  function saveRegistration(registrationData) {
-    try {
-      // Get existing registrations
-      const existingData = localStorage.getItem(CONFIG.storageKey);
-      const registrations = existingData ? JSON.parse(existingData) : [];
-      
-      // Add new registration
-      registrations.push(registrationData);
-      
-      // Save back to localStorage
-      localStorage.setItem(CONFIG.storageKey, JSON.stringify(registrations));
-      
-      console.log('✅ Registration saved to localStorage:', registrationData.registrationId);
-      return true;
-    } catch (error) {
-      console.error('❌ Error saving registration:', error);
-      return false;
-    }
-  }
-  
-  function getAllRegistrations() {
-    try {
-      const data = localStorage.getItem(CONFIG.storageKey);
-      return data ? JSON.parse(data) : [];
-    } catch (error) {
-      console.error('❌ Error retrieving registrations:', error);
-      return [];
-    }
-  }
+  /* ==========================================================
+     FORM SUBMIT
+     ========================================================== */
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (state.isSubmitting || !validateForm()) return;
 
-  /* ============================================
-     EXCEL EXPORT FUNCTION
-     ============================================ */
-  
-  function exportToExcel() {
-    const registrations = getAllRegistrations();
-    
-    if (registrations.length === 0) {
-      alert('No registrations to export');
-      return;
-    }
-    
-    // Create CSV content
-    const headers = [
-      'Registration ID',
-      'First Name',
-      'Last Name',
-      'Email',
-      'Phone Number',
-      'Workshop Date',
-      'Payment ID',
-      'Amount',
-      'Registration Date',
-      'Registration Time',
-      'Timestamp'
-    ];
-    
-    let csvContent = headers.join(',') + '\n';
-    
-    registrations.forEach(reg => {
-      const row = [
-        reg.registrationId,
-        reg.firstName,
-        reg.lastName,
-        reg.email,
-        reg.phone,
-        reg.workshopDate,
-        reg.paymentId || 'N/A',
-        reg.amount,
-        reg.registrationDate,
-        reg.registrationTime,
-        reg.timestamp
-      ];
-      csvContent += row.map(field => `"${field}"`).join(',') + '\n';
-    });
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `GMW_Registrations_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    console.log(`✅ Exported ${registrations.length} registrations to Excel`);
-  }
-  
-  // Expose export function to window for admin use
-  window.gmwExportRegistrations = exportToExcel;
+    const payload = {
+      name:   document.getElementById('mmName').value.trim(),
+      email:  document.getElementById('mmEmail').value.trim(),
+      phone:  document.getElementById('mmPhone').value.trim(),
+      dob:    document.getElementById('mmDob').value,
+      center: state.selectedCenter,
+      plan:   state.selectedPlan,
+    };
+    const gst   = Math.round(payload.plan.price * 0.18);
+    const total = payload.plan.price + gst;
 
-  /* ============================================
-     RAZORPAY PAYMENT INTEGRATION
-     ============================================ */
-  
-  function initiatePayment(formData) {
-    // Check if Razorpay is loaded
-    if (typeof Razorpay === 'undefined') {
-      alert('Payment gateway not loaded. Please refresh the page and try again.');
-      console.error('❌ Razorpay SDK not loaded');
-      return;
-    }
-    
-    // Check if Razorpay Key is configured
-    if (CONFIG.razorpay.keyId === 'YOUR_RAZORPAY_KEY_ID') {
-      alert('Payment gateway not configured yet. Please contact support.');
-      console.error('❌ Razorpay Key ID not configured');
-      return;
-    }
-    
-    const options = {
-      key: CONFIG.razorpay.keyId,
-      amount: CONFIG.razorpay.amount,
-      currency: CONFIG.razorpay.currency,
-      name: CONFIG.razorpay.name,
-      description: CONFIG.razorpay.description,
-      image: CONFIG.razorpay.image,
-      
-      // Prefill user data
-      prefill: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        contact: formData.phone
+    state.isSubmitting = true;
+    setLoading(true);
+
+    /* Calls Section 12 abstraction — swap gateway here later */
+    processPayment({
+      amount:      total,
+      amountPaise: total * 100,
+      name:        payload.name,
+      email:       payload.email,
+      phone:       payload.phone,
+      description: `${payload.plan.label} Membership — ${payload.center}`,
+
+      onSuccess: async (txId) => {
+        /* Fire-and-forget — never block success UX */
+        fetch('/api/send-email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, amount: total * 100, paymentId: txId }),
+        }).catch((err) => console.error('Email:', err));
+        fetch(SHEETS_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'Membership', name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`, paymentId: txId, timestamp: new Date().toISOString() }),
+        }).catch((err) => console.error('Sheets:', err));
+        document.getElementById('mmPaymentRef').textContent = `Payment ID: ${txId}`;
+        state.isSubmitting = false; setLoading(false);
+        showStep('success');
       },
-      
-      theme: CONFIG.razorpay.theme,
-      
-      // Payment Success Handler
-      handler: function(response) {
-        console.log('✅ Payment Successful:', response);
-        handlePaymentSuccess(formData, response.razorpay_payment_id);
+      onDismiss: () => { state.isSubmitting = false; setLoading(false); },
+      onError:   (msg) => {
+        document.getElementById('mmErrorMsg').textContent = msg || 'Payment could not be completed. Please try again.';
+        state.isSubmitting = false; setLoading(false);
+        showStep('error');
       },
-      
-      // Payment Modal Closed
-      modal: {
-        ondismiss: function() {
-          console.log('⚠️ Payment cancelled by user');
-          elements.submitBtn.disabled = false;
-          elements.submitBtn.textContent = 'Confirm Registration - ₹499';
-        }
-      }
-    };
-    
-    const razorpayInstance = new Razorpay(options);
-    
-    // Handle payment failure
-    razorpayInstance.on('payment.failed', function(response) {
-      console.error('❌ Payment Failed:', response.error);
-      alert(`Payment failed: ${response.error.description}`);
-      elements.submitBtn.disabled = false;
-      elements.submitBtn.textContent = 'Confirm Registration - ₹499';
-    });
-    
-    razorpayInstance.open();
-  }
-
-  /* ============================================
-     PAYMENT SUCCESS HANDLER
-     ============================================ */
-  
-  function handlePaymentSuccess(formData, paymentId) {
-    const { date, time, timestamp } = getCurrentDateTime();
-    const registrationId = generateRegistrationId();
-    
-    // Prepare registration data
-    const registrationData = {
-      registrationId: registrationId,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      workshopDate: formData.workshopDate,
-      paymentId: paymentId,
-      amount: CONFIG.workshop.amount,
-      registrationDate: date,
-      registrationTime: time,
-      timestamp: timestamp
-    };
-    
-    // Save to localStorage
-    saveRegistration(registrationData);
-    
-    // Send confirmation email
-    sendConfirmationEmail(registrationData);
-    
-    // Show success message
-    showSuccessMessage();
-    
-    // Re-enable submit button
-    elements.submitBtn.disabled = false;
-    elements.submitBtn.textContent = 'Confirm Registration - ₹499';
-    
-    console.log('✅ Registration completed:', registrationId);
-  }
-
-  /* ============================================
-     EMAILJS INTEGRATION
-     ============================================ */
-  
-  function sendConfirmationEmail(registrationData) {
-    // Check if EmailJS is loaded
-    if (typeof emailjs === 'undefined') {
-      console.error('❌ EmailJS not loaded');
-      return;
-    }
-    
-    // Check if Template ID is configured
-    if (CONFIG.emailJS.templateId === 'YOUR_EMAILJS_TEMPLATE_ID') {
-      console.error('❌ EmailJS Template ID not configured');
-      alert('Email confirmation service not configured. Please contact support.');
-      return;
-    }
-    
-    // Prepare email parameters
-    const emailParams = {
-      to_email: registrationData.email,
-      to_name: `${registrationData.firstName} ${registrationData.lastName}`,
-      registration_id: registrationData.registrationId,
-      workshop_title: CONFIG.workshop.title,
-      workshop_date: CONFIG.workshop.date,
-      workshop_time: CONFIG.workshop.time,
-      workshop_location: CONFIG.workshop.location,
-      workshop_venue: CONFIG.workshop.venue,
-      amount_paid: registrationData.amount,
-      payment_id: registrationData.paymentId,
-      registration_date: registrationData.registrationDate,
-      registration_time: registrationData.registrationTime,
-      business_name: CONFIG.workshop.businessName,
-      recipient_email: CONFIG.emailJS.recipientEmail
-    };
-    
-    // Send email using EmailJS
-    emailjs.send(
-      CONFIG.emailJS.serviceId,
-      CONFIG.emailJS.templateId,
-      emailParams,
-      CONFIG.emailJS.publicKey
-    )
-    .then(function(response) {
-      console.log('✅ Confirmation email sent successfully:', response.status);
-    })
-    .catch(function(error) {
-      console.error('❌ Failed to send confirmation email:', error);
-      // Don't show error to user as registration is already complete
     });
   }
 
-  /* ============================================
-     FORM SUBMIT HANDLER
-     ============================================ */
-  
-  function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    // Validate form
-    if (!validateForm()) {
-      console.log('⚠️ Form validation failed');
-      return;
-    }
-    
-    // Collect form data
-    const formData = {
-      firstName: elements.firstName.value.trim(),
-      lastName: elements.lastName.value.trim(),
-      email: elements.email.value.trim(),
-      phone: elements.phone.value.trim(),
-      workshopDate: elements.workshopDate.value
-    };
-    
-    // Disable submit button
-    elements.submitBtn.disabled = true;
-    elements.submitBtn.textContent = 'Processing...';
-    
-    // Initiate payment
-    initiatePayment(formData);
+  /* ==========================================================
+     UI HELPERS
+     ========================================================== */
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    submitBtn.querySelector('.mm-btn-text').style.display   = on ? 'none' : 'flex';
+    submitBtn.querySelector('.mm-btn-loader').style.display = on ? 'flex' : 'none';
   }
 
-  /* ============================================
-     EVENT LISTENERS
-     ============================================ */
-  
-  function initEventListeners() {
-    // Open modal
-    if (elements.registerBtn) {
-      elements.registerBtn.addEventListener('click', openModal);
-    }
-    
-    // Close modal
-    if (elements.modalClose) {
-      elements.modalClose.addEventListener('click', closeModal);
-    }
-    
-    if (elements.modalOverlay) {
-      elements.modalOverlay.addEventListener('click', closeModal);
-    }
-    
-    // Close success message
-    if (elements.successClose) {
-      elements.successClose.addEventListener('click', closeModal);
-    }
-    
-    // Form submit
-    if (elements.form) {
-      elements.form.addEventListener('submit', handleFormSubmit);
-    }
-    
-    // Real-time validation on blur
-    if (elements.firstName) {
-      elements.firstName.addEventListener('blur', function() {
-        if (this.value.trim() !== '') {
-          clearError(this, elements.firstNameError);
-        }
+  function resetFormOnly() {
+    if (form) form.reset();
+    document.querySelectorAll('.mm-plan').forEach((p) => p.classList.remove('mm-plan--selected'));
+    state.selectedPlan = null; state.isSubmitting = false;
+    if (submitBtn) submitBtn.querySelector('.mm-btn-text').textContent = 'Pay & Join Now';
+    setLoading(false);
+    document.querySelectorAll('.mm-err').forEach((el) => { el.textContent = ''; });
+    document.querySelectorAll('.mm-group input').forEach((el) => el.classList.remove('mm-invalid'));
+  }
+
+  /* ==========================================================
+     BIND EVENTS
+     ========================================================== */
+  function bindEvents() {
+    document.querySelectorAll('[data-membership-trigger]').forEach((el) =>
+      el.addEventListener('click', openModal)
+    );
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.isOpen) closeModal(); });
+
+    document.querySelectorAll('.mm-center-card').forEach((card) => {
+      card.addEventListener('click', () => onCenterSelect(card.dataset.center));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCenterSelect(card.dataset.center); }
       });
-    }
-    
-    if (elements.lastName) {
-      elements.lastName.addEventListener('blur', function() {
-        if (this.value.trim() !== '') {
-          clearError(this, elements.lastNameError);
-        }
-      });
-    }
-    
-    if (elements.email) {
-      elements.email.addEventListener('blur', function() {
-        if (isValidEmail(this.value.trim())) {
-          clearError(this, elements.emailError);
-        }
-      });
-    }
-    
-    if (elements.phone) {
-      elements.phone.addEventListener('blur', function() {
-        if (isValidPhone(this.value.trim())) {
-          clearError(this, elements.phoneError);
-        }
-      });
-    }
-    
-    if (elements.workshopDate) {
-      elements.workshopDate.addEventListener('change', function() {
-        if (this.value !== '') {
-          clearError(this, elements.workshopDateError);
-        }
-      });
-    }
-    
-    if (elements.terms) {
-      elements.terms.addEventListener('change', function() {
-        if (this.checked) {
-          clearError(this, elements.termsError);
-        }
-      });
-    }
-    
-    // ESC key to close modal
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && elements.modal.classList.contains('gmw-modal--active')) {
-        closeModal();
-      }
     });
+
+    document.getElementById('mmBackFromFull').addEventListener('click', () => showStep('center'));
+    document.getElementById('mmBackFromForm').addEventListener('click', () => showStep('center'));
+
+    document.querySelectorAll('.mm-plan').forEach((planEl) => {
+      planEl.addEventListener('click', () => selectPlan(planEl));
+      planEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectPlan(planEl); }
+      });
+    });
+
+    form.addEventListener('submit', handleSubmit);
+    retryBtn.addEventListener('click', () => showStep('form'));
   }
 
-  /* ============================================
-     INITIALIZATION
-     ============================================ */
-  
-  function init() {
-    console.log('🚀 GMW Workshop Registration Initialized');
-    
-     /* COMMENTED OUT - EmailJS now initialized in HTML head
-    // Initialize EmailJS
-    if (typeof emailjs !== 'undefined') {
-      emailjs.init(CONFIG.emailJS.publicKey);
-      console.log('✅ EmailJS initialized');
-    } else {
-      console.warn('⚠️ EmailJS not loaded. Please include EmailJS SDK.');
-    }
-    */
+  /* ==========================================================
+     INIT
+     ========================================================== */
+  function init() { injectModal(); cacheRefs(); bindEvents(); }
 
-    
-    // Check Razorpay SDK
-    if (typeof Razorpay === 'undefined') {
-      console.warn('⚠️ Razorpay SDK not loaded. Please include: https://checkout.razorpay.com/v1/checkout.js');
-    } else {
-      console.log('✅ Razorpay SDK loaded');
-    }
-    
-    // Initialize event listeners
-    initEventListeners();
-    
-    // Log admin functions
-    console.log('📊 Admin Functions:');
-    console.log('  - Export registrations: window.gmwExportRegistrations()');
-    console.log('  - View registrations: localStorage.getItem("gmw_workshop_registrations")');
-  }
-
-  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  } else { init(); }
 
-  /* ============================================
-     RAZORPAY SETUP INSTRUCTIONS
-     ============================================ 
-     
-     1. CREATE RAZORPAY ACCOUNT:
-        - Visit: https://razorpay.com/
-        - Sign up for a free account
-        - Complete KYC verification
-     
-     2. GET API KEYS:
-        - Go to Dashboard → Settings → API Keys
-        - Generate Test/Live keys
-        - Copy "Key ID" (starts with rzp_test_ or rzp_live_)
-        - Update CONFIG.razorpay.keyId above
-     
-     3. ADD RAZORPAY SDK:
-        Add this script BEFORE gmw-workshop.js in your HTML:
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-     
-     4. TESTING:
-        - Use Test Mode keys for development
-        - Test card: 4111 1111 1111 1111
-        - Any future expiry date & CVV
-     
-     5. GO LIVE:
-        - Replace Test Key with Live Key
-        - Complete activation process in Razorpay Dashboard
-     
-     ============================================ */
-
-  /* ============================================
-     EMAILJS TEMPLATE SETUP
-     ============================================ 
-     
-     1. CREATE EMAIL TEMPLATE:
-        - Go to: https://dashboard.emailjs.com/
-        - Click "Email Templates" → "Create New Template"
-        - Template ID: Copy and update CONFIG.emailJS.templateId
-     
-     2. TEMPLATE CONTENT (Example):
-        
-        Subject: Workshop Registration Confirmed - {{registration_id}}
-        
-        Body:
-        Dear {{to_name}},
-        
-        Thank you for registering for the {{workshop_title}}!
-        
-        REGISTRATION DETAILS:
-        Registration ID: {{registration_id}}
-        Payment ID: {{payment_id}}
-        Amount Paid: {{amount_paid}}
-        
-        WORKSHOP DETAILS:
-        Title: {{workshop_title}}
-        Date: {{workshop_date}}
-        Time: {{workshop_time}}
-        Location: {{workshop_location}}
-        
-        VENUE:
-        {{workshop_venue}}
-        
-        Please arrive 15 minutes before the workshop starts.
-        
-        Best regards,
-        {{business_name}} Team
-     
-     3. TEMPLATE VARIABLES (must match emailParams):
-        - {{to_email}}
-        - {{to_name}}
-        - {{registration_id}}
-        - {{workshop_title}}
-        - {{workshop_date}}
-        - {{workshop_time}}
-        - {{workshop_location}}
-        - {{workshop_venue}}
-        - {{amount_paid}}
-        - {{payment_id}}
-        - {{registration_date}}
-        - {{registration_time}}
-        - {{business_name}}
-     
-     4. ADD EMAILJS SDK:
-        Add this script BEFORE gmw-workshop.js in your HTML:
-        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-     
-     ============================================ */
+  window.openMembershipModal = openModal;
 
 })();
 
+/* ============================================================================
+   12. PAYMENT ABSTRACTION LAYER
+   ----------------------------------------------------------------------------
+   ALL payment calls route through processPayment().
+   To swap gateway: replace ONLY this function body.
+   The onSuccess / onDismiss / onError interface never changes.
+   ============================================================================ */
 
+/**
+ * processPayment(options)
+ * @param {object} options
+ *   amount        {number}   INR total (e.g. 9440)
+ *   amountPaise   {number}   paise    (e.g. 944000)  — Razorpay needs paise
+ *   name          {string}
+ *   email         {string}
+ *   phone         {string}
+ *   description   {string}
+ *   onSuccess     {fn(transactionId)}
+ *   onDismiss     {fn()}
+ *   onError       {fn(message)}
+ *
+ * Current provider: Razorpay
+ * Next provider:    HDFC SmartGateway (see commented block below)
+ */
+function processPayment(options) {
 
-
-
-// Kids Fitness Card Click Toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const kidsCard = document.querySelector('.kids-card');
-  const scrollIndicator = document.querySelector('.scroll-indicator');
-  
-  if (scrollIndicator && kidsCard) {
-    scrollIndicator.addEventListener('click', function(e) {
-      e.stopPropagation();
-      kidsCard.classList.toggle('expanded');
-    });
+  /* ── RAZORPAY (active) ── */
+  if (typeof Razorpay === 'undefined') {
+    options.onError('Payment gateway not loaded. Please refresh and try again.');
+    return;
   }
-});
 
-// Update time slots based on location selection
-function updateTimeSlots() {
-  const locationSelect = document.getElementById('trialLocation');
-  const timeSelect = document.getElementById('trialTime');
-  
-  if (!locationSelect || !timeSelect) return;
-  
-  const selectedLocation = locationSelect.value;
-  
-  // Clear existing options
-  timeSelect.innerHTML = '<option value="" disabled selected>Select your preferred time</option>';
-  
-  if (selectedLocation && TIME_SLOTS[selectedLocation]) {
-    const slots = TIME_SLOTS[selectedLocation];
-    
-    // Add Morning sessions
-    const morningGroup = document.createElement('optgroup');
-    morningGroup.label = 'Morning Sessions';
-    slots.morning.forEach(time => {
-      const option = document.createElement('option');
-      option.value = time;
-      option.textContent = time;
-      morningGroup.appendChild(option);
-    });
-    timeSelect.appendChild(morningGroup);
-    
-    // Add Evening sessions
-    const eveningGroup = document.createElement('optgroup');
-    eveningGroup.label = 'Evening Sessions';
-    slots.evening.forEach(time => {
-      const option = document.createElement('option');
-      option.value = time;
-      option.textContent = time;
-      eveningGroup.appendChild(option);
-    });
-    timeSelect.appendChild(eveningGroup);
-    
-    // Enable time select
-    timeSelect.disabled = false;
-  } else {
-    timeSelect.disabled = true;
-  }
+  const rzp = new Razorpay({
+    key:         'rzp_test_RZG0vfhDgIuZYI',
+    amount:      options.amountPaise,
+    currency:    'INR',
+    name:        'Grip&Grab',
+    description: options.description,
+    prefill:     { name: options.name, email: options.email, contact: options.phone },
+    theme:       { color: '#ff6b6b' },
+    handler:     (response) => options.onSuccess(response.razorpay_payment_id),
+    modal:       { ondismiss: () => options.onDismiss() },
+  });
+  rzp.on('payment.failed', (r) =>
+    options.onError('Payment failed: ' + (r.error.description || 'Unknown error'))
+  );
+  rzp.open();
+
+  /* ── HDFC SmartGateway (ready to enable) ────────────────────────────
+  //
+  // Step 1 — create order server-side (never expose merchant key in frontend)
+  // const { orderId } = await fetch('/api/create-order', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ amount: options.amount, currency: 'INR' }),
+  // }).then((r) => r.json());
+  //
+  // Step 2 — redirect to HDFC payment page
+  // HDFC uses a form POST redirect flow (not a JS SDK like Razorpay).
+  // Build a hidden form, submit it to HDFC's endpoint with:
+  //   merchant_id, order_id, currency, amount, redirect_url, cancel_url,
+  //   language, merchant_param, checksum (SHA256 of fields + working_key)
+  //
+  // Step 3 — HDFC POSTs result to /api/hdfc-callback
+  // Verify checksum server-side, then redirect user to success/failure page
+  // and emit onSuccess(transactionId) or onError(msg) accordingly.
+  //
+  // To activate: comment out the Razorpay block above, uncomment this block,
+  // add api/create-order.js and api/hdfc-callback.js to /api folder.
+  //
+  ─────────────────────────────────────────────────────────────────────── */
 }
 
-// Initialize time slot listener on page load
-document.addEventListener('DOMContentLoaded', function() {
-  const locationSelect = document.getElementById('trialLocation');
-  const timeSelect = document.getElementById('trialTime');
-  
-  if (locationSelect && timeSelect) {
-    // Listen for location changes
-    locationSelect.addEventListener('change', updateTimeSlots);
-    
-    // Don't disable initially - let form validation work properly
-    // If location already selected, populate slots
-    if (locationSelect.value) {
-      updateTimeSlots();
-    }
+/* ============================================================================
+   13. UTILITY FUNCTIONS
+   ============================================================================ */
+
+function scrollToSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  if (mobileMenu?.classList.contains('active')) {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = 'auto';
   }
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.scrollToSection = scrollToSection;
+
+document.addEventListener('DOMContentLoaded', () => {
+  /* Kids Fitness Card toggle */
+  const kidsCard        = document.querySelector('.kids-card');
+  const scrollIndicator = document.querySelector('.scroll-indicator');
+  if (scrollIndicator && kidsCard) {
+    scrollIndicator.addEventListener('click', (e) => { e.stopPropagation(); kidsCard.classList.toggle('expanded'); });
+  }
+  /* Tooltips */
+  document.querySelectorAll('[data-tooltip]').forEach((el) => {
+    el.addEventListener('mouseenter', (e) => {
+      const tip = document.createElement('div');
+      tip.className = 'tooltip'; tip.textContent = e.target.dataset.tooltip;
+      document.body.appendChild(tip);
+      const rect = e.target.getBoundingClientRect();
+      tip.style.cssText = `position:fixed;top:${rect.top - 40}px;left:${rect.left + rect.width / 2}px;transform:translateX(-50%);z-index:99999;`;
+    });
+    el.addEventListener('mouseleave', () => document.querySelector('.tooltip')?.remove());
+  });
 });
 
-
-
-
-
-
-
-
-
-
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && mobileMenu?.classList.contains('active')) {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+  if (e.key === 'ArrowDown' && e.ctrlKey) { e.preventDefault(); window.scrollBy({ top:  window.innerHeight, behavior: 'smooth' }); }
+  if (e.key === 'ArrowUp'   && e.ctrlKey) { e.preventDefault(); window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' }); }
+});

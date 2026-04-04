@@ -8,7 +8,7 @@
     
     <!-- Primary SEO Meta Tags -->
     <title>Grip&Grab - Best Gym in Delhi | Calisthenics, Weight Training & Mobility Center</title>
-    <meta name="description" content="Transform your fitness journey at Grip&Grab - Delhi's premier gym in Lajpat Nagar & Saket. Expert coaching in calisthenics, weight training, mobility work, and pain management. Flexible timings. Call +91-9971250050 for free trial!">
+    <meta name="description" content="Transform your fitness journey at Grip&Grab - Delhi's premier gym in Lajpat Nagar & Saket. Expert coaching in calisthenics, weight training, mobility work, and pain management. Flexible timings. Book a trial class today!">
     <meta name="keywords" content="gym in delhi, best gym lajpat nagar, gym in saket, calisthenics training delhi, weight training, mobility training, pain management, fitness center delhi, grip and grab gym, personal training delhi, gym near defence colony">
     <meta name="author" content="Grip&Grab">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -96,7 +96,6 @@
       "logo": "https://gripandgrab.com/logo.png",
       "@id": "https://gripandgrab.com",
       "url": "https://gripandgrab.com",
-      "telephone": "+91-9971250050",
       "priceRange": "₹₹",
       "address": [
         {
@@ -207,7 +206,7 @@
 
     </div>
     <div class="nav-right">
-      <button class="btn join" onclick="scrollToSection('pricing')">Join Now</button>
+      <button class="btn join" data-membership-trigger>Join Now</button>
       <button class="btn trainer" onclick="scrollToSection('how-it-works')">About Us</button>
     </div>
     <div class="hamburger" id="hamburger">
@@ -223,7 +222,7 @@
     <a href="#timeline" onclick="scrollToSection('timeline')">Our Process</a>
     <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
     <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
-    <a href="#pricing" onclick="scrollToSection('pricing')">Join Now</a>
+    <a href="#" data-membership-trigger>Join Now</a>
     <!-- <a href="https://www.haristhenics.com/?open=sundayClass#pricing-section" onclick="toggleMobileMenu()">Weekend Class</a> -->
 
   </div>
@@ -511,7 +510,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
           <div class="pricing-features">
             
           </div>
-          <button class="pricing-btn" onclick="redirectToPayment()" href="tel:+919971250050">Start Your Journey</button>
+          <button class="pricing-btn" data-membership-trigger>Start Your Journey</button>
         </div>
 
         <!-- Quarterly Plan -->
@@ -531,8 +530,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
           <div class="pricing-features">
             
           </div>
-          <button class="pricing-btn" onclick="redirectToPayment()">See the Difference in your body and movements
-          </button>
+          <button class="pricing-btn" data-membership-trigger>See the Difference in your body and movements</button>
         </div>
 
         <!-- Half Yearly Plan -->
@@ -553,7 +551,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
       
             </ul>
           </div>
-          <button class="pricing-btn popular-btn" onclick="redirectToPayment()">6 Months to Fall in Love with Yourself Again</button>
+          <button class="pricing-btn popular-btn" data-membership-trigger>6 Months to Fall in Love with Yourself Again</button>
         </div>
 
         <!-- Yearly Plan -->
@@ -575,7 +573,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
               
             </ul>
           </div>
-          <button class="pricing-btn" onclick="redirectToPayment()">Experience Unmatched Transformation in One Year</button>
+          <button class="pricing-btn" data-membership-trigger type="button">Experience Unmatched Transformation in One Year</button>
         </div>
 
         <!-- Kids Fitness Plan -->
@@ -599,7 +597,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
     </ul>
   </div>
   
-  <button class="pricing-btn" onclick="redirectToPayment()">
+  <button class="pricing-btn" data-membership-trigger type="button">
     Build Strong Foundations for Your Child
   </button>
 </div>
@@ -804,20 +802,16 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 
             <div class="faq-item">
               <div class="faq-question" onclick="toggleFaq(this)">
-                <span>How can I join or contact Grip&Grab?</span>
+                <span>How can I join Grip&amp;Grab?</span>
                 <i class="fas fa-plus faq-icon"></i>
               </div>
               <div class="faq-answer">
-                <p>Joining is easy! Contact us anytime to get started or ask questions.</p>
+                <p>Joining is easy! Pick your plan and complete your booking in under 2 minutes.</p>
                 <div class="faq-buttons">
-                  <a href="https://wa.me/7827373852?text=Hi%2C%20I%20want%20to%20join%20Grip%26Grab" target="_blank" class="faq-btn whatsapp-btn">
-                    <i class="fab fa-whatsapp"></i>
-                    Contact us on WhatsApp
-                  </a>
-                  <a href="tel:+917827373852" class="faq-btn call-btn">
-                    <i class="fas fa-phone"></i>
-                    Call Us
-                  </a>
+                  <button class="faq-btn whatsapp-btn" data-membership-trigger type="button">
+                    <i class="fas fa-bolt"></i>
+                    Join Now
+                  </button>
                 </div>
               </div>
             </div>
@@ -846,15 +840,15 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
     </div>
 
     <div class="footer-content">
-      <a href="https://wa.me/919971250050?text=Hi%2C%20I%20want%20to%20join%20Grip%26Grab" target="_blank" rel="noopener noreferrer" class="joinus fbtn">
-        <i class="fab fa-whatsapp"></i>
-        Inquire Now
-      </a>
+      <button class="joinus fbtn" data-membership-trigger type="button">
+        <i class="fas fa-bolt"></i>
+        Join Grip&amp;Grab
+      </button>
 
-      <a href="tel:+919971250050" class="call-us fbtn">
-        <i class="fas fa-phone"></i>
-        Call Us
-      </a>
+      <button class="call-us fbtn" data-paid-trial-trigger type="button">
+        <i class="fas fa-calendar-check"></i>
+        Book Trial Class
+      </button>
 
         <!-- Workshop CTA Button -->
     <!-- <a href="https://www.haristhenics.com/?open=#pricing-section" class="fbtn joinus" style="background: linear-gradient(135deg, #ff6b6b, #f7d794); color: #000; margin-bottom: 30px; display: inline-block; text-decoration: none;">
@@ -898,12 +892,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
     </div>
   </section>
 
-  <!-- Sticky Call Button -->
-  <div class="sticky-call-btn">
-    <a href="tel:+919971250050" target="_blank">
-      <i class="fas fa-phone"></i>
-    </a>
-  </div>
+
 
 
 
@@ -1288,20 +1277,3 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 
 </body>
 </html>
-
-
-
-
-<!-- Existing meta tags -->
-    
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
-    <!-- Razorpay SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"> </script>
-<script src="script.js?v=20251022"></script>
-<script src="./trial-paid.js"></script>
-
-</body>
-</html>
-
