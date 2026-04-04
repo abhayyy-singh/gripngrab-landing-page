@@ -51,6 +51,7 @@ const TIME_SLOTS = {
     evening: ['5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'],
   },
 };
+window.TIME_SLOTS = TIME_SLOTS;
 
 /* ── Membership plans ── */
 const MEMBERSHIP_PLANS = [
@@ -847,7 +848,7 @@ function processPayment(options) {
   }
 
   const rzp = new Razorpay({
-    key:         'rzp_live_RZDqqPc9XD0IjO',
+    key:         'rzp_test_RZG0vfhDgIuZYI',
     amount:      options.amountPaise,
     currency:    'INR',
     name:        'Grip&Grab',

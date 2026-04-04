@@ -382,14 +382,16 @@
      LOCATION → TIME SLOTS
      Uses window.TIME_SLOTS from script.js (single source of truth)
      ============================================================ */
-  function onLocationChange() {
+function onLocationChange() {
     var loc        = this.value;
     var timeSelect = document.getElementById('ptTime');
-    var slots      = (window.TIME_SLOTS && window.TIME_SLOTS[loc]) || {};
+
+    /* Map short name → full name used in window.TIME_SLOTS */
+    var slotKey = loc === 'Saket' ? 'Grip&Grab Saket' : 'Grip&Grab Lajpat Nagar';
+    var slots   = (window.TIME_SLOTS && window.TIME_SLOTS[slotKey]) || {};
 
     timeSelect.innerHTML = '<option value="" disabled selected>Select a time slot</option>';
 
-    /* TIME_SLOTS in script.js is { morning: [], evening: [] } */
     var allSlots = (slots.morning || []).concat(slots.evening || []);
 
     if (allSlots.length) {
