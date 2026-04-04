@@ -62,92 +62,216 @@ export default async function handler(req, res) {
     year:  'numeric',
   });
 
+
+  /* ── Center metadata — addresses + maps links ── */
+  const CENTER_META = {
+    'Grip&Grab Lajpat Nagar': {
+      address:  'B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi 110024',
+      mapsLink: 'https://maps.app.goo.gl/TGhC4Rz3XW65J5s18',
+    },
+    'Grip&Grab Saket': {
+      address:  '241, 2nd Floor, Westend Marg, near Garden of Five Senses, Saket, New Delhi 110030',
+      mapsLink: 'https://maps.app.goo.gl/agrpCqbk3xc4wn9q7',
+    },
+  };
+  /* Resolve center name from whichever field was sent */
+  const centerName    = center || location || '';
+  const centerMeta    = CENTER_META[centerName] ?? { address: centerName, mapsLink: 'https://maps.app.goo.gl/J3rfKoqepiDsr1QW9' };
+  const centerAddress = centerMeta.address;
+  const mapsLink      = centerMeta.mapsLink;
+  const isTrial       = plan === 'trial';
+
   /* ── Customer confirmation email ── */
   const customerEmail = {
     from:    'Grip&Grab <noreply@gripandgrab.com>',
     to:      [email],
-    subject: `Welcome to Grip&Grab! Your membership is confirmed 🎉`,
-    html: `
-<!DOCTYPE html>
+    subject: isTrial
+      ? `Your trial class at Grip&Grab is confirmed!`
+      : `Welcome to Grip&Grab! Your membership is confirmed`,
+    html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Membership Confirmed</title>
-  <style>
-    body { margin:0; padding:0; background:#0a0a0a; font-family:'Helvetica Neue',Arial,sans-serif; color:#ffffff; }
-    .wrapper { max-width:560px; margin:0 auto; padding:40px 20px; }
-    .logo-row { text-align:center; margin-bottom:32px; }
-    .logo-row img { height:50px; }
-    .card { background:#141414; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:32px; }
-    h1 { font-size:22px; font-weight:700; margin:0 0 8px; }
-    .subtitle { color:rgba(255,255,255,0.5); font-size:14px; margin:0 0 28px; }
-    .row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:14px; }
-    .row:last-child { border-bottom:none; }
-    .label { color:rgba(255,255,255,0.45); }
-    .value { font-weight:600; text-align:right; }
-    .plan-badge { display:inline-block; background:linear-gradient(135deg,#ff6b6b,#f7d794); color:#000; font-weight:700; font-size:13px; padding:6px 16px; border-radius:20px; margin:20px 0 28px; }
-    .footer-note { margin-top:28px; font-size:12px; color:rgba(255,255,255,0.3); text-align:center; line-height:1.6; }
-    .cta { display:block; text-align:center; margin:24px 0 0; background:linear-gradient(135deg,#ff6b6b,#f7d794); color:#000; font-weight:700; font-size:14px; padding:14px 32px; border-radius:30px; text-decoration:none; }
-  </style>
+  <title>${isTrial ? 'Trial Class Confirmed' : 'Membership Confirmed'} — Grip&amp;Grab</title>
 </head>
-<body>
-  <div class="wrapper">
-    <div class="card">
-      <h1>You're in, ${name.split(' ')[0]}! 💪</h1>
-      <p class="subtitle">${plan === 'trial' ? 'Your trial class at Grip&amp;Grab is confirmed.' : 'Your Grip&amp;Grab membership has been confirmed.'}</p>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;">
 
-      <div class="plan-badge">${planLabel}</div>
+        <!-- Header -->
+        <tr>
+          <td style="background:#0a0a0a;padding:32px 40px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:bold;letter-spacing:-0.5px;">Grip&amp;Grab</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:0.5px;text-transform:uppercase;">Move Better. Live Stronger.</p>
+          </td>
+        </tr>
 
-      <div class="row">
-        <span class="label">Name</span>
-        <span class="value">${name}</span>
-      </div>
-      <div class="row">
-        <span class="label">Email</span>
-        <span class="value">${email}</span>
-      </div>
-      <div class="row">
-        <span class="label">Phone</span>
-        <span class="value">${phone}</span>
-      </div>
-      ${plan !== 'trial' ? `
-      <div class="row">
-        <span class="label">Date of Birth</span>
-        <span class="value">${dob ?? '—'}</span>
-      </div>` : ''}
-      ${(location || center) ? `
-      <div class="row">
-        <span class="label">Center</span>
-        <span class="value">${location || center}</span>
-      </div>` : ''}
-      ${date ? `
-      <div class="row">
-        <span class="label">Date</span>
-        <span class="value">${date}</span>
-      </div>` : ''}
-      ${time ? `
-      <div class="row">
-        <span class="label">Time Slot</span>
-        <span class="value">${time}</span>
-      </div>` : ''}
-      <div class="row">
-        <span class="label">Booking Date</span>
-        <span class="value">${bookingDate}</span>
-      </div>
-      <div class="row">
-        <span class="label">Payment ID</span>
-        <span class="value" style="font-size:12px;font-family:monospace;">${paymentId}</span>
-      </div>
+        <!-- Confirmed badge -->
+        <tr>
+          <td style="background:#18181b;padding:20px 40px;text-align:center;border-bottom:1px solid #e5e5e5;">
+            <span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:13px;font-weight:600;padding:6px 16px;border-radius:99px;letter-spacing:0.3px;">
+              ✓ &nbsp;${isTrial ? 'Booking Confirmed' : 'Membership Confirmed'}
+            </span>
+          </td>
+        </tr>
 
-      <a href="https://gripandgrab.com" class="cta">Visit gripandgrab.com</a>
+        <!-- Greeting -->
+        <tr>
+          <td style="padding:36px 40px 0;">
+            <p style="margin:0 0 24px;font-size:16px;color:#111111;line-height:1.6;">
+              Hi <strong>${name.split(' ')[0]}</strong>,<br><br>
+              ${isTrial
+                ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We're excited to have you!'
+                : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
+              }
+            </p>
+          </td>
+        </tr>
 
-      <p class="footer-note">
-        ${plan === 'trial' ? 'See you at the gym! Carry this email as your booking reference.' : 'Our team will reach out shortly with next steps.'}<br>
-        Keep this email for your records — Payment ID: ${paymentId}
-      </p>
-    </div>
-  </div>
+        <!-- Booking details box -->
+        <tr>
+          <td style="padding:0 40px;">
+            <table width="100%" cellspacing="0" cellpadding="0" style="background:#f9f9f9;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;margin-bottom:24px;">
+
+              <!-- Center -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Center</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${centerName || 'Grip&amp;Grab'}</p>
+                </td>
+              </tr>
+
+              <!-- Address -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Address</p>
+                  <p style="margin:4px 0 0;font-size:14px;color:#333333;line-height:1.5;">${centerAddress}</p>
+                </td>
+              </tr>
+
+              ${isTrial ? `
+              <!-- Date -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Date</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${date}</p>
+                </td>
+              </tr>
+              <!-- Time -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Time Slot</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${time}</p>
+                </td>
+              </tr>` : `
+              <!-- Plan -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Membership Plan</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${planLabel}</p>
+                </td>
+              </tr>`}
+
+              <!-- Joining Date -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Joining Date</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${bookingDate}</p>
+                </td>
+              </tr>
+
+              <!-- Amount -->
+              <tr>
+                <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Amount Paid</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">₹${(amount / 100).toLocaleString('en-IN')}</p>
+                </td>
+              </tr>
+
+              <!-- Payment ID -->
+              <tr>
+                <td style="padding:16px 20px;">
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Payment ID</p>
+                  <p style="margin:4px 0 0;font-size:13px;color:#555555;font-family:monospace;">${paymentId}</p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+
+        ${isTrial ? `
+        <!-- ₹2,000 redeemable note — trial only -->
+        <tr>
+          <td style="padding:0 40px;">
+            <table width="100%" cellspacing="0" cellpadding="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin-bottom:24px;">
+              <tr>
+                <td style="padding:16px 20px;">
+                  <p style="margin:0;font-size:13.5px;color:#92400e;line-height:1.6;">
+                    <strong>💡 Note:</strong> Your trial fee of ₹2,000 is fully redeemable against any membership plan you choose.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>` : ''}
+
+        <!-- Help text -->
+        <tr>
+          <td style="padding:0 40px 28px;">
+            <p style="margin:0;font-size:14px;color:#444444;line-height:1.7;">
+              ${isTrial
+                ? 'See you at the gym! Carry this email as your booking reference.'
+                : 'Our team will be in touch shortly with your onboarding details.'
+              }<br><br>
+              If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — we're happy to assist.
+            </p>
+          </td>
+        </tr>
+
+        <!-- CTA buttons — Call + WhatsApp -->
+        <tr>
+          <td style="padding:0 40px 32px;text-align:center;">
+            <table cellspacing="0" cellpadding="0" style="margin:0 auto;">
+              <tr>
+                <td style="padding-right:12px;">
+                  <a href="tel:+917827373852"
+                     style="display:inline-block;background:#0a0a0a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;letter-spacing:0.2px;">
+                    📞 Call Us
+                  </a>
+                </td>
+                <td>
+                  <a href="https://wa.me/917827373852"
+                     style="display:inline-block;background:#25d366;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;letter-spacing:0.2px;">
+                    💬 WhatsApp
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer — location + maps -->
+        <tr>
+          <td style="padding:20px 40px;background:#f9f9f9;border-top:1px solid #e5e5e5;text-align:center;">
+            <p style="margin:0;font-size:13px;color:#888888;line-height:1.6;">${centerAddress}</p>
+            <a href="${mapsLink}"
+               style="display:inline-block;margin-top:10px;font-size:12px;color:#ffffff;background:#0a0a0a;padding:6px 16px;border-radius:6px;text-decoration:none;">
+              View on Google Maps →
+            </a>
+            <p style="margin:16px 0 0;font-size:11px;color:#bbbbbb;">
+              © ${new Date().getFullYear()} Grip&amp;Grab · gripandgrab.com
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>`,
   };

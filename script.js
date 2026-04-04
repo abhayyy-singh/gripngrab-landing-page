@@ -31,7 +31,7 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:       false,
+    available:       true,
     alternateCenter: 'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
@@ -62,7 +62,7 @@ const MEMBERSHIP_PLANS = [
 
 /* ── Google Sheets CRM webhook ── */
 const SHEETS_WEBHOOK_URL =
-  'https://script.google.com/macros/s/AKfycbxZTMBH6CLnbvzS6Bl5XYlG-hj0-kB-MDEcVcYZIht0sVTMVNNlYZ-ptPLt5i6VMbLc/exec';
+  'https://script.google.com/macros/s/AKfycbyZHDnLUtQtCL5rkP8VCS4qvfv0lNP5uto-DEWvhVcIu3T1ndd-XSmk6ZP6RgUJPmbIuQ/exec';
 
 /* ============================================================================
    2. DOM REFERENCES
@@ -847,7 +847,7 @@ function processPayment(options) {
   }
 
   const rzp = new Razorpay({
-    key:         'rzp_test_RZG0vfhDgIuZYI',
+    key:         'rzp_live_RZDqqPc9XD0IjO',
     amount:      options.amountPaise,
     currency:    'INR',
     name:        'Grip&Grab',
