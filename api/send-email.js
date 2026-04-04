@@ -125,7 +125,7 @@ module.exports = async function handler(req, res) {
             <p style="margin:0 0 24px;font-size:16px;color:#111111;line-height:1.6;">
               Hi <strong>${name.split(' ')[0]}</strong>,<br><br>
               ${isTrial
-                ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We're excited to have you!'
+                ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We\'re excited to have you!'
                 : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
               }
             </p>
@@ -228,7 +228,7 @@ module.exports = async function handler(req, res) {
                 ? 'See you at the gym! Carry this email as your booking reference.'
                 : 'Our team will be in touch shortly with your onboarding details.'
               }<br><br>
-              If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — we're happy to assist.
+              If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — We\'re happy to assist.
             </p>
           </td>
         </tr>
