@@ -65,12 +65,20 @@ module.exports = async function handler(req, res) {
 
 
   /* ── Center metadata — addresses + maps links ── */
-  const CENTER_META = {
+ const CENTER_META = {
     'Grip&Grab Lajpat Nagar': {
       address:  'B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi 110024',
       mapsLink: 'https://maps.app.goo.gl/TGhC4Rz3XW65J5s18',
     },
+    'Lajpat Nagar': {                                              // ← add karo
+      address:  'B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi 110024',
+      mapsLink: 'https://maps.app.goo.gl/TGhC4Rz3XW65J5s18',
+    },
     'Grip&Grab Saket': {
+      address:  '241, 2nd Floor, Westend Marg, near Garden of Five Senses, Saket, New Delhi 110030',
+      mapsLink: 'https://maps.app.goo.gl/agrpCqbk3xc4wn9q7',
+    },
+    'Saket': {                                                     // ← add karo
       address:  '241, 2nd Floor, Westend Marg, near Garden of Five Senses, Saket, New Delhi 110030',
       mapsLink: 'https://maps.app.goo.gl/agrpCqbk3xc4wn9q7',
     },
