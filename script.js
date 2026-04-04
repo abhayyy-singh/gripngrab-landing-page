@@ -734,10 +734,14 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, amount: total * 100, paymentId: txId }),
         }).catch((err) => console.error('Email:', err));
-        fetch(SHEETS_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'Membership', name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`, paymentId: txId, timestamp: new Date().toISOString() }),
-        }).catch((err) => console.error('Sheets:', err));
+        const sheetsParams = new URLSearchParams({
+  type: 'Membership', name: payload.name, email: payload.email,
+  phone: payload.phone, dob: payload.dob, center: payload.center,
+  plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`,
+  paymentId: txId, timestamp: new Date().toISOString()
+});
+fetch(SHEETS_WEBHOOK_URL + '?' + sheetsParams.toString(), { method: 'GET' })
+  .catch((err) => console.error('Sheets:', err));
         document.getElementById('mmPaymentRef').textContent = `Payment ID: ${txId}`;
         state.isSubmitting = false; setLoading(false);
         showStep('success');
@@ -848,7 +852,7 @@ function processPayment(options) {
   }
 
   const rzp = new Razorpay({
-    key:         'rzp_test_RZG0vfhDgIuZYI',
+    key:         'rzp_live_RZDqqPc9XD0IjO',
     amount:      options.amountPaise,
     currency:    'INR',
     name:        'Grip&Grab',
