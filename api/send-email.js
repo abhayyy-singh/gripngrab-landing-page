@@ -17,7 +17,8 @@
      }
    ============================================================================ */
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+
 
   /* ── Only POST allowed ── */
   if (req.method !== 'POST') {
