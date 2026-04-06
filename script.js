@@ -39,6 +39,7 @@ const CENTER_CONFIG = {
     alternateCenter: 'Grip&Grab Lajpat Nagar',
   },
 };
+window.CENTER_CONFIG = CENTER_CONFIG;  // ← ye add karo
 
 /* ── Time slots — single source of truth for all modals ── */
 const TIME_SLOTS = {
