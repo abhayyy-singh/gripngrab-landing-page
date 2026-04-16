@@ -387,7 +387,6 @@
       { id: 'ptName',     errId: 'ptNameErr',     msg: 'Please enter your name',         check: function (v) { return v.trim().length >= 2; } },
       { id: 'ptEmail',    errId: 'ptEmailErr',    msg: 'Please enter a valid email',     check: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); } },
       { id: 'ptPhone',    errId: 'ptPhoneErr',    msg: 'Please enter a 10-digit number', check: function (v) { return /^[0-9]{10}$/.test(v); } },
-      { id: 'ptLocation', errId: 'ptLocationErr', msg: 'Please select a location',      check: function (v) { return v !== ''; } },
       { id: 'ptDate',     errId: 'ptDateErr',     msg: 'Please select a date',           check: function (v) { return v !== ''; } },
       { id: 'ptTime',     errId: 'ptTimeErr',     msg: 'Please select a time slot',      check: function (v) { return v !== ''; } },
     ];
