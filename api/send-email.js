@@ -48,6 +48,7 @@ module.exports = async function handler(req, res) {
     halfyearly: 'Half Yearly — ₹36,000 + GST',
     yearly:     'Yearly — ₹60,000 + GST',
     trial:      'Trial Class — ₹2,000',
+    'kids-monthly': 'Kids Monthly — ₹5,900 (₹5,000 + GST)',
   };
   const planLabel = planLabels[plan] ?? plan;
 

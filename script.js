@@ -31,7 +31,7 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:       false,
+    available:       true,
     alternateCenter: 'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
@@ -39,7 +39,6 @@ const CENTER_CONFIG = {
     alternateCenter: 'Grip&Grab Lajpat Nagar',
   },
 };
-window.CENTER_CONFIG = CENTER_CONFIG;  // ← ye add karo
 
 /* ── Time slots — single source of truth for all modals ── */
 const TIME_SLOTS = {
@@ -52,7 +51,6 @@ const TIME_SLOTS = {
     evening: ['5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'],
   },
 };
-window.TIME_SLOTS = TIME_SLOTS;
 
 /* ── Membership plans ── */
 const MEMBERSHIP_PLANS = [
@@ -735,14 +733,10 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, amount: total * 100, paymentId: txId }),
         }).catch((err) => console.error('Email:', err));
-        const sheetsParams = new URLSearchParams({
-  type: 'Membership', name: payload.name, email: payload.email,
-  phone: payload.phone, dob: payload.dob, center: payload.center,
-  plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`,
-  paymentId: txId, timestamp: new Date().toISOString()
-});
-fetch(SHEETS_WEBHOOK_URL + '?' + sheetsParams.toString(), { method: 'GET' })
-  .catch((err) => console.error('Sheets:', err));
+        fetch(SHEETS_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'Membership', name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`, paymentId: txId, timestamp: new Date().toISOString() }),
+        }).catch((err) => console.error('Sheets:', err));
         document.getElementById('mmPaymentRef').textContent = `Payment ID: ${txId}`;
         state.isSubmitting = false; setLoading(false);
         showStep('success');
@@ -938,3 +932,416 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowDown' && e.ctrlKey) { e.preventDefault(); window.scrollBy({ top:  window.innerHeight, behavior: 'smooth' }); }
   if (e.key === 'ArrowUp'   && e.ctrlKey) { e.preventDefault(); window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' }); }
 });
+/* ============================================================================
+   KIDS FITNESS MODAL
+   ----------------------------------------------------------------------------
+   Triggered by: data-kids-trigger
+   Flow: Center select → availability check → form (Name/Email/Phone/DOB)
+         → Razorpay → email → sheets
+   Plan: Monthly only — ₹5,000 + 18% GST
+   No time slot, no date picker
+   ============================================================================ */
+
+(function () {
+  'use strict';
+
+  /* ── Kids plan ── */
+  const KIDS_PLAN = {
+    id:     'kids-monthly',
+    label:  'Kids Monthly',
+    price:  5000,
+    period: '/month',
+  };
+
+  const KIDS_CENTER_ADDRESSES = {
+    'Lajpat Nagar': 'B-32, 3rd Floor, opposite Defence Colony, Lajpat Nagar, New Delhi 110024',
+    'Saket':        '241, 2nd Floor, Westend Marg, near Garden of Five Senses, Saket, New Delhi 110030',
+  };
+
+  /* ── State ── */
+  let modalEl        = null;
+  let isOpen         = false;
+  let selectedCenter = null;
+
+  /* ==========================================================
+     INJECT HTML
+     ========================================================== */
+  function injectModal() {
+    document.body.insertAdjacentHTML('beforeend', `
+<div id="kmModal" class="km-overlay" role="dialog" aria-modal="true" aria-labelledby="kmModalTitle" style="display:none;">
+  <div class="km-backdrop" id="kmBackdrop"></div>
+  <div class="km-container">
+    <div class="km-handle"></div>
+    <button class="km-close" id="kmClose" aria-label="Close" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- STEP 1: Center select -->
+    <div id="kmStepCenter">
+      <div class="km-header">
+        <h3 id="kmModalTitle">Kids Fitness Membership</h3>
+        <p>Which center would you like to join?</p>
+      </div>
+      <div class="km-center-cards">
+        <div class="km-center-card" data-center="Lajpat Nagar" tabindex="0" role="button">
+          <div class="km-center-card__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <span class="km-center-card__name">Grip&amp;Grab Lajpat Nagar</span>
+        </div>
+        <div class="km-center-card" data-center="Saket" tabindex="0" role="button">
+          <div class="km-center-card__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <span class="km-center-card__name">Grip&amp;Grab Saket</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP FULL -->
+    <div id="kmStepFull" style="display:none;">
+      <div class="km-full-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+        </svg>
+      </div>
+      <h4 class="km-full-title" id="kmFullTitle"></h4>
+      <p  class="km-full-msg"   id="kmFullMsg"></p>
+      <button class="km-alt-btn"   id="kmAltBtn"       type="button"></button>
+      <button class="km-back-link" id="kmBackFromFull" type="button">← Choose a different center</button>
+    </div>
+
+    <!-- STEP 2: Form -->
+    <div id="kmStepForm" style="display:none;">
+      <button class="km-back-link" id="kmBackFromForm" type="button">← Change center</button>
+      <div class="km-header km-header--compact">
+        <h3 id="kmFormTitle">Kids Fitness — Grip&amp;Grab</h3>
+        <p id="kmFormSubtitle">Mon, Wed, Fri · 4–5 PM or 5–6 PM</p>
+      </div>
+
+      <!-- Plan card — single -->
+      <div class="km-plan-card">
+        <div class="km-plan-card__left">
+          <div class="km-plan-card__name">Monthly Plan</div>
+          <div class="km-plan-card__note">+ 18% GST applicable</div>
+        </div>
+        <div class="km-plan-card__price">
+          <span class="km-plan-card__currency">₹</span>5,000
+          <span class="km-plan-card__period">/month</span>
+        </div>
+      </div>
+
+      <form id="kmForm" class="km-form" novalidate autocomplete="on">
+        <div class="km-group">
+          <label for="kmName">Child's Full Name <span>*</span></label>
+          <input type="text" id="kmName" name="name" placeholder="Child's full name" required autocomplete="name" minlength="2">
+          <span class="km-err" id="kmNameErr"></span>
+        </div>
+        <div class="km-group">
+          <label for="kmEmail">Parent's Email <span>*</span></label>
+          <input type="email" id="kmEmail" name="email" placeholder="parent@email.com" required autocomplete="email">
+          <span class="km-err" id="kmEmailErr"></span>
+        </div>
+        <div class="km-group">
+          <label for="kmPhone">Parent's Phone <span>*</span></label>
+          <input type="tel" id="kmPhone" name="phone" placeholder="10-digit mobile number" required autocomplete="tel" pattern="[0-9]{10}">
+          <span class="km-err" id="kmPhoneErr"></span>
+        </div>
+        <div class="km-group">
+          <label for="kmDob">Child's Date of Birth <span>*</span></label>
+          <input type="date" id="kmDob" name="dob" required autocomplete="bday">
+          <span class="km-err" id="kmDobErr"></span>
+        </div>
+        <button type="submit" class="km-submit" id="kmSubmit">
+          <span class="km-btn-text">Pay ₹5,900 &amp; Enroll</span>
+          <span class="km-btn-loader" style="display:none;">
+            <svg class="km-spinner" viewBox="0 0 50 50">
+              <circle cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="kmSuccess" class="km-success" style="display:none;">
+      <div class="km-success-icon">✓</div>
+      <h4>Enrollment Confirmed!</h4>
+      <p>Payment successful. A confirmation has been sent to your email.</p>
+      <p class="km-payment-ref" id="kmPaymentRef"></p>
+    </div>
+
+    <!-- ERROR -->
+    <div id="kmError" class="km-error" style="display:none;">
+      <div class="km-error-icon">✕</div>
+      <h4>Something went wrong</h4>
+      <p id="kmErrorMsg">Payment could not be completed. Please try again.</p>
+      <button class="km-retry-btn" id="kmRetry" type="button">Try Again</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.km-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;}
+@media(min-width:560px){.km-overlay{align-items:center;}}
+.km-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.km-container{position:relative;background:#141414;color:#f0f0f0;font-family:'Poppins',sans-serif;width:100%;max-width:100%;max-height:93dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;border-radius:24px 24px 0 0;padding:24px 20px 40px;box-sizing:border-box;border-top:1px solid rgba(255,255,255,0.08);}
+@media(min-width:560px){.km-container{max-width:480px;border-radius:20px;padding:32px 32px 40px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 32px 80px rgba(0,0,0,0.65);}}
+.km-handle{width:40px;height:4px;background:rgba(255,255,255,0.18);border-radius:2px;margin:0 auto 20px;}
+@media(min-width:560px){.km-handle{display:none;}}
+.km-close{position:absolute;top:8px;right:14px;background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:#f0f0f0;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.km-close:hover{background:rgba(255,255,255,0.16);}
+.km-header{margin-bottom:20px;padding-right:44px;}
+.km-header--compact{margin-bottom:16px;padding-right:0;}
+.km-header h3{font-size:22px;font-weight:700;margin:0 0 4px;color:#fff;}
+.km-header p{font-size:13px;color:rgba(255,255,255,0.45);margin:0;}
+.km-back-link{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;font-family:'Poppins',sans-serif;padding:0;margin-bottom:16px;display:block;transition:color 0.2s;}
+.km-back-link:hover{color:rgba(255,255,255,0.75);}
+.km-center-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+.km-center-card{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:22px 16px;cursor:pointer;text-align:center;transition:border-color 0.2s,background 0.2s;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.km-center-card:hover{border-color:rgba(255,107,107,0.5);background:rgba(255,107,107,0.06);}
+.km-center-card--selected{border-color:#ff6b6b!important;background:rgba(255,107,107,0.1)!important;}
+.km-center-card__icon{color:rgba(255,255,255,0.45);}
+.km-center-card__name{font-size:14px;font-weight:600;color:#fff;line-height:1.3;}
+#kmStepFull{text-align:center;padding:12px 0 8px;}
+.km-full-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,180,0,0.1);border:1.5px solid rgba(255,180,0,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#f7d794;}
+.km-full-title{font-size:18px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;}
+.km-full-msg{font-size:14px;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.7;}
+.km-alt-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s;margin-bottom:12px;}
+.km-alt-btn:hover{opacity:0.9;}
+.km-plan-card{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,107,107,0.4);border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+.km-plan-card__name{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;}
+.km-plan-card__note{font-size:11px;color:rgba(255,255,255,0.35);}
+.km-plan-card__price{font-size:22px;font-weight:800;color:#f7d794;text-align:right;}
+.km-plan-card__currency{font-size:13px;vertical-align:super;}
+.km-plan-card__period{font-size:11px;font-weight:400;color:rgba(255,255,255,0.4);display:block;}
+.km-form{display:flex;flex-direction:column;gap:14px;}
+.km-group{display:flex;flex-direction:column;gap:5px;}
+.km-group label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.05em;text-transform:uppercase;}
+.km-group label span{color:#ff6b6b;}
+.km-group input{width:100%;padding:13px 15px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;font-size:15px;font-family:'Poppins',sans-serif;background:rgba(255,255,255,0.05);color:#f0f0f0;box-sizing:border-box;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none;}
+.km-group input:focus{outline:none;border-color:rgba(255,107,107,0.6);background:rgba(255,255,255,0.07);}
+.km-group input[type="date"]{color-scheme:dark;}
+.km-group input.km-invalid{border-color:#ff5252!important;}
+.km-err{font-size:11px;color:#ff5252;min-height:14px;display:block;}
+.km-submit{width:100%;padding:16px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:15px;font-weight:700;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.15s;margin-top:4px;}
+.km-submit:hover{opacity:0.92;transform:translateY(-1px);}
+.km-submit:active{transform:translateY(0);}
+.km-submit:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.km-spinner{width:20px;height:20px;animation:kmSpin 0.8s linear infinite;}
+.km-spinner circle{stroke:#000;stroke-linecap:round;stroke-dasharray:80;stroke-dashoffset:60;}
+@keyframes kmSpin{to{transform:rotate(360deg);}}
+.km-success,.km-error{text-align:center;padding:32px 20px 8px;}
+.km-success-icon{width:60px;height:60px;border-radius:50%;background:rgba(100,220,100,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;color:#7dd87d;margin:0 auto 16px;}
+.km-error-icon{width:60px;height:60px;border-radius:50%;background:rgba(255,82,82,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;color:#ff5252;margin:0 auto 16px;}
+.km-success h4,.km-error h4{font-size:18px;font-weight:700;margin:0 0 8px;}
+.km-success p,.km-error p{font-size:13px;color:rgba(255,255,255,0.5);margin:0 0 6px;}
+.km-payment-ref{font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3)!important;}
+.km-retry-btn{margin-top:16px;padding:12px 32px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:30px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;transition:background 0.2s;}
+.km-retry-btn:hover{background:rgba(255,255,255,0.14);}
+</style>`);
+
+    modalEl = document.getElementById('kmModal');
+    bindModalEvents();
+  }
+
+  /* ==========================================================
+     STEPS
+     ========================================================== */
+  function showStep(step) {
+    document.getElementById('kmStepCenter').style.display = step === 'center'  ? 'block' : 'none';
+    document.getElementById('kmStepFull').style.display   = step === 'full'    ? 'block' : 'none';
+    document.getElementById('kmStepForm').style.display   = step === 'form'    ? 'block' : 'none';
+    document.getElementById('kmSuccess').style.display    = step === 'success' ? 'block' : 'none';
+    document.getElementById('kmError').style.display      = step === 'error'   ? 'block' : 'none';
+  }
+
+  /* ==========================================================
+     CENTER SELECTION
+     ========================================================== */
+  function onCenterSelect(shortName) {
+    selectedCenter = shortName;
+
+    document.querySelectorAll('.km-center-card').forEach(function (c) {
+      c.classList.toggle('km-center-card--selected', c.dataset.center === shortName);
+    });
+
+    var fullName = shortName === 'Saket' ? 'Grip&Grab Saket' : 'Grip&Grab Lajpat Nagar';
+    var config   = window.CENTER_CONFIG && window.CENTER_CONFIG[fullName];
+
+    if (config && !config.available) {
+      var altFull  = config.alternateCenter;
+      var altShort = altFull === 'Grip&Grab Saket' ? 'Saket' : 'Lajpat Nagar';
+      document.getElementById('kmFullTitle').textContent =
+        'Grip&Grab ' + shortName + ' is currently full';
+      document.getElementById('kmFullMsg').textContent =
+        'We\'re not taking new kids enrollments at Grip&Grab ' + shortName + ' right now. ' +
+        'You can enroll at ' + altFull + ' — spots are available there.';
+      var altBtn = document.getElementById('kmAltBtn');
+      altBtn.textContent = 'Enroll at ' + altFull;
+      altBtn.onclick = function () { onCenterSelect(altShort); };
+      showStep('full');
+    } else {
+      document.getElementById('kmFormTitle').textContent    = 'Kids Fitness — Grip&Grab ' + shortName;
+      showStep('form');
+    }
+  }
+
+  /* ==========================================================
+     VALIDATION
+     ========================================================== */
+  function showErr(id, msg)         { const el = document.getElementById(id); if (el) el.textContent = msg; }
+  function clearErr(id)             { const el = document.getElementById(id); if (el) el.textContent = ''; }
+  function markInvalid(el, id, msg) { el.classList.add('km-invalid');    showErr(id, msg); }
+  function markValid(el, id)        { el.classList.remove('km-invalid'); clearErr(id); }
+
+  function validateForm() {
+    let ok = true;
+    const n = document.getElementById('kmName');
+    const e = document.getElementById('kmEmail');
+    const p = document.getElementById('kmPhone');
+    const d = document.getElementById('kmDob');
+    if (!n.value.trim() || n.value.trim().length < 2) { markInvalid(n, 'kmNameErr',  'Please enter child\'s full name.');     ok = false; } else markValid(n, 'kmNameErr');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value.trim())) { markInvalid(e, 'kmEmailErr', 'Please enter a valid email.');   ok = false; } else markValid(e, 'kmEmailErr');
+    if (!/^[0-9]{10}$/.test(p.value.trim()))                 { markInvalid(p, 'kmPhoneErr', 'Please enter a 10-digit number.');ok = false; } else markValid(p, 'kmPhoneErr');
+    if (!d.value)                                             { markInvalid(d, 'kmDobErr',   'Please enter date of birth.');   ok = false; } else markValid(d, 'kmDobErr');
+    return ok;
+  }
+
+  /* ==========================================================
+     FORM SUBMIT
+     ========================================================== */
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const name  = document.getElementById('kmName').value.trim();
+    const email = document.getElementById('kmEmail').value.trim();
+    const phone = document.getElementById('kmPhone').value.trim();
+    const dob   = document.getElementById('kmDob').value;
+    const gst   = Math.round(KIDS_PLAN.price * 0.18);
+    const total = KIDS_PLAN.price + gst;
+
+    setLoading(true);
+
+    processPayment({
+      amount:      total,
+      amountPaise: total * 100,
+      name,
+      email,
+      phone,
+      description: `Kids Monthly Membership — Grip&Grab ${selectedCenter}`,
+
+      onSuccess: async (txId) => {
+        /* Email */
+        fetch('/api/send-email', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, email, phone, dob,
+            center: 'Grip&Grab ' + selectedCenter,
+            plan:   'kids-monthly',
+            amount: total * 100,
+            paymentId: txId,
+          }),
+        }).catch((err) => console.error('Email:', err));
+
+        /* Sheets */
+        const sheetsParams = new URLSearchParams({
+          type: 'Membership', name, email, phone, dob,
+          center: 'Grip&Grab ' + selectedCenter,
+          plan: 'Kids Monthly',
+          amount: '₹' + total.toLocaleString('en-IN'),
+          paymentId: txId,
+          timestamp: new Date().toISOString(),
+        });
+        fetch(SHEETS_WEBHOOK_URL + '?' + sheetsParams.toString(), { method: 'GET' })
+          .catch((err) => console.error('Sheets:', err));
+
+        document.getElementById('kmPaymentRef').textContent = 'Payment ID: ' + txId;
+        setLoading(false);
+        showStep('success');
+      },
+      onDismiss: () => setLoading(false),
+      onError:   (msg) => {
+        document.getElementById('kmErrorMsg').textContent = msg || 'Payment could not be completed.';
+        setLoading(false);
+        showStep('error');
+      },
+    });
+  }
+
+  /* ==========================================================
+     UI HELPERS
+     ========================================================== */
+  function setLoading(on) {
+    const btn    = document.getElementById('kmSubmit');
+    const text   = btn.querySelector('.km-btn-text');
+    const loader = btn.querySelector('.km-btn-loader');
+    btn.disabled            = on;
+    text.style.display      = on ? 'none'  : 'flex';
+    loader.style.display    = on ? 'flex'  : 'none';
+  }
+
+  /* ==========================================================
+     OPEN / CLOSE / EVENTS
+     ========================================================== */
+  function openModal(e) {
+    if (e) e.preventDefault();
+    isOpen = true;
+    selectedCenter = null;
+    modalEl.style.display        = 'flex';
+    document.body.style.overflow = 'hidden';
+    showStep('center');
+  }
+
+  function closeModal() {
+    isOpen = false;
+    modalEl.style.display        = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function bindTriggers() {
+    document.querySelectorAll('[data-kids-trigger]').forEach((el) =>
+      el.addEventListener('click', openModal)
+    );
+  }
+
+  function bindModalEvents() {
+    document.getElementById('kmClose').addEventListener('click', closeModal);
+    document.getElementById('kmBackdrop').addEventListener('click', closeModal);
+    document.getElementById('kmBackFromFull').addEventListener('click', () => showStep('center'));
+    document.getElementById('kmBackFromForm').addEventListener('click', () => showStep('center'));
+    document.getElementById('kmRetry').addEventListener('click', () => showStep('form'));
+    document.getElementById('kmForm').addEventListener('submit', handleSubmit);
+
+    document.querySelectorAll('.km-center-card').forEach((card) => {
+      card.addEventListener('click', () => onCenterSelect(card.dataset.center));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onCenterSelect(card.dataset.center); }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) closeModal();
+    });
+  }
+
+  /* ==========================================================
+     INIT
+     ========================================================== */
+  function init() { injectModal(); bindTriggers(); }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+
+  window.openKidsModal = openModal;
+
+})();
