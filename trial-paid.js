@@ -16,7 +16,7 @@
   /* ── CONFIG ── */
   const CONFIG = {
     razorpay: {
-      keyId:       'rzp_test_RZG0vfhDgIuZYI',
+      keyId:       'rzp_live_RZDqqPc9XD0IjO',
       amount:      200000,
       currency:    'INR',
       name:        'Grip&Grab',

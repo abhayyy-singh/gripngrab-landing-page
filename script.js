@@ -31,7 +31,7 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:       true,
+    available:       false,
     alternateCenter: 'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
@@ -63,7 +63,9 @@ const MEMBERSHIP_PLANS = [
 /* ── Google Sheets CRM webhook ── */
 const SHEETS_WEBHOOK_URL =
   'https://script.google.com/macros/s/AKfycbyZHDnLUtQtCL5rkP8VCS4qvfv0lNP5uto-DEWvhVcIu3T1ndd-XSmk6ZP6RgUJPmbIuQ/exec';
-
+// ── Expose globals for trial-paid.js and kids modal ──
+window.TIME_SLOTS    = TIME_SLOTS;      // ← ye add karo
+window.CENTER_CONFIG = CENTER_CONFIG;   // ← ye add karo
 /* ============================================================================
    2. DOM REFERENCES
    ============================================================================ */
