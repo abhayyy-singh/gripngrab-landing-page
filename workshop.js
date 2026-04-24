@@ -321,7 +321,7 @@ function openModal() {
           try {
             // Razorpay Payment
             const options = {
-              key: "rzp_live_RZDqqPc9XD0IjO",
+              key: "rzp_live_ShEMzudk4Y6hrO",
               amount: 100000,
               currency: "INR",
               name: "Grip&Grab",

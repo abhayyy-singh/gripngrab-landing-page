@@ -849,7 +849,7 @@ function processPayment(options) {
   }
 
   const rzp = new Razorpay({
-    key:         'rzp_live_RZDqqPc9XD0IjO',
+    key:         'rzp_live_ShEMzudk4Y6hrO',
     amount:      options.amountPaise,
     currency:    'INR',
     name:        'Grip&Grab',
