@@ -100,6 +100,9 @@
       <h4 class="ptm-full-title" id="ptFullTitle"></h4>
       <p  class="ptm-full-msg"   id="ptFullMsg"></p>
       <button class="ptm-alt-btn"   id="ptAltBtn"       type="button"></button>
+      <a id="ptNotifyBtn" href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="ptm-notify-btn">
+  🔔 Notify Me — Get latest updates, join our Broadcast Channel
+</a>
       <button class="ptm-back-link" id="ptBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -283,17 +286,23 @@
       var altFull  = config.alternateCenter;
       var altShort = altFull === 'Grip&Grab Saket' ? 'Saket' : 'Lajpat Nagar';
 
-      document.getElementById('ptFullTitle').textContent =
-        'Grip&Grab ' + shortName + ' trials are currently full';
+    document.getElementById('ptFullTitle').textContent =
+  shortName === 'Lajpat Nagar'
+    ? 'Grip&Grab Lajpat Nagar slots are currently full'
+    : 'Grip&Grab Saket trial are currently full';
       document.getElementById('ptFullMsg').textContent =
         'We\'re not taking new trial bookings at Grip&Grab ' + shortName + ' right now. ' +
         'You can book your trial at ' + altFull + ' — spots are available there.';
 
       var altBtn = document.getElementById('ptAltBtn');
-      altBtn.textContent = 'Book trial at ' + altFull;
-      altBtn.onclick = function () { onCenterSelect(altShort); };
+     altBtn.textContent = 'Book trial at ' + altFull;
+altBtn.onclick = function () { onCenterSelect(altShort); };
 
-      showStep('full');
+var notifyBtn = document.getElementById('ptNotifyBtn');
+if (notifyBtn) {
+  notifyBtn.style.display = 'block';
+}
+showStep('full');
     } else {
       document.getElementById('ptFormTitle').textContent    = 'Book Trial — Grip&Grab ' + shortName;
       document.getElementById('ptLocation').value           = shortName;
