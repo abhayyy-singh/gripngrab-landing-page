@@ -440,6 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
       <h4 class="mm-full-title" id="mmFullTitle"></h4>
       <p  class="mm-full-msg"   id="mmFullMsg"></p>
       <button class="mm-alt-btn"   id="mmAltBtn"        type="button"></button>
+      <a href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="mm-notify-btn">
+  🔔 Notify Me — Get latest updates, join our Broadcast Channel
+</a>
       <button class="mm-back-link" id="mmBackFromFull"  type="button">← Choose a different center</button>
     </div>
 
@@ -1016,6 +1019,9 @@ document.addEventListener('keydown', (e) => {
       <h4 class="km-full-title" id="kmFullTitle"></h4>
       <p  class="km-full-msg"   id="kmFullMsg"></p>
       <button class="km-alt-btn"   id="kmAltBtn"       type="button"></button>
+      <a href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="mm-notify-btn">
+  🔔 Notify Me — Get latest updates, join our Broadcast Channel
+</a>
       <button class="km-back-link" id="kmBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -1091,6 +1097,10 @@ document.addEventListener('keydown', (e) => {
 </div>
 
 <style>
+.mm-notify-btn{display:block;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:background 0.2s;box-sizing:border-box;}
+.mm-notify-btn:hover{background:rgba(255,255,255,0.1);}
+.km-notify-btn{display:block;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:background 0.2s;box-sizing:border-box;}
+.km-notify-btn:hover{background:rgba(255,255,255,0.1);}
 .km-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;}
 @media(min-width:560px){.km-overlay{align-items:center;}}
 .km-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
