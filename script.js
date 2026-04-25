@@ -1097,10 +1097,10 @@ document.addEventListener('keydown', (e) => {
 </div>
 
 <style>
-.mm-notify-btn{display:block;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:background 0.2s;box-sizing:border-box;}
-.mm-notify-btn:hover{background:rgba(255,255,255,0.1);}
-.km-notify-btn{display:block;width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:background 0.2s;box-sizing:border-box;}
-.km-notify-btn:hover{background:rgba(255,255,255,0.1);}
+.mm-notify-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ff6b6b,#f7d794);border:none;color:#000;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:opacity 0.2s;box-sizing:border-box;}
+.mm-notify-btn:hover{opacity:0.9;}
+.km-notify-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ff6b6b,#f7d794);border:none;color:#000;border-radius:14px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;text-decoration:none;text-align:center;margin-bottom:12px;transition:opacity 0.2s;box-sizing:border-box;}
+.km-notify-btn:hover{opacity:0.9;}
 .km-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;}
 @media(min-width:560px){.km-overlay{align-items:center;}}
 .km-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
