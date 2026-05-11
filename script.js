@@ -31,7 +31,7 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:       false,
+    available:       true,
     alternateCenter: 'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
