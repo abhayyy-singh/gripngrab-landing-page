@@ -7086,7 +7086,7 @@ media screen and (max-width: 768px) {
   font-size: 13px;
   color: rgba(255,255,255,0.35);
   margin-bottom: 24px;
-  line-height: 1.6;
+  line-height: 1.2;
 }
 .premium-card__price {
   font-size: 48px;
@@ -7125,7 +7125,7 @@ media screen and (max-width: 768px) {
   color: #f7d794;
   font-weight: 600;
   margin-bottom: 20px;
-  line-height: 1.5;
+  line-height: 1;
 }
 .premium-card__slots {
   display: flex;
@@ -7150,5 +7150,5 @@ media screen and (max-width: 768px) {
   font-size: 12px;
   color: rgba(255,255,255,0.35);
   margin-top: 6px;
-  line-height: 1.5;
+  line-height: 1;
 }

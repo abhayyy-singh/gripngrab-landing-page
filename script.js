@@ -1416,21 +1416,11 @@ document.addEventListener('keydown', (e) => {
     <!-- FORM -->
     <div id="hmStepForm" style="display:none;">
       <div class="hm-header">
-        <h3 id="hmModalTitle">Train with Harish</h3>
-        <p>1 month personal training — Hybrid · Alternate days · LN &amp; Saket</p>
+
+        
       </div>
 
-      <!-- Plan card -->
-      <div class="hm-plan-card">
-        <div class="hm-plan-card__left">
-          <div class="hm-plan-card__name">Monthly Program</div>
-          <div class="hm-plan-card__note">Hybrid — Lajpat Nagar &amp; Saket</div>
-        </div>
-        <div class="hm-plan-card__price">
-          <span class="hm-plan-card__currency">₹</span>15,000
-          <span class="hm-plan-card__period">/month</span>
-        </div>
-      </div>
+      
 
       <form id="hmForm" class="hm-form" novalidate autocomplete="on">
         <div class="hm-group">
