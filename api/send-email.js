@@ -48,7 +48,8 @@ module.exports = async function handler(req, res) {
     halfyearly: 'Half Yearly — ₹36,000 + GST',
     yearly:     'Yearly — ₹60,000 + GST',
     trial:      'Trial Class — ₹2,000',
-    'kids-monthly': 'Kids Monthly — ₹5,900 (₹5,000 + GST)',
+    'kids-monthly':    'Kids Monthly — ₹5,900 (₹5,000 + GST)',
+    'harish-monthly':  'Train with Haristhenics — 1 Month Program',
   };
   const planLabel = planLabels[plan] ?? plan;
 
@@ -90,6 +91,7 @@ module.exports = async function handler(req, res) {
   const centerAddress = centerMeta.address;
   const mapsLink      = centerMeta.mapsLink;
   const isTrial       = plan === 'trial';
+  const isHarish      = plan === 'harish-monthly';
 
   /* ── Customer confirmation email ── */
   const customerEmail = {
@@ -97,7 +99,9 @@ module.exports = async function handler(req, res) {
     to:      [email],
     subject: isTrial
       ? `Your trial class at Grip&Grab is confirmed!`
-      : `Welcome to Grip&Grab! Your membership is confirmed`,
+      : isHarish
+        ? `Your Train with Haristhenics program is confirmed!`
+        : `Welcome to Grip&Grab! Your membership is confirmed`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,7 +139,9 @@ module.exports = async function handler(req, res) {
               Hi <strong>${name.split(' ')[0]}</strong>,<br><br>
               ${isTrial
                 ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We\'re excited to have you!'
-                : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
+                : isHarish
+                  ? 'Your <strong>Train with Haristhenics</strong> program is now confirmed. Harish will personally call you within <strong>2-3 days</strong> to schedule your sessions.'
+                  : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
               }
             </p>
           </td>
@@ -235,7 +241,9 @@ module.exports = async function handler(req, res) {
             <p style="margin:0;font-size:14px;color:#444444;line-height:1.7;">
               ${isTrial
                 ? 'See you at the gym! Carry this email as your booking reference.'
-                : 'Our team will be in touch shortly with your onboarding details.'
+                : isHarish
+                  ? 'Please be patient — Harish will personally reach out to you within 2-3 days to schedule your sessions and discuss your goals.'
+                  : 'Our team will be in touch shortly with your onboarding details.'
               }<br><br>
               If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — We\'re happy to assist.
             </p>
@@ -290,7 +298,7 @@ module.exports = async function handler(req, res) {
   const notifyEmail = {
     from:    'Grip&Grab Bookings <noreply@gripandgrab.com>',
     to:      [NOTIFY_EMAIL],
-    subject: `New ${plan === 'trial' ? 'Trial Booking' : 'Membership'}: ${name} — ${planLabel}`,
+    subject: `New ${plan === 'trial' ? 'Trial Booking' : plan === 'harish-monthly' ? 'Train with Haristhenics Enrollment' : 'Membership'}: ${name} — ${planLabel}`,
     html: `
 <div style="font-family:monospace;padding:24px;background:#0a0a0a;color:#fff;max-width:480px;">
   <h2 style="margin:0 0 16px;">New Membership Booking</h2>
