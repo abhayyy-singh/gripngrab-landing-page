@@ -1407,7 +1407,7 @@ document.addEventListener('keydown', (e) => {
       </div>
       <h4 class="hm-full-title">Harish's slots are currently full</h4>
       <p class="hm-full-msg">We're not taking new enrollments for the Train with Harish program right now. Join our broadcast channel to get notified when spots open up.</p>
-      <a href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr"
+      <a href="https://www.instagram.com/channel/AbZXE4Jq76d7C_Fa/"
          target="_blank" rel="noopener noreferrer" class="hm-notify-btn">
         🔔 Notify Me — Join our Broadcast Channel
       </a>
