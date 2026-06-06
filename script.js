@@ -41,7 +41,7 @@ const CENTER_CONFIG = {
 };
 
 const HARISH_CONFIG = {
-  available: false,
+  available: true,
 };
 window.HARISH_CONFIG = HARISH_CONFIG; 
 /* ── Time slots — single source of truth for all modals ── */
