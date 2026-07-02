@@ -7154,39 +7154,48 @@ body {
   align-items: center;
   justify-content: space-around;
   gap: 8px;
+  width: 100%;
 }
 .slot-grid__item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
+  min-width: 0;
   justify-content: center;
 }
-.slot-grid__icon { font-size: 22px; flex-shrink: 0; }
+.slot-grid__icon { font-size: 20px; flex-shrink: 0; }
 .slot-grid__content {
   display: flex;
   flex-direction: column;
   text-align: left;
+  min-width: 0;
 }
 .slot-grid__label {
   font-size: 10px;
   color: #ff6b6b;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 3px;
 }
 .slot-grid__value {
-  font-size: 15px;
+  font-size: clamp(12px, 3.5vw, 15px);
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
 }
 .slot-grid__divider {
   width: 1px;
-  height: 44px;
+  height: 40px;
   background: rgba(255,255,255,0.12);
   flex-shrink: 0;
+}
+@media (max-width: 360px) {
+  .slot-grid__icon { display: none; }
+  .slot-grid__value { font-size: 13px; }
+  .slot-grid__item { justify-content: center; }
+  .slot-grid__content { text-align: center; }
 }
 .premium-card__slot-note {
   font-size: 12px;
