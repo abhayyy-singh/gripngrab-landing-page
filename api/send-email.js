@@ -140,7 +140,7 @@ module.exports = async function handler(req, res) {
               ${isTrial
                 ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We\'re excited to have you!'
                 : isHarish
-                  ? 'Your <strong>Train with Haristhenics</strong> program is now confirmed. Harish will personally call you within <strong>2-3 days</strong> to schedule your sessions.'
+                  ? 'Your <strong>Train with Haristhenics</strong> program is now confirmed. Harish will personally call you within <strong>5-7 days</strong> to schedule your sessions.'
                   : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
               }
             </p>
@@ -156,7 +156,7 @@ module.exports = async function handler(req, res) {
               <tr>
                 <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
                   <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Center</p>
-                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${centerName || 'Grip&amp;Grab'}</p>
+                  <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${isHarish ? '<a href="https://share.google/fTLnZplyGuiC5yIY8" style="color:#111111;text-decoration:underline;">Grip&amp;Grab Saket</a>' : (centerName || 'Grip&amp;Grab')}</p>
                 </td>
               </tr>
 
@@ -164,7 +164,7 @@ module.exports = async function handler(req, res) {
               <tr>
                 <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
                   <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Address</p>
-                  <p style="margin:4px 0 0;font-size:14px;color:#333333;line-height:1.5;">${centerAddress}</p>
+                  <p style="margin:4px 0 0;font-size:14px;color:#333333;line-height:1.5;">${isHarish ? '2nd Floor, Westend Marg, near Garden of Five Senses, Saket, New Delhi 110030' : centerAddress}</p>
                 </td>
               </tr>
 
@@ -242,7 +242,7 @@ module.exports = async function handler(req, res) {
               ${isTrial
                 ? 'See you at the gym! Carry this email as your booking reference.'
                 : isHarish
-                  ? 'Please be patient — Harish will personally reach out to you within 2-3 days to schedule your sessions and discuss your goals.'
+                  ? 'Please be patient — Harish will personally reach out to you within 5-7 days to schedule your sessions and discuss your goals.'
                   : 'Our team will be in touch shortly with your onboarding details.'
               }<br><br>
               If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — We\'re happy to assist.

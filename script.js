@@ -41,7 +41,7 @@ const CENTER_CONFIG = {
 };
 
 const HARISH_CONFIG = {
-  available: false,
+  available: true,//yaha se trin with harish ke clot open close honge 
 };
 window.HARISH_CONFIG = HARISH_CONFIG; 
 /* ── Time slots — single source of truth for all modals ── */
@@ -1398,6 +1398,20 @@ document.addEventListener('keydown', (e) => {
       </svg>
     </button>
 
+    <!-- MANIFESTO: Harish's philosophy -->
+    <div id="hmStepManifesto" style="display:none;">
+      <div class="hm-manifesto-icon">🎯</div>
+      <h4 class="hm-manifesto-title">Before You Proceed</h4>
+      <p class="hm-manifesto-text">
+        If your only goal is to get rid of pain, then I'm probably not the right person for you. I don't prescribe medicines, give injections, or perform therapy. My job is not to suppress your pain—it's to eliminate the weakness, fear, and limitations that are causing it.
+        <br><br>
+        I help you overcome the fear of movement, rebuild confidence in your body, and make you physically stronger so your body can perform better for the long term. This process takes time. It requires patience, hard work, and sometimes even discomfort. But the results you achieve are long-lasting because they are built on strength, resilience, and proper movement—not temporary relief.
+        <br><br>
+        If you're looking for a quick fix, I'm not the right coach. But if you're ready to invest in yourself, trust the process, and create lasting change, then you're more than welcome to work with me.
+      </p>
+      <button class="hm-ready-btn" id="hmReadyBtn" type="button">Yes, I'm Ready — Continue →</button>
+    </div>
+
     <!-- FULL: No spots available -->
     <div id="hmStepFull" style="display:none;">
       <div class="hm-full-icon">
@@ -1523,6 +1537,13 @@ document.addEventListener('keydown', (e) => {
 .hm-payment-ref{font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3)!important;}
 .hm-retry-btn{margin-top:16px;padding:12px 32px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:30px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;transition:background 0.2s;}
 .hm-retry-btn:hover{background:rgba(255,255,255,0.14);}
+#hmStepManifesto{padding:4px 0 8px;}
+.hm-manifesto-icon{font-size:32px;text-align:center;margin-bottom:14px;}
+.hm-manifesto-title{font-size:18px;font-weight:700;color:#fff;text-align:center;margin:0 0 18px;letter-spacing:-0.3px;}
+.hm-manifesto-text{font-size:13.5px;color:rgba(255,255,255,0.58);line-height:1.8;margin:0 0 24px;}
+.hm-ready-btn{width:100%;padding:16px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:15px;font-weight:700;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s,transform 0.15s;font-family:'Poppins',sans-serif;letter-spacing:0.1px;}
+.hm-ready-btn:hover{opacity:0.92;transform:translateY(-1px);}
+.hm-ready-btn:active{transform:translateY(0);}
 </style>`);
 
     modalEl = document.getElementById('hmModal');
@@ -1533,6 +1554,7 @@ document.addEventListener('keydown', (e) => {
      SHOW STEP
      ========================================================== */
   function showStep(step) {
+    document.getElementById('hmStepManifesto').style.display = step === 'manifesto' ? 'block' : 'none';
     document.getElementById('hmStepFull').style.display  = step === 'full'    ? 'block' : 'none';
     document.getElementById('hmStepForm').style.display  = step === 'form'    ? 'block' : 'none';
     document.getElementById('hmSuccess').style.display   = step === 'success' ? 'block' : 'none';
@@ -1553,7 +1575,7 @@ document.addEventListener('keydown', (e) => {
     if (config && !config.available) {
       showStep('full');
     } else {
-      showStep('form');
+      showStep('manifesto');
     }
   }
 
@@ -1666,6 +1688,7 @@ document.addEventListener('keydown', (e) => {
   function bindModalEvents() {
     document.getElementById('hmClose').addEventListener('click', closeModal);
     document.getElementById('hmBackdrop').addEventListener('click', closeModal);
+    document.getElementById('hmReadyBtn').addEventListener('click', () => showStep('form'));
     document.getElementById('hmRetry').addEventListener('click', () => showStep('form'));
     document.getElementById('hmForm').addEventListener('submit', handleSubmit);
     document.addEventListener('keydown', (e) => {
