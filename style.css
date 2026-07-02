@@ -7188,10 +7188,10 @@ body {
   background: rgba(255,255,255,0.15);
   justify-self: center;
 }
-@media (max-width: 400px) {
-  .slot-grid__item { gap: 7px; padding: 4px 6px; }
-  .slot-grid__icon { font-size: 18px; }
+@media (max-width: 520px) {
+  .slot-grid__icon { display: none; }
   .slot-grid__value { font-size: 13px; }
+  .slot-grid__item { padding: 4px 8px; }
 }
 .premium-card__slot-note {
   font-size: 12px;
