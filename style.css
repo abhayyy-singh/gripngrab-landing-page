@@ -7059,16 +7059,19 @@ body {
   position: relative;
 }
 .premium-card__badge {
-  display: inline-block;
+  display: block;
+  width: 100%;
   background: linear-gradient(135deg, #ff6b6b, #f7d794);
   color: #000;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 20px;
-  letter-spacing: 0.05em;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 14px 22px;
+  border-radius: 14px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 20px rgba(255,107,107,0.4);
+  box-sizing: border-box;
 }
 .premium-card__title {
   font-size: 28px;
@@ -7079,14 +7082,14 @@ body {
 }
 .premium-card__tagline {
   font-size: 15px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.75);
   margin-bottom: 10px;
 }
 .premium-card__desc {
   font-size: 13px;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.55);
   margin-bottom: 24px;
-  line-height: 1.2;
+  line-height: 1.5;
 }
 .premium-card__price {
   font-size: 48px;
@@ -7105,7 +7108,8 @@ body {
   color: rgba(255,255,255,0.4);
 }
 .premium-card__btn {
-  display: inline-block;
+  display: block;
+  width: 100%;
   margin-top: 10px;
   padding: 16px 48px;
   background: linear-gradient(135deg, #ff6b6b, #f7d794);
@@ -7117,6 +7121,7 @@ body {
   border-radius: 14px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.15s;
+  box-sizing: border-box;
 }
 .premium-card__btn:hover { opacity: 0.9; transform: translateY(-2px); }
 .premium-card__btn:active { transform: translateY(0); }
@@ -7132,8 +7137,8 @@ body {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 20px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,107,107,0.06);
+  border: 1px solid rgba(255,107,107,0.2);
   border-radius: 12px;
   padding: 16px 18px;
 }
@@ -7176,6 +7181,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 20px;
+  border: 1px solid rgba(255,107,107,0.15);
 }
 .premium-card__video iframe {
   position: absolute;
@@ -7183,4 +7189,10 @@ body {
   width: 100%;
   height: 100%;
   border: 0;
+}
+.premium-card__video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: default;
 }
