@@ -7086,12 +7086,26 @@ body {
   line-height: 1.15;
 }
 .premium-card__tagline {
-  font-size: 14px;
-  color: rgba(255,255,255,0.75);
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  justify-content: center;
 }
+.tagline-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,107,107,0.4);
+  max-width: 60px;
+}
+.tagline-text { white-space: nowrap; }
 .premium-card__desc {
-  font-size: 12.5px;
+  font-size: 13px;
   color: rgba(255,255,255,0.55);
   margin-bottom: 12px;
   line-height: 1.5;
@@ -7131,12 +7145,29 @@ body {
 .premium-card__btn:hover { opacity: 0.9; transform: translateY(-2px); }
 .premium-card__btn:active { transform: translateY(0); }
 .premium-card__personal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   font-size: 13.5px;
   color: #f7d794;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 12px;
-  line-height: 1.4;
+  line-height: 1.5;
+  text-align: left;
 }
+.personal-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(247,215,148,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f7d794;
+  margin-top: 1px;
+}
+.premium-card__personal strong { font-weight: 700; }
 .premium-card__slots {
   display: flex;
   flex-direction: column;
@@ -7151,45 +7182,59 @@ body {
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
   align-items: center;
-  gap: 0;
   width: 100%;
 }
 .slot-grid__item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 12px;
-  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  padding: 4px 0;
 }
-.slot-grid__icon { font-size: 22px; flex-shrink: 0; }
+.slot-grid__item:first-child { padding-right: 10px; }
+.slot-grid__item:last-child  { padding-left: 14px; }
+.slot-grid__icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,107,107,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff6b6b;
+}
+.slot-grid__icon svg { width: 14px; height: 14px; }
 .slot-grid__content {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .slot-grid__label {
   font-size: 10px;
   color: #ff6b6b;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
+  line-height: 1;
 }
 .slot-grid__value {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   line-height: 1.3;
 }
+@media (max-width: 420px) {
+  .slot-grid__value { font-size: 11.5px; }
+  .slot-grid__icon { width: 26px; height: 26px; }
+  .slot-grid__icon svg { width: 12px; height: 12px; }
+}
 .slot-grid__divider {
   width: 1px;
   height: 40px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.12);
   justify-self: center;
-}
-@media (max-width: 520px) {
-  .slot-grid__icon { display: none; }
-  .slot-grid__value { font-size: 13px; }
-  .slot-grid__item { padding: 4px 8px; }
 }
 .premium-card__slot-note {
   font-size: 11.5px;
