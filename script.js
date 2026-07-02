@@ -1400,7 +1400,6 @@ document.addEventListener('keydown', (e) => {
 
     <!-- MANIFESTO: Harish's philosophy -->
     <div id="hmStepManifesto" style="display:none;">
-      <div class="hm-manifesto-icon">🎯</div>
       <h4 class="hm-manifesto-title">Before You Proceed</h4>
       <p class="hm-manifesto-text">
         If your only goal is to get rid of pain, then I'm probably not the right person for you. I don't prescribe medicines, give injections, or perform therapy. My job is not to suppress your pain—it's to eliminate the weakness, fear, and limitations that are causing it.
@@ -1537,9 +1536,8 @@ document.addEventListener('keydown', (e) => {
 .hm-payment-ref{font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3)!important;}
 .hm-retry-btn{margin-top:16px;padding:12px 32px;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:30px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;transition:background 0.2s;}
 .hm-retry-btn:hover{background:rgba(255,255,255,0.14);}
-#hmStepManifesto{padding:4px 0 8px;}
-.hm-manifesto-icon{font-size:32px;text-align:center;margin-bottom:14px;}
-.hm-manifesto-title{font-size:18px;font-weight:700;color:#fff;text-align:center;margin:0 0 18px;letter-spacing:-0.3px;}
+#hmStepManifesto{padding:0 0 8px;}
+.hm-manifesto-title{font-size:18px;font-weight:700;color:#fff;text-align:center;margin:0 0 12px;letter-spacing:-0.3px;}
 .hm-manifesto-text{font-size:13.5px;color:rgba(255,255,255,0.58);line-height:1.8;margin:0 0 24px;}
 .hm-ready-btn{width:100%;padding:16px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:15px;font-weight:700;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s,transform 0.15s;font-family:'Poppins',sans-serif;letter-spacing:0.1px;}
 .hm-ready-btn:hover{opacity:0.92;transform:translateY(-1px);}
