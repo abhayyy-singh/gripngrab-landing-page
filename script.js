@@ -947,7 +947,7 @@ document.addEventListener('keydown', (e) => {
    Triggered by: data-kids-trigger
    Flow: Center select → availability check → form (Name/Email/Phone/DOB)
          → Razorpay → email → sheets
-   Plan: Monthly only — ₹5,000 + 18% GST
+   Plan: Monthly only — ₹6,000 inclusive of 18% GST
    No time slot, no date picker
    ============================================================================ */
 
@@ -958,7 +958,7 @@ document.addEventListener('keydown', (e) => {
   const KIDS_PLAN = {
     id:     'kids-monthly',
     label:  'Kids Monthly',
-    price:  5000,
+    price:  6000,
     period: '/month',
   };
 
@@ -1041,10 +1041,10 @@ document.addEventListener('keydown', (e) => {
       <div class="km-plan-card">
         <div class="km-plan-card__left">
           <div class="km-plan-card__name">Monthly Plan</div>
-          <div class="km-plan-card__note">+ 18% GST applicable</div>
+          <div class="km-plan-card__note">Inclusive of 18% GST</div>
         </div>
         <div class="km-plan-card__price">
-          <span class="km-plan-card__currency">₹</span>5,000
+          <span class="km-plan-card__currency">₹</span>6,000
           <span class="km-plan-card__period">/month</span>
         </div>
       </div>
@@ -1071,7 +1071,7 @@ document.addEventListener('keydown', (e) => {
           <span class="km-err" id="kmDobErr"></span>
         </div>
         <button type="submit" class="km-submit" id="kmSubmit">
-          <span class="km-btn-text">Pay ₹5,900 &amp; Enroll</span>
+          <span class="km-btn-text">Pay ₹6,000 &amp; Enroll</span>
           <span class="km-btn-loader" style="display:none;">
             <svg class="km-spinner" viewBox="0 0 50 50">
               <circle cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
@@ -1242,8 +1242,7 @@ document.addEventListener('keydown', (e) => {
     const email = document.getElementById('kmEmail').value.trim();
     const phone = document.getElementById('kmPhone').value.trim();
     const dob   = document.getElementById('kmDob').value;
-    const gst   = Math.round(KIDS_PLAN.price * 0.18);
-    const total = KIDS_PLAN.price + gst;
+    const total = KIDS_PLAN.price; // GST inclusive
 
     setLoading(true);
 
