@@ -282,7 +282,7 @@
     var fullName = shortName === 'Saket' ? 'Grip&Grab Saket' : 'Grip&Grab Lajpat Nagar';
     var config   = window.CENTER_CONFIG && window.CENTER_CONFIG[fullName];
 
-    if (config && !config.available) {
+    if (config && !(config.trialAvailable ?? config.available)) {
       var altFull  = config.alternateCenter;
       var altShort = altFull === 'Grip&Grab Saket' ? 'Saket' : 'Lajpat Nagar';
 

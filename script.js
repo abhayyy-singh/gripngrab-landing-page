@@ -32,10 +32,12 @@
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
     available:       true,
+    trialAvailable:  false,
     alternateCenter: 'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
     available:       true,
+    trialAvailable:  true,
     alternateCenter: 'Grip&Grab Lajpat Nagar',
   },
 };
