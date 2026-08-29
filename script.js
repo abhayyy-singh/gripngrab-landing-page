@@ -31,19 +31,21 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:       true,
-    trialAvailable:  false,
-    alternateCenter: 'Grip&Grab Saket',
+    available:        true,
+    trialAvailable:   false,
+    daypassAvailable: false,
+    alternateCenter:  'Grip&Grab Saket',
   },
   'Grip&Grab Saket': {
-    available:       true,
-    trialAvailable:  true,
-    alternateCenter: 'Grip&Grab Lajpat Nagar',
+    available:        true,
+    trialAvailable:   true,
+    daypassAvailable: true,
+    alternateCenter:  'Grip&Grab Lajpat Nagar',
   },
 };
 
 const HARISH_CONFIG = {
-  available: false,//yaha se trin with harish ke clot open close honge
+  available: true,//yaha se trin with harish ke clot open close honge
 };
 window.HARISH_CONFIG = HARISH_CONFIG; 
 /* ── Time slots — single source of truth for all modals ── */
