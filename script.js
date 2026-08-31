@@ -31,7 +31,7 @@
    Change here + redeploy — nothing else needs touching.               ── */
 const CENTER_CONFIG = {
   'Grip&Grab Lajpat Nagar': {
-    available:        true,
+    available:        false,
     trialAvailable:   false,
     daypassAvailable: false,
     alternateCenter:  'Grip&Grab Saket',
@@ -45,7 +45,7 @@ const CENTER_CONFIG = {
 };
 
 const HARISH_CONFIG = {
-  available: true,//yaha se trin with harish ke clot open close honge
+  available: false,//yaha se trin with harish ke clot open close honge
 };
 window.HARISH_CONFIG = HARISH_CONFIG; 
 /* ── Time slots — single source of truth for all modals ── */
