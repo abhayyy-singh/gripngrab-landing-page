@@ -1,11 +1,13 @@
 /* ============================================================================
    notify-leads.js — Grip & Grab
-   Notify Me lead capture — Firebase Firestore + admin email
+   Firebase: Notify Me forms + Enrollment data save
    ============================================================================ */
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore,
          collection,
          addDoc,
+         doc,
+         setDoc,
          serverTimestamp }  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const FIREBASE_CONFIG = {
@@ -32,12 +34,6 @@ if (!document.getElementById('nl-styles')) {
       box-sizing:border-box;transition:border-color .2s;}
     .nl-input::placeholder{color:rgba(255,255,255,0.25);}
     .nl-input:focus{outline:none;border-color:#ff6b6b;}
-    .nl-select{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;
-      background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;
-      font-family:'Poppins',sans-serif;box-sizing:border-box;transition:border-color .2s;
-      -webkit-appearance:none;appearance:none;cursor:pointer;}
-    .nl-select option{background:#1a1a1a;color:#f0f0f0;}
-    .nl-select:focus{outline:none;border-color:#ff6b6b;}
     .nl-err{font-size:11px;color:#ff6b6b;min-height:14px;line-height:1.4;}
     .nl-submit{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ff6b6b,#f7d794);
       color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;
@@ -50,19 +46,12 @@ if (!document.getElementById('nl-styles')) {
   document.head.appendChild(s);
 }
 
-/* ── render a fresh form into containerId ──
-   extra.plans = ['Monthly', '3 Months', ...] → shows optional plan dropdown
-*/
-function render(containerId, program, center, extra) {
+/* ════════════════════════════════════════
+   NOTIFY ME FORM
+   ════════════════════════════════════════ */
+function render(containerId, program, center) {
   const el = document.getElementById(containerId);
   if (!el) return;
-
-  const planDropdown = (extra && extra.plans && extra.plans.length)
-    ? `<select class="nl-select" id="${containerId}-plan">
-         <option value="">Plan interested in (optional)</option>
-         ${extra.plans.map(p => `<option value="${p}">${p}</option>`).join('')}
-       </select>`
-    : '';
 
   el.innerHTML = `
     <p class="nl-intro">Get notified when slots open up:</p>
@@ -73,7 +62,6 @@ function render(containerId, program, center, extra) {
       <div   class="nl-err"               id="${containerId}-phone-err"></div>
       <input type="email" class="nl-input" id="${containerId}-email" placeholder="Email address" autocomplete="email">
       <div   class="nl-err"               id="${containerId}-email-err"></div>
-      ${planDropdown}
     </div>
     <button class="nl-submit" id="${containerId}-btn" type="button">
       <span class="nl-btn-text">🔔 Notify Me When Slots Open</span>
@@ -85,15 +73,14 @@ function render(containerId, program, center, extra) {
   `;
 
   document.getElementById(containerId + '-btn').addEventListener('click', () => {
-    submit(containerId, program, center);
+    submitNotify(containerId, program, center);
   });
 }
 
-function submit(containerId, program, center) {
+function submitNotify(containerId, program, center) {
   const nameEl  = document.getElementById(containerId + '-name');
   const phoneEl = document.getElementById(containerId + '-phone');
   const emailEl = document.getElementById(containerId + '-email');
-  const planEl  = document.getElementById(containerId + '-plan');
   const btn     = document.getElementById(containerId + '-btn');
 
   ['name', 'phone', 'email'].forEach(f => {
@@ -104,59 +91,66 @@ function submit(containerId, program, center) {
   });
 
   let valid = true;
-
-  if (!nameEl.value.trim() || nameEl.value.trim().length < 2) {
-    fieldErr(containerId, 'name', 'Please enter your name');
-    valid = false;
-  }
-  if (!/^[6-9][0-9]{9}$/.test(phoneEl.value.trim())) {
-    fieldErr(containerId, 'phone', 'Enter a valid 10-digit mobile number');
-    valid = false;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
-    fieldErr(containerId, 'email', 'Enter a valid email address');
-    valid = false;
-  }
-
+  if (!nameEl.value.trim() || nameEl.value.trim().length < 2) { fieldErr(containerId,'name','Please enter your name'); valid=false; }
+  if (!/^[6-9][0-9]{9}$/.test(phoneEl.value.trim()))          { fieldErr(containerId,'phone','Enter a valid 10-digit mobile number'); valid=false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())){ fieldErr(containerId,'email','Enter a valid email address'); valid=false; }
   if (!valid) return;
 
   const text   = btn.querySelector('.nl-btn-text');
   const loader = btn.querySelector('.nl-btn-loader');
-  btn.disabled = true;
-  text.style.display   = 'none';
-  loader.style.display = 'block';
+  btn.disabled = true; text.style.display='none'; loader.style.display='block';
 
-  const lead = {
-    name:    nameEl.value.trim(),
-    phone:   phoneEl.value.trim(),
-    email:   emailEl.value.trim(),
-    program,
-    center,
-  };
-  if (planEl && planEl.value) lead.interestedPlan = planEl.value;
+  const lead = { name:nameEl.value.trim(), phone:phoneEl.value.trim(), email:emailEl.value.trim(), program, center };
 
-  addDoc(collection(db, 'notify-leads'), { ...lead, timestamp: serverTimestamp(), status: 'new' })
+  addDoc(collection(db,'notify-leads'), {...lead, timestamp:serverTimestamp(), status:'new'})
     .then(() => {
-      btn.style.display = 'none';
-      document.getElementById(containerId + '-success').style.display = 'block';
-      fetch('/api/notify-lead', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead),
-      }).catch(() => {});
+      btn.style.display='none';
+      document.getElementById(containerId+'-success').style.display='block';
+      fetch('/api/notify-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).catch(()=>{});
     })
     .catch(err => {
-      console.error('Lead save failed', err);
-      btn.disabled = false;
-      text.style.display   = 'block';
-      loader.style.display = 'none';
+      console.error('Lead save failed',err);
+      btn.disabled=false; text.style.display='block'; loader.style.display='none';
       alert('Something went wrong. Please try again.');
     });
 }
 
 function fieldErr(containerId, field, msg) {
-  const errEl   = document.getElementById(containerId + '-' + field + '-err');
-  const inputEl = document.getElementById(containerId + '-' + field);
+  const errEl   = document.getElementById(containerId+'-'+field+'-err');
+  const inputEl = document.getElementById(containerId+'-'+field);
   if (errEl)   errEl.textContent = msg;
   if (inputEl) inputEl.style.borderColor = '#ff4444';
 }
 
+/* ════════════════════════════════════════
+   ENROLLMENT SAVE (called on payment success)
+   Uses paymentId as document ID → deduplication
+   Even if called twice, Firestore just merges
+   ════════════════════════════════════════ */
+function saveEnrollment(data) {
+  if (!data.paymentId) { console.warn('[GNG] saveEnrollment: missing paymentId'); return; }
+
+  const record = {
+    name:       data.name       || '',
+    email:      data.email      || '',
+    phone:      data.phone      || '',
+    dob:        data.dob        || '',
+    plan:       data.plan       || '',
+    planLabel:  data.planLabel  || data.plan || '',
+    center:     data.center     || '',
+    amount:     data.amount     || 0,   /* in rupees */
+    paymentId:  data.paymentId,
+    orderId:    data.orderId    || '',
+    date:       data.date       || '',  /* trial / day pass */
+    time:       data.time       || '',  /* trial / day pass */
+    timestamp:  serverTimestamp(),
+    status:     'active',
+  };
+
+  /* setDoc with merge:true → idempotent, webhook can also write same doc */
+  setDoc(doc(db, 'enrollments', data.paymentId), record, { merge: true })
+    .catch(err => console.error('[GNG] Enrollment save failed:', err));
+}
+
 window.NotifyLeads = { render };
+window.GNG         = { saveEnrollment };

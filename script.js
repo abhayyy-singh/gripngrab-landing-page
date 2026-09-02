@@ -740,6 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
       description: `${payload.plan.label} Membership — ${payload.center}`,
 
       onSuccess: async (txId) => {
+        /* Firestore enrollment save — must happen first, idempotent via paymentId */
+        window.GNG && window.GNG.saveEnrollment({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, planLabel: payload.plan.label, amount: total, paymentId: txId });
         /* Fire-and-forget — never block success UX */
         fetch('/api/send-email', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1257,6 +1259,8 @@ document.addEventListener('keydown', (e) => {
       description: `Kids Monthly Membership — Grip&Grab ${selectedCenter}`,
 
       onSuccess: async (txId) => {
+        /* Firestore enrollment save — must happen first, idempotent via paymentId */
+        window.GNG && window.GNG.saveEnrollment({ name, email, phone, dob, center: 'Grip&Grab ' + selectedCenter, plan: 'kids-monthly', planLabel: 'Kids Monthly', amount: total, paymentId: txId });
         /* Email */
         fetch('/api/send-email', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1625,6 +1629,8 @@ document.addEventListener('keydown', (e) => {
       description: 'Train with Harish — 1 Month Program',
 
       onSuccess: async (txId) => {
+        /* Firestore enrollment save — must happen first, idempotent via paymentId */
+        window.GNG && window.GNG.saveEnrollment({ name, email, phone, dob, center: 'Grip&Grab Saket', plan: 'harish-monthly', planLabel: 'Train with Harish — Monthly', amount: total, paymentId: txId });
         /* Email */
         fetch('/api/send-email', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },

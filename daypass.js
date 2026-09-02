@@ -422,6 +422,8 @@
 
   /* ── PAYMENT SUCCESS ── */
   function onPaymentSuccess(formData, paymentId, orderId) {
+    /* Firestore enrollment save — idempotent via paymentId */
+    window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'day-pass', planLabel: 'Day Pass', amount: CONFIG.razorpay.amount / 100, date: formData.date, time: formData.session, paymentId, orderId });
     sendConfirmationEmail(formData, paymentId, orderId);
     logToSheets(formData, paymentId);
     showSuccess(paymentId);

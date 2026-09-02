@@ -474,6 +474,8 @@ window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&G
      PAYMENT SUCCESS
      ============================================================ */
   function onPaymentSuccess(formData, paymentId, orderId) {
+    /* Firestore enrollment save — idempotent via paymentId */
+    window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'trial', planLabel: 'Trial Class', amount: CONFIG.razorpay.amount / 100, date: formData.date, time: formData.time, paymentId, orderId });
     sendConfirmationEmail(formData, paymentId, orderId);
     logToSheets(formData, paymentId);
     showSuccess(paymentId);

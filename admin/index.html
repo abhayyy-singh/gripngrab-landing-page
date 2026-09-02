@@ -22,512 +22,533 @@
     }
 
     html { -webkit-text-size-adjust: 100%; }
-    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-tap-highlight-color: transparent; }
 
     /* ══ LOGIN ══ */
-    #login-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .login-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 28px 20px;
-      width: 100%;
-      max-width: 360px;
-    }
-    @media (min-width: 480px) { .login-card { padding: 40px 36px; } }
-
-    .login-logo { background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 26px; font-weight: 800; margin-bottom: 4px; }
-    .login-tag  { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
-    .login-err  { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #ff8a8a; margin-bottom: 14px; display: none; }
+    #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
+    .login-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px 20px; width:100%; max-width:360px; }
+    @media (min-width:480px) { .login-card { padding:40px 36px; } }
+    .login-logo { background:linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-size:26px; font-weight:800; margin-bottom:4px; }
+    .login-tag  { font-size:13px; color:var(--muted); margin-bottom:24px; }
+    .login-err  { background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.25); border-radius:10px; padding:10px 14px; font-size:13px; color:#ff8a8a; margin-bottom:14px; display:none; }
     .login-input {
-      width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.05);
-      border: 1.5px solid var(--border); border-radius: 12px; color: var(--text);
-      font-size: 16px; /* 16px prevents iOS zoom */ font-family: 'Poppins', sans-serif;
-      margin-bottom: 10px; transition: border-color .2s; -webkit-appearance: none;
+      width:100%; padding:13px 16px; background:rgba(255,255,255,0.05);
+      border:1.5px solid var(--border); border-radius:12px; color:var(--text);
+      font-size:16px; font-family:'Poppins',sans-serif; margin-bottom:10px;
+      transition:border-color .2s; -webkit-appearance:none;
     }
-    .login-input::placeholder { color: var(--muted); }
-    .login-input:focus { outline: none; border-color: var(--accent); }
+    .login-input::placeholder { color:var(--muted); }
+    .login-input:focus { outline:none; border-color:var(--accent); }
     .login-btn {
-      width: 100%; padding: 15px; background: linear-gradient(135deg,#ff6b6b,#f7d794);
-      border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 700;
-      font-family: 'Poppins', sans-serif; cursor: pointer; margin-top: 4px; transition: opacity .2s;
-      -webkit-tap-highlight-color: transparent;
+      width:100%; padding:15px; background:linear-gradient(135deg,#ff6b6b,#f7d794);
+      border:none; border-radius:12px; color:#000; font-size:15px; font-weight:700;
+      font-family:'Poppins',sans-serif; cursor:pointer; margin-top:4px; transition:opacity .2s;
     }
-    .login-btn:active { opacity: .85; }
-    .login-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .login-btn:active { opacity:.85; }
+    .login-btn:disabled { opacity:.5; cursor:not-allowed; }
 
     /* ══ SHELL ══ */
-    #dashboard { display: none; flex-direction: column; min-height: 100vh; }
+    #dashboard { display:none; flex-direction:column; min-height:100vh; }
 
     /* ══ HEADER ══ */
     .header {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 0 16px; height: 54px; display: flex; align-items: center;
-      justify-content: space-between; position: sticky; top: 0; z-index: 20;
+      background:var(--surface); border-bottom:1px solid var(--border);
+      padding:0 16px; height:54px; display:flex; align-items:center;
+      justify-content:space-between; position:sticky; top:0; z-index:20;
     }
-    @media (min-width: 600px) { .header { padding: 0 24px; height: 60px; } }
+    @media (min-width:600px) { .header { padding:0 24px; height:60px; } }
+    .header-brand { font-size:15px; font-weight:700; background:linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .header-right { display:flex; align-items:center; gap:8px; }
+    .header-user  { font-size:11px; color:var(--muted); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:none; }
+    @media (min-width:480px) { .header-user { display:block; } }
+    .logout-btn { padding:7px 12px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:12px; font-family:'Poppins',sans-serif; cursor:pointer; white-space:nowrap; }
+    .logout-btn:active { color:var(--text); }
 
-    .header-brand { font-size: 15px; font-weight: 700; background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .header-right { display: flex; align-items: center; gap: 8px; }
-    .header-user  { font-size: 11px; color: var(--muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
-    @media (min-width: 480px) { .header-user { display: block; } }
-
-    .logout-btn {
-      padding: 7px 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--muted); font-size: 12px; font-family: 'Poppins', sans-serif;
-      cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent;
-    }
-    .logout-btn:active { color: var(--text); }
-
-    /* ══ TABS ══ */
-    .tabs {
-      display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-    }
-    @media (min-width: 600px) { .tabs { padding: 0 24px; } }
-
+    /* ══ DESKTOP TABS (hidden on mobile) ══ */
+    .tabs { display:none; background:var(--surface); border-bottom:1px solid var(--border); padding:0 24px; }
+    @media (min-width:600px) { .tabs { display:flex; } }
     .tab-btn {
-      padding: 14px 16px; font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif;
-      border: none; background: transparent; color: var(--muted); cursor: pointer;
-      border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
-      white-space: nowrap; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+      padding:14px 18px; font-size:13px; font-weight:600; font-family:'Poppins',sans-serif;
+      border:none; background:transparent; color:var(--muted); cursor:pointer;
+      border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap;
     }
-    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+    .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* ══ BOTTOM NAV (mobile only) ══ */
+    .bottom-nav {
+      display:flex; position:fixed; bottom:0; left:0; right:0; z-index:30;
+      background:var(--surface); border-top:1px solid var(--border);
+      padding-bottom:env(safe-area-inset-bottom,0);
+    }
+    @media (min-width:600px) { .bottom-nav { display:none; } }
+    .bnav-btn {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:2px; padding:10px 4px 8px; border:none; background:transparent;
+      color:var(--muted); font-family:'Poppins',sans-serif; cursor:pointer;
+      transition:color .2s; font-size:10px; font-weight:600; letter-spacing:.3px;
+    }
+    .bnav-btn.active { color:var(--accent); }
+    .bnav-icon { font-size:20px; line-height:1; }
 
-    /* ══ MAIN ══ */
-    .main { padding: 16px; }
-    @media (min-width: 600px) { .main { padding: 24px; } }
-    @media (min-width: 960px) { .main { padding: 28px; max-width: 1200px; margin: 0 auto; } }
+    /* ══ CONTENT ══ */
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .main { padding:16px 16px 100px; } /* 100px bottom padding for mobile nav */
+    @media (min-width:600px) { .main { padding:24px; } }
+    @media (min-width:960px) { .main { padding:28px; max-width:1200px; margin:0 auto; } }
 
     /* ══ STATS ══ */
-    .stats-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    @media (min-width: 600px) { .stats-row { gap: 14px; margin-bottom: 20px; } }
-    @media (min-width: 800px) { .stats-row { grid-template-columns: repeat(4, 1fr); } }
+    .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+    @media (min-width:600px) { .stats-row { gap:14px; margin-bottom:20px; } }
+    @media (min-width:800px) { .stats-row { grid-template-columns:repeat(4,1fr); } }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+    @media (min-width:600px) { .stat-card { border-radius:14px; padding:18px 20px; } }
+    .stat-label { font-size:10px; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.8px; }
+    .stat-value { font-size:22px; font-weight:700; }
+    @media (min-width:600px) { .stat-value { font-size:26px; } }
+    .stat-value.green { color:var(--green); }
+    .stat-value.yellow { color:var(--yellow); }
+    .stat-value.blue { color:var(--blue); }
+    .stat-value.orange { color:#fb923c; }
 
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-    @media (min-width: 600px) { .stat-card { border-radius: 14px; padding: 18px 20px; } }
-    .stat-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .8px; }
-    .stat-value { font-size: 24px; font-weight: 700; }
-    @media (min-width: 600px) { .stat-value { font-size: 28px; } }
-    .stat-value.green { color: var(--green); } .stat-value.yellow { color: var(--yellow); } .stat-value.blue { color: var(--blue); }
+    /* ══ CHIP FILTERS ══ */
+    .filter-search-row { margin-bottom:10px; }
+    .filter-search { width:100%; padding:11px 14px; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:14px; font-family:'Poppins',sans-serif; -webkit-appearance:none; }
+    .filter-search:focus { outline:none; border-color:var(--accent); }
+    .filter-search::placeholder { color:var(--muted); }
 
-    /* ══ FILTERS ══ */
-    .filters-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    @media (min-width: 600px) { .filters-row { flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; } }
+    .chip-group { display:flex; align-items:center; gap:7px; overflow-x:auto; padding-bottom:2px; margin-bottom:10px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .chip-group::-webkit-scrollbar { display:none; }
+    .chip-label { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; flex-shrink:0; }
+    .chip {
+      flex-shrink:0; padding:6px 14px; border-radius:20px; border:1.5px solid var(--border);
+      background:rgba(255,255,255,0.04); color:var(--muted); font-size:12px; font-weight:600;
+      font-family:'Poppins',sans-serif; cursor:pointer; transition:all .18s; white-space:nowrap;
+    }
+    .chip.active { background:var(--accent); border-color:var(--accent); color:#000; }
+    .chip:active { opacity:.8; }
 
-    .filter-search, .filter-select {
-      width: 100%; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; color: var(--text); font-size: 14px; font-family: 'Poppins', sans-serif;
-      -webkit-appearance: none; appearance: none;
+    /* Desktop: show selects alongside search */
+    .filters-desktop { display:none; }
+    @media (min-width:600px) { .filters-desktop { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; } }
+    .filter-select {
+      padding:10px 12px; background:var(--surface); border:1px solid var(--border);
+      border-radius:10px; color:var(--text); font-size:13px; font-family:'Poppins',sans-serif;
+      -webkit-appearance:none; min-width:140px;
     }
-    .filter-search:focus, .filter-select:focus { outline: none; border-color: var(--accent); }
-    .filter-search::placeholder { color: var(--muted); }
-    @media (min-width: 600px) {
-      .filter-search { flex: 1; min-width: 180px; width: auto; }
-      .filter-select { width: auto; min-width: 140px; }
-    }
-
-    .refresh-btn {
-      width: 100%; padding: 10px 14px; background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2);
-      border-radius: 10px; color: var(--accent); font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-    }
-    @media (min-width: 600px) { .refresh-btn { width: auto; white-space: nowrap; } }
-    .refresh-btn:active { background: rgba(255,107,107,0.18); }
+    .filter-select:focus { outline:none; border-color:var(--accent); }
+    .filter-select option { background:var(--surface); }
+    .refresh-btn { padding:10px 16px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.2); border-radius:10px; color:var(--accent); font-size:13px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; white-space:nowrap; }
+    .refresh-btn:active { background:rgba(255,107,107,0.18); }
 
     /* ══ LEADS TABLE ══ */
-    .leads-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-    .leads-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .leads-wrap { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .leads-table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; min-width:520px; }
+    thead th { background:rgba(255,255,255,0.04); padding:10px 14px; text-align:left; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; white-space:nowrap; border-bottom:1px solid var(--border); }
+    tbody tr { border-bottom:1px solid var(--border); }
+    tbody tr:last-child { border-bottom:none; }
+    @media (hover:hover) { tbody tr:hover { background:rgba(255,255,255,0.025); } }
+    tbody td { padding:12px 14px; font-size:12px; color:var(--text); vertical-align:middle; }
+    .td-name { font-weight:600; font-size:13px; }
+    .td-phone,.td-email,.td-time { color:var(--muted); }
+    .program-pill { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:600; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65); white-space:nowrap; }
+    .amount-pill { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; background:rgba(74,222,128,0.1); color:var(--green); white-space:nowrap; }
+    .status-select { padding:6px 8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:12px; font-family:'Poppins',sans-serif; cursor:pointer; -webkit-appearance:none; min-width:96px; }
+    .status-select:focus { outline:none; border-color:var(--accent); }
+    .empty-state { padding:48px 16px; text-align:center; color:var(--muted); }
+    .empty-state-icon { font-size:36px; margin-bottom:10px; }
+    .loading-state { padding:48px 16px; text-align:center; color:var(--muted); }
 
-    table { width: 100%; border-collapse: collapse; min-width: 540px; }
-    thead th {
-      background: rgba(255,255,255,0.04); padding: 10px 14px; text-align: left;
-      font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase;
-      letter-spacing: .8px; white-space: nowrap; border-bottom: 1px solid var(--border);
-    }
-    tbody tr { border-bottom: 1px solid var(--border); }
-    tbody tr:last-child { border-bottom: none; }
-    @media (hover: hover) { tbody tr:hover { background: rgba(255,255,255,0.025); } }
-    tbody td { padding: 12px 14px; font-size: 12px; color: var(--text); vertical-align: middle; }
+    /* ══ SLOTS ══ */
+    .slots-section { margin-bottom:28px; }
+    .slots-section-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+    .slots-grid { display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width:540px) { .slots-grid { grid-template-columns:1fr 1fr; } }
+    @media (min-width:900px) { .slots-grid { grid-template-columns:repeat(3,1fr); } }
+    .slot-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:14px; transition:border-color .2s; }
+    .slot-card.is-open   { border-color:rgba(74,222,128,0.3); }
+    .slot-card.is-closed { border-color:rgba(255,107,107,0.2); }
+    .slot-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .slot-card-name   { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+    .slot-card-center { font-size:11px; color:var(--muted); }
+    .slot-status-badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+    .slot-status-badge.open   { background:rgba(74,222,128,0.15); color:var(--green); }
+    .slot-status-badge.closed { background:rgba(255,107,107,0.12); color:#ff8a8a; }
+    .toggle-row { display:flex; align-items:center; gap:12px; }
+    .toggle-label { font-size:13px; color:var(--muted); }
+    .toggle { position:relative; width:52px; height:30px; cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
+    .toggle input { opacity:0; width:0; height:0; position:absolute; }
+    .toggle-track { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:15px; transition:background .25s; pointer-events:none; }
+    .toggle input:checked ~ .toggle-track { background:linear-gradient(135deg,#4ade80,#22c55e); }
+    .toggle-thumb { position:absolute; top:4px; left:4px; width:22px; height:22px; background:#fff; border-radius:50%; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,0.4); pointer-events:none; }
+    .toggle input:checked ~ .toggle-thumb { transform:translateX(22px); }
+    .slot-card-footer { display:flex; flex-direction:column; gap:8px; }
+    .leads-count { font-size:12px; color:var(--muted); }
+    .leads-count strong { color:var(--text); }
+    .notify-all-btn { width:100%; padding:11px; background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); border-radius:10px; color:var(--accent); font-size:13px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; transition:background .2s; }
+    .notify-all-btn:active { background:rgba(255,107,107,0.18); }
+    .notify-all-btn:disabled { opacity:.4; cursor:not-allowed; }
 
-    .td-name { font-weight: 600; font-size: 13px; }
-    .td-phone, .td-email, .td-time { color: var(--muted); }
-    .program-pill { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.65); white-space: nowrap; }
-
-    .status-select {
-      padding: 6px 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--text); font-size: 12px; font-family: 'Poppins', sans-serif;
-      cursor: pointer; -webkit-appearance: none; appearance: none; min-width: 100px;
-    }
-    .status-select:focus { outline: none; border-color: var(--accent); }
-
-    .empty-state { padding: 48px 16px; text-align: center; color: var(--muted); }
-    .empty-state-icon { font-size: 36px; margin-bottom: 10px; }
-    .loading-state { padding: 48px 16px; text-align: center; color: var(--muted); }
-
-    /* ══ SLOTS TAB ══ */
-    .slots-section { margin-bottom: 28px; }
-    .slots-section-title {
-      font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 1.5px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
-    }
-
-    .slots-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 540px) { .slots-grid { grid-template-columns: 1fr 1fr; } }
-    @media (min-width: 900px) { .slots-grid { grid-template-columns: repeat(3, 1fr); } }
-
-    .slot-card {
-      background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px;
-      padding: 16px; display: flex; flex-direction: column; gap: 14px; transition: border-color .2s;
-    }
-    .slot-card.is-open   { border-color: rgba(74,222,128,0.3); }
-    .slot-card.is-closed { border-color: rgba(255,107,107,0.2); }
-
-    .slot-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-    .slot-card-name   { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .slot-card-center { font-size: 11px; color: var(--muted); }
-
-    .slot-status-badge {
-      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-    }
-    .slot-status-badge.open   { background: rgba(74,222,128,0.15); color: var(--green); }
-    .slot-status-badge.closed { background: rgba(255,107,107,0.12); color: #ff8a8a; }
-
-    /* ── Toggle ── */
-    .toggle-row { display: flex; align-items: center; gap: 12px; }
-    .toggle-label { font-size: 13px; color: var(--muted); }
-
-    .toggle { position: relative; width: 52px; height: 30px; cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
-    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .toggle-track {
-      position: absolute; inset: 0; background: rgba(255,255,255,0.1);
-      border-radius: 15px; transition: background .25s; pointer-events: none;
-    }
-    .toggle input:checked ~ .toggle-track { background: linear-gradient(135deg,#4ade80,#22c55e); }
-    .toggle-thumb {
-      position: absolute; top: 4px; left: 4px; width: 22px; height: 22px;
-      background: #fff; border-radius: 50%; transition: transform .25s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.4); pointer-events: none;
-    }
-    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
-
-    /* ── Slot card footer ── */
-    .slot-card-footer { display: flex; flex-direction: column; gap: 8px; }
-    .leads-count { font-size: 12px; color: var(--muted); }
-    .leads-count strong { color: var(--text); }
-
-    .notify-all-btn {
-      width: 100%; padding: 11px; background: rgba(255,107,107,0.08);
-      border: 1px solid rgba(255,107,107,0.2); border-radius: 10px; color: var(--accent);
-      font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
-      -webkit-tap-highlight-color: transparent; transition: background .2s;
-    }
-    .notify-all-btn:active { background: rgba(255,107,107,0.18); }
-    .notify-all-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    /* ══ CONFIRM OVERLAY ══ */
-    .confirm-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex;
-      align-items: flex-end; justify-content: center; z-index: 100;
-      padding: 0; backdrop-filter: blur(6px);
-    }
-    @media (min-width: 480px) { .confirm-overlay { align-items: center; padding: 24px; } }
-
-    .confirm-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 20px 20px 0 0; padding: 24px 20px 32px; width: 100%;
-    }
-    @media (min-width: 480px) { .confirm-card { border-radius: 20px; max-width: 400px; padding: 28px; } }
-
-    .confirm-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
-    .confirm-msg   { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
-    .confirm-btns  { display: flex; flex-direction: column; gap: 10px; }
-    @media (min-width: 360px) { .confirm-btns { flex-direction: row; } }
-
-    .confirm-yes {
-      flex: 1; padding: 14px; background: linear-gradient(135deg,#ff6b6b,#f7d794);
-      border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 700;
-      font-family: 'Poppins', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    }
-    .confirm-no {
-      flex: 1; padding: 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-      border-radius: 12px; color: var(--muted); font-size: 14px; font-family: 'Poppins', sans-serif; cursor: pointer;
-    }
+    /* ══ CONFIRM ══ */
+    .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); display:flex; align-items:flex-end; justify-content:center; z-index:100; backdrop-filter:blur(6px); }
+    @media (min-width:480px) { .confirm-overlay { align-items:center; padding:24px; } }
+    .confirm-card { background:var(--surface); border:1px solid var(--border); border-radius:20px 20px 0 0; padding:24px 20px 32px; width:100%; }
+    @media (min-width:480px) { .confirm-card { border-radius:20px; max-width:400px; padding:28px; } }
+    .confirm-title { font-size:17px; font-weight:700; margin-bottom:10px; }
+    .confirm-msg   { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
+    .confirm-btns  { display:flex; flex-direction:column; gap:10px; }
+    @media (min-width:360px) { .confirm-btns { flex-direction:row; } }
+    .confirm-yes { flex:1; padding:14px; background:linear-gradient(135deg,#ff6b6b,#f7d794); border:none; border-radius:12px; color:#000; font-size:14px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; }
+    .confirm-no  { flex:1; padding:14px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:12px; color:var(--muted); font-size:14px; font-family:'Poppins',sans-serif; cursor:pointer; }
 
     /* ══ TOAST ══ */
     .toast {
-      position: fixed; bottom: 16px; left: 16px; right: 16px; background: var(--sur2);
-      border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px;
-      font-size: 13px; color: var(--text); z-index: 200;
-      opacity: 0; transform: translateY(12px); transition: opacity .3s, transform .3s;
-      pointer-events: none; text-align: center;
+      position:fixed; bottom:80px; left:16px; right:16px; background:var(--sur2);
+      border:1px solid var(--border); border-radius:12px; padding:14px 18px;
+      font-size:13px; color:var(--text); z-index:200;
+      opacity:0; transform:translateY(12px); transition:opacity .3s,transform .3s;
+      pointer-events:none; text-align:center;
     }
-    @media (min-width: 480px) {
-      .toast { left: auto; right: 24px; bottom: 24px; width: auto; max-width: 300px; text-align: left; }
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.success { border-color: rgba(74,222,128,0.35); color: var(--green); }
-    .toast.error   { border-color: rgba(255,107,107,0.35); color: #ff8a8a; }
+    @media (min-width:600px) { .toast { left:auto; right:24px; bottom:24px; width:auto; max-width:300px; text-align:left; } }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .toast.success { border-color:rgba(74,222,128,0.35); color:var(--green); }
+    .toast.error   { border-color:rgba(255,107,107,0.35); color:#ff8a8a; }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="login-card">
-      <div class="login-logo">Grip&amp;Grab</div>
-      <p class="login-tag">Admin Panel</p>
-      <div class="login-err" id="login-err"></div>
-      <input type="email"    class="login-input" id="login-email"    placeholder="Admin email"  autocomplete="email">
-      <input type="password" class="login-input" id="login-password" placeholder="Password"     autocomplete="current-password">
-      <button class="login-btn" id="login-btn">Sign In</button>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Grip&amp;Grab</div>
+    <p class="login-tag">Admin Panel</p>
+    <div class="login-err" id="login-err"></div>
+    <input type="email"    class="login-input" id="login-email"    placeholder="Admin email"  autocomplete="email">
+    <input type="password" class="login-input" id="login-password" placeholder="Password"     autocomplete="current-password">
+    <button class="login-btn" id="login-btn">Sign In</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <header class="header">
+    <div class="header-brand">G&amp;G Admin</div>
+    <div class="header-right">
+      <span class="header-user" id="header-user"></span>
+      <button class="logout-btn" id="logout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Desktop top tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="leads">📋 Leads</button>
+    <button class="tab-btn"        data-tab="enrollments">💰 Enrollments</button>
+    <button class="tab-btn"        data-tab="slots">⚡ Slots</button>
+  </div>
+
+  <!-- ── LEADS TAB ── -->
+  <div class="tab-content active" id="tab-leads">
+    <div class="main">
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">New</div><div class="stat-value blue" id="stat-new">—</div></div>
+        <div class="stat-card"><div class="stat-label">Contacted</div><div class="stat-value yellow" id="stat-contacted">—</div></div>
+        <div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value green" id="stat-converted">—</div></div>
+      </div>
+
+      <!-- Mobile chip filters -->
+      <div class="filter-search-row">
+        <input type="search" class="filter-search" id="search-input" placeholder="Search name, phone, email…">
+      </div>
+      <div class="chip-group" id="chips-center-leads">
+        <span class="chip-label">Center</span>
+        <button class="chip active" data-value="">All</button>
+        <button class="chip" data-value="Saket">Saket</button>
+        <button class="chip" data-value="Lajpat Nagar">Lajpat</button>
+      </div>
+      <div class="chip-group" id="chips-status-leads">
+        <span class="chip-label">Status</span>
+        <button class="chip active" data-value="">All</button>
+        <button class="chip" data-value="new">New</button>
+        <button class="chip" data-value="contacted">Contacted</button>
+        <button class="chip" data-value="converted">Converted</button>
+      </div>
+      <div class="chip-group" id="chips-program-leads">
+        <span class="chip-label">Program</span>
+        <button class="chip active" data-value="">All</button>
+        <button class="chip" data-value="Membership">Membership</button>
+        <button class="chip" data-value="Trial Class">Trial</button>
+        <button class="chip" data-value="Day Pass">Day Pass</button>
+        <button class="chip" data-value="Train with Haristhenics">Haristhenics</button>
+      </div>
+
+      <!-- Desktop filter row (selects) -->
+      <div class="filters-desktop">
+        <input type="search" class="filter-search" id="search-input-dt" placeholder="Search name, phone, email…" style="flex:1;min-width:180px;">
+        <select class="filter-select" id="filter-program-dt">
+          <option value="">All Programs</option>
+          <option>Membership</option>
+          <option>Trial Class</option>
+          <option>Day Pass</option>
+          <option>Train with Haristhenics</option>
+        </select>
+        <select class="filter-select" id="filter-center-dt">
+          <option value="">All Centers</option>
+          <option>Saket</option>
+          <option>Lajpat Nagar</option>
+        </select>
+        <select class="filter-select" id="filter-status-dt">
+          <option value="">All Status</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="converted">Converted</option>
+        </select>
+        <button class="refresh-btn" id="refresh-btn">↻ Refresh</button>
+      </div>
+
+      <div class="leads-wrap">
+        <div class="leads-table-scroll">
+          <div class="loading-state" id="leads-loading">Loading leads…</div>
+          <table id="leads-table" style="display:none">
+            <thead>
+              <tr><th>Name</th><th>Phone</th><th>Email</th><th>Program</th><th>Center</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody id="leads-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="leads-empty" style="display:none">
+            <div class="empty-state-icon">📭</div>
+            <div>No leads found</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard">
+  <!-- ── ENROLLMENTS TAB ── -->
+  <div class="tab-content" id="tab-enrollments">
+    <div class="main">
 
-    <header class="header">
-      <div class="header-brand">G&amp;G Admin</div>
-      <div class="header-right">
-        <span class="header-user" id="header-user"></span>
-        <button class="logout-btn" id="logout-btn">Sign Out</button>
+      <div class="stats-row" id="enroll-stats">
+        <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value green" id="rev-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value blue" id="rev-month">—</div></div>
+        <div class="stat-card"><div class="stat-label">Saket</div><div class="stat-value yellow" id="rev-saket">—</div></div>
+        <div class="stat-card"><div class="stat-label">Lajpat Nagar</div><div class="stat-value orange" id="rev-lajpat">—</div></div>
       </div>
-    </header>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="leads">📋 Leads</button>
-      <button class="tab-btn"        data-tab="slots">⚡ Slots</button>
-    </div>
+      <!-- Mobile chip filters -->
+      <div class="chip-group" id="chips-center-enroll">
+        <span class="chip-label">Center</span>
+        <button class="chip active" data-value="">All</button>
+        <button class="chip" data-value="Saket">Saket</button>
+        <button class="chip" data-value="Lajpat Nagar">Lajpat</button>
+      </div>
+      <div class="chip-group" id="chips-plan-enroll">
+        <span class="chip-label">Plan</span>
+        <button class="chip active" data-value="">All</button>
+        <button class="chip" data-value="membership">Membership</button>
+        <button class="chip" data-value="kids">Kids</button>
+        <button class="chip" data-value="trial">Trial</button>
+        <button class="chip" data-value="day-pass">Day Pass</button>
+        <button class="chip" data-value="harish">Harish</button>
+      </div>
 
-    <!-- ── LEADS TAB ── -->
-    <div class="tab-content active" id="tab-leads">
-      <div class="main">
+      <!-- Desktop selects -->
+      <div class="filters-desktop">
+        <select class="filter-select" id="enroll-center-dt">
+          <option value="">All Centers</option>
+          <option>Saket</option>
+          <option>Lajpat Nagar</option>
+        </select>
+        <select class="filter-select" id="enroll-plan-dt">
+          <option value="">All Plans</option>
+          <option value="membership">Membership</option>
+          <option value="kids">Kids</option>
+          <option value="trial">Trial</option>
+          <option value="day-pass">Day Pass</option>
+          <option value="harish">Haristhenics</option>
+        </select>
+        <button class="refresh-btn" id="enroll-refresh-btn">↻ Refresh</button>
+      </div>
 
-        <div class="stats-row">
-          <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">—</div></div>
-          <div class="stat-card"><div class="stat-label">New</div><div class="stat-value blue" id="stat-new">—</div></div>
-          <div class="stat-card"><div class="stat-label">Contacted</div><div class="stat-value yellow" id="stat-contacted">—</div></div>
-          <div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value green" id="stat-converted">—</div></div>
-        </div>
-
-        <div class="filters-row">
-          <input type="search" class="filter-search" id="search-input" placeholder="Search name, phone, email…">
-          <select class="filter-select" id="filter-program">
-            <option value="">All Programs</option>
-            <option>Membership</option>
-            <option>Trial Class</option>
-            <option>Day Pass</option>
-            <option>Train with Haristhenics</option>
-            <option>Kids Fitness</option>
-          </select>
-          <select class="filter-select" id="filter-center">
-            <option value="">All Centers</option>
-            <option>Saket</option>
-            <option>Lajpat Nagar</option>
-          </select>
-          <select class="filter-select" id="filter-status">
-            <option value="">All Status</option>
-            <option value="new">New</option>
-            <option value="contacted">Contacted</option>
-            <option value="converted">Converted</option>
-          </select>
-          <button class="refresh-btn" id="refresh-btn">↻ Refresh</button>
-        </div>
-
-        <div class="leads-wrap">
-          <div class="leads-table-scroll">
-            <div class="loading-state" id="leads-loading">Loading leads…</div>
-            <table id="leads-table" style="display:none">
-              <thead>
-                <tr>
-                  <th>Name</th><th>Phone</th><th>Email</th>
-                  <th>Program</th><th>Center</th><th>Status</th><th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="leads-tbody"></tbody>
-            </table>
-            <div class="empty-state" id="leads-empty" style="display:none">
-              <div class="empty-state-icon">📭</div>
-              <div>No leads found</div>
-            </div>
+      <div class="leads-wrap">
+        <div class="leads-table-scroll">
+          <div class="loading-state" id="enroll-loading">Loading enrollments…</div>
+          <table id="enroll-table" style="display:none">
+            <thead>
+              <tr><th>Name</th><th>Phone</th><th>Plan</th><th>Center</th><th>Amount</th><th>Date</th></tr>
+            </thead>
+            <tbody id="enroll-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="enroll-empty" style="display:none">
+            <div class="empty-state-icon">💸</div>
+            <div>No enrollments yet</div>
           </div>
         </div>
-
       </div>
-    </div>
 
-    <!-- ── SLOTS TAB ── -->
-    <div class="tab-content" id="tab-slots">
-      <div class="main">
-
-        <!-- Haristhenics -->
-        <div class="slots-section">
-          <div class="slots-section-title">Train with Haristhenics</div>
-          <div class="slots-grid">
-            <div class="slot-card" id="sc-haristhenics">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Enrollment</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
-                <span class="slot-status-badge closed" id="badge-haristhenics">Closed</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-haristhenics">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
-                <span class="toggle-label" id="tlabel-haristhenics">Slots closed</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-haristhenics">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('haristhenics')">📢 Notify All Leads</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Saket -->
-        <div class="slots-section">
-          <div class="slots-section-title">Grip&amp;Grab Saket</div>
-          <div class="slots-grid">
-
-            <div class="slot-card" id="sc-saket-membership">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
-                <span class="slot-status-badge" id="badge-saket-membership">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-saket-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-saket-membership">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-saket-membership">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('saket-membership')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-            <div class="slot-card" id="sc-saket-trial">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
-                <span class="slot-status-badge" id="badge-saket-trial">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-saket-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-saket-trial">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-saket-trial">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('saket-trial')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-            <div class="slot-card" id="sc-saket-daypass">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
-                <span class="slot-status-badge" id="badge-saket-daypass">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-saket-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-saket-daypass">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-saket-daypass">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('saket-daypass')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Lajpat Nagar -->
-        <div class="slots-section">
-          <div class="slots-section-title">Grip&amp;Grab Lajpat Nagar</div>
-          <div class="slots-grid">
-
-            <div class="slot-card" id="sc-lajpat-membership">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
-                <span class="slot-status-badge" id="badge-lajpat-membership">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-lajpat-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-lajpat-membership">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-lajpat-membership">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('lajpat-membership')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-            <div class="slot-card" id="sc-lajpat-trial">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
-                <span class="slot-status-badge" id="badge-lajpat-trial">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-lajpat-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-lajpat-trial">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-lajpat-trial">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('lajpat-trial')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-            <div class="slot-card" id="sc-lajpat-daypass">
-              <div class="slot-card-top">
-                <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
-                <span class="slot-status-badge" id="badge-lajpat-daypass">—</span>
-              </div>
-              <div class="toggle-row">
-                <label class="toggle"><input type="checkbox" id="chk-lajpat-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-                <span class="toggle-label" id="tlabel-lajpat-daypass">—</span>
-              </div>
-              <div class="slot-card-footer">
-                <div class="leads-count" id="lcount-lajpat-daypass">— pending leads</div>
-                <button class="notify-all-btn" onclick="notifyAll('lajpat-daypass')">📢 Notify All Leads</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </div><!-- /dashboard -->
-
-  <!-- Confirm sheet -->
-  <div class="confirm-overlay" id="confirm-overlay" style="display:none">
-    <div class="confirm-card">
-      <div class="confirm-title" id="confirm-title"></div>
-      <div class="confirm-msg"   id="confirm-msg"></div>
-      <div class="confirm-btns">
-        <button class="confirm-yes" id="confirm-yes">Yes, Send Emails</button>
-        <button class="confirm-no"  id="confirm-no">Skip</button>
-      </div>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <!-- ── SLOTS TAB ── -->
+  <div class="tab-content" id="tab-slots">
+    <div class="main">
+
+      <!-- Haristhenics -->
+      <div class="slots-section">
+        <div class="slots-section-title">Train with Haristhenics</div>
+        <div class="slots-grid">
+          <div class="slot-card" id="sc-haristhenics">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Enrollment</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
+              <span class="slot-status-badge closed" id="badge-haristhenics">Closed</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-haristhenics"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-haristhenics">Slots closed</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-haristhenics">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('haristhenics')">📢 Notify All Leads</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saket -->
+      <div class="slots-section">
+        <div class="slots-section-title">Grip&amp;Grab Saket</div>
+        <div class="slots-grid">
+
+          <div class="slot-card" id="sc-saket-membership">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
+              <span class="slot-status-badge" id="badge-saket-membership">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-saket-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-saket-membership">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-saket-membership">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('saket-membership')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+          <div class="slot-card" id="sc-saket-trial">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
+              <span class="slot-status-badge" id="badge-saket-trial">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-saket-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-saket-trial">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-saket-trial">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('saket-trial')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+          <div class="slot-card" id="sc-saket-daypass">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
+              <span class="slot-status-badge" id="badge-saket-daypass">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-saket-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-saket-daypass">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-saket-daypass">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('saket-daypass')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Lajpat Nagar -->
+      <div class="slots-section">
+        <div class="slots-section-title">Grip&amp;Grab Lajpat Nagar</div>
+        <div class="slots-grid">
+
+          <div class="slot-card" id="sc-lajpat-membership">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
+              <span class="slot-status-badge" id="badge-lajpat-membership">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-lajpat-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-lajpat-membership">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-lajpat-membership">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('lajpat-membership')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+          <div class="slot-card" id="sc-lajpat-trial">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
+              <span class="slot-status-badge" id="badge-lajpat-trial">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-lajpat-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-lajpat-trial">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-lajpat-trial">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('lajpat-trial')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+          <div class="slot-card" id="sc-lajpat-daypass">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
+              <span class="slot-status-badge" id="badge-lajpat-daypass">—</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-lajpat-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-lajpat-daypass">—</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-lajpat-daypass">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('lajpat-daypass')">📢 Notify All Leads</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom nav (mobile only) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnav-btn active" data-tab="leads"><span class="bnav-icon">📋</span>Leads</button>
+    <button class="bnav-btn"        data-tab="enrollments"><span class="bnav-icon">💰</span>Enrollments</button>
+    <button class="bnav-btn"        data-tab="slots"><span class="bnav-icon">⚡</span>Slots</button>
+  </nav>
+
+</div><!-- /dashboard -->
+
+<!-- Confirm sheet -->
+<div class="confirm-overlay" id="confirm-overlay" style="display:none">
+  <div class="confirm-card">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-msg"   id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-yes" id="confirm-yes">Yes, Send Emails</button>
+      <button class="confirm-no"  id="confirm-no">Skip</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp }                              from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -545,8 +566,10 @@ const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-let allLeads   = [];
-let slotConfig = {};
+let allLeads       = [];
+let allEnrollments = [];
+let slotConfig     = {};
+let enrollLoaded   = false;
 
 const SLOT_CARDS = [
   {id:'haristhenics',     program:'Train with Haristhenics', center:'Grip&Grab Saket',        field:'haristhenics', key:'available' },
@@ -589,16 +612,37 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-btn').click(); });
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-/* ── Tabs ── */
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn,.tab-content').forEach(el => el.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
+/* ── Tab switching ── */
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn,.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('[data-tab="'+tabName+'"]').forEach(b => b.classList.add('active'));
+  document.getElementById('tab-'+tabName).classList.add('active');
+  if (tabName === 'enrollments' && !enrollLoaded) { loadEnrollments(); enrollLoaded = true; }
+}
+
+document.querySelectorAll('.tab-btn,.bnav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-/* ── Leads ── */
+/* ── Chip filter helper ── */
+function initChips(groupId, onChange) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      onChange();
+    });
+  });
+}
+function chipVal(groupId) {
+  const active = document.querySelector('#'+groupId+' .chip.active');
+  return active ? active.dataset.value : '';
+}
+
+/* ── LEADS ── */
 async function loadLeads() {
   const loading = document.getElementById('leads-loading');
   const table   = document.getElementById('leads-table');
@@ -608,25 +652,42 @@ async function loadLeads() {
     const snap = await getDocs(query(collection(db,'notify-leads'), orderBy('timestamp','desc')));
     allLeads = [];
     snap.forEach(d => allLeads.push({id:d.id,...d.data()}));
-    updateStats(allLeads);
-    renderTable(allLeads);
+    updateLeadStats(allLeads);
+    renderLeads();
     updateLeadCounts();
-  } catch(e) { loading.textContent = 'Failed to load: ' + e.message; }
+  } catch(e) { loading.textContent='Failed to load: '+e.message; }
 }
 
-function updateStats(leads) {
+function updateLeadStats(leads) {
   document.getElementById('stat-total').textContent     = leads.length;
   document.getElementById('stat-new').textContent       = leads.filter(l=>l.status==='new').length;
   document.getElementById('stat-contacted').textContent = leads.filter(l=>l.status==='contacted').length;
   document.getElementById('stat-converted').textContent = leads.filter(l=>l.status==='converted').length;
 }
 
-function renderTable(leads) {
+function applyLeadFilters() {
+  const isMobile = window.innerWidth < 600;
+  const s  = (isMobile ? document.getElementById('search-input') : document.getElementById('search-input-dt')).value.toLowerCase();
+  const ce = isMobile ? chipVal('chips-center-leads') : document.getElementById('filter-center-dt').value;
+  const st = isMobile ? chipVal('chips-status-leads') : document.getElementById('filter-status-dt').value;
+  const pr = isMobile ? chipVal('chips-program-leads') : document.getElementById('filter-program-dt').value;
+  return allLeads.filter(l => {
+    const ms = !s  || [l.name,l.phone,l.email].some(v=>(v||'').toLowerCase().includes(s));
+    const mc = !ce || (l.center||'').includes(ce);
+    const mst= !st || l.status===st;
+    const mp = !pr || l.program===pr;
+    return ms&&mc&&mst&&mp;
+  });
+}
+
+function renderLeads() {
   const loading=document.getElementById('leads-loading');
   const table=document.getElementById('leads-table');
   const empty=document.getElementById('leads-empty');
   const tbody=document.getElementById('leads-tbody');
+  const leads=applyLeadFilters();
   loading.style.display='none';
+  updateLeadStats(leads);
   if (!leads.length) { table.style.display='none'; empty.style.display='block'; return; }
   empty.style.display='none'; table.style.display='table';
   tbody.innerHTML = leads.map(lead => {
@@ -648,36 +709,105 @@ function renderTable(leads) {
   }).join('');
 }
 
+/* Init lead filter events */
+initChips('chips-center-leads',  renderLeads);
+initChips('chips-status-leads',  renderLeads);
+initChips('chips-program-leads', renderLeads);
+
+['search-input','search-input-dt','filter-program-dt','filter-center-dt','filter-status-dt'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input',  renderLeads);
+  el.addEventListener('change', renderLeads);
+});
+document.getElementById('refresh-btn').addEventListener('click', loadLeads);
+
 window._updateStatus = async (sel) => {
   const id=sel.dataset.id; const status=sel.value;
   try {
     await updateDoc(doc(db,'notify-leads',id),{status});
     const lead=allLeads.find(l=>l.id===id);
-    if(lead){lead.status=status; updateStats(applyFilters()); updateLeadCounts();}
-  } catch(e){showToast('Failed: '+e.message,'error');}
+    if (lead) { lead.status=status; renderLeads(); updateLeadCounts(); }
+  } catch(e) { showToast('Failed: '+e.message,'error'); }
 };
 
-function applyFilters() {
-  const s  = document.getElementById('search-input').value.toLowerCase();
-  const pr = document.getElementById('filter-program').value;
-  const ce = document.getElementById('filter-center').value;
-  const st = document.getElementById('filter-status').value;
-  return allLeads.filter(l => {
-    const ms = !s  || [l.name,l.phone,l.email].some(v=>(v||'').toLowerCase().includes(s));
-    const mp = !pr || l.program===pr;
-    const mc = !ce || (l.center||'').includes(ce);
-    const mst= !st || l.status===st;
-    return ms&&mp&&mc&&mst;
+/* ── ENROLLMENTS ── */
+async function loadEnrollments() {
+  const loading=document.getElementById('enroll-loading');
+  const table=document.getElementById('enroll-table');
+  const empty=document.getElementById('enroll-empty');
+  loading.style.display='block'; table.style.display='none'; empty.style.display='none';
+  try {
+    const snap = await getDocs(query(collection(db,'enrollments'), orderBy('timestamp','desc')));
+    allEnrollments = [];
+    snap.forEach(d => allEnrollments.push({id:d.id,...d.data()}));
+    updateRevenueStats(allEnrollments);
+    renderEnrollments();
+  } catch(e) { loading.textContent='Failed to load: '+e.message; }
+}
+
+function updateRevenueStats(list) {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const total    = list.reduce((s,e) => s + (e.amount||0), 0);
+  const thisMonth= list.filter(e => {
+    const ts = e.timestamp?.toDate?.();
+    return ts && ts >= monthStart;
+  }).reduce((s,e) => s + (e.amount||0), 0);
+  const saket  = list.filter(e => (e.center||'').includes('Saket')).reduce((s,e)=>s+(e.amount||0),0);
+  const lajpat = list.filter(e => (e.center||'').includes('Lajpat')).reduce((s,e)=>s+(e.amount||0),0);
+  const fmt = v => '₹' + v.toLocaleString('en-IN');
+  document.getElementById('rev-total').textContent  = fmt(total);
+  document.getElementById('rev-month').textContent  = fmt(thisMonth);
+  document.getElementById('rev-saket').textContent  = fmt(saket);
+  document.getElementById('rev-lajpat').textContent = fmt(lajpat);
+}
+
+function applyEnrollFilters() {
+  const isMobile = window.innerWidth < 600;
+  const ce = isMobile ? chipVal('chips-center-enroll') : document.getElementById('enroll-center-dt').value;
+  const pl = isMobile ? chipVal('chips-plan-enroll')   : document.getElementById('enroll-plan-dt').value;
+  return allEnrollments.filter(e => {
+    const mc = !ce || (e.center||'').includes(ce);
+    const mp = !pl || (e.plan||'').includes(pl);
+    return mc && mp;
   });
 }
-['search-input','filter-program','filter-center','filter-status'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input',  () => renderTable(applyFilters()));
-  el.addEventListener('change', () => renderTable(applyFilters()));
-});
-document.getElementById('refresh-btn').addEventListener('click', loadLeads);
 
-/* ── Slots ── */
+function renderEnrollments() {
+  const loading=document.getElementById('enroll-loading');
+  const table=document.getElementById('enroll-table');
+  const empty=document.getElementById('enroll-empty');
+  const tbody=document.getElementById('enroll-tbody');
+  const list=applyEnrollFilters();
+  loading.style.display='none';
+  updateRevenueStats(list);
+  if (!list.length) { table.style.display='none'; empty.style.display='block'; return; }
+  empty.style.display='none'; table.style.display='table';
+  tbody.innerHTML = list.map(e => {
+    const ts = e.timestamp?.toDate?.() ?? null;
+    const timeStr = ts ? ts.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}) : '—';
+    const amt = e.amount ? '₹'+Number(e.amount).toLocaleString('en-IN') : '—';
+    return `<tr>
+      <td class="td-name">${esc(e.name||'—')}</td>
+      <td class="td-phone">${esc(e.phone||'—')}</td>
+      <td><span class="program-pill">${esc(e.planLabel||e.plan||'—')}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${esc((e.center||'—').replace('Grip&Grab ',''))}</td>
+      <td><span class="amount-pill">${esc(amt)}</span></td>
+      <td class="td-time" style="font-size:11px;white-space:nowrap">${timeStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+initChips('chips-center-enroll', renderEnrollments);
+initChips('chips-plan-enroll',   renderEnrollments);
+['enroll-center-dt','enroll-plan-dt'].forEach(id => {
+  const el=document.getElementById(id);
+  if (el) el.addEventListener('change', renderEnrollments);
+});
+document.getElementById('enroll-refresh-btn').addEventListener('click', () => { enrollLoaded=false; loadEnrollments(); enrollLoaded=true; });
+
+/* ── SLOTS ── */
 async function loadSlotConfig() {
   try {
     const [hmSnap, sSnap, lSnap] = await Promise.all([
@@ -720,8 +850,8 @@ function updateSlotUI(id, isOpen) {
   if (!card) return;
   card.classList.toggle('is-open',   isOpen);
   card.classList.toggle('is-closed', !isOpen);
-  if (badge)  { badge.textContent = isOpen?'Open':'Closed'; badge.className='slot-status-badge '+(isOpen?'open':'closed'); }
-  if (tlabel) { tlabel.textContent = isOpen?'Slots open':'Slots closed'; }
+  if (badge)  { badge.textContent=isOpen?'Open':'Closed'; badge.className='slot-status-badge '+(isOpen?'open':'closed'); }
+  if (tlabel) { tlabel.textContent=isOpen?'Slots open':'Slots closed'; }
 }
 
 function updateLeadCounts() {
@@ -756,7 +886,7 @@ async function handleToggle(card, newValue) {
     }
   } catch(e) {
     const chk = document.getElementById('chk-'+card.id);
-    if (chk) chk.checked = !newValue;
+    if (chk) chk.checked=!newValue;
     showToast('Save failed: '+e.message,'error');
   }
 }
@@ -782,8 +912,8 @@ async function sendNotifyEmails(card, leads) {
       })
     );
     await Promise.allSettled(updates);
-    updateStats(applyFilters()); updateLeadCounts(); renderTable(applyFilters());
-    showToast(`✓ Done! Emails sent.`,'success');
+    renderLeads(); updateLeadCounts();
+    showToast('✓ Done! Emails sent.','success');
   } catch(e) { showToast('Send failed: '+e.message,'error'); }
 }
 
@@ -817,7 +947,7 @@ document.getElementById('confirm-no').addEventListener('click', () => {
 let toastTimer;
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast show ' + type;
+  t.textContent=msg; t.className='toast show '+type;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.className='toast'; }, 3000);
 }
