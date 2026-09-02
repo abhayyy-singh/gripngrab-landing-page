@@ -9,139 +9,283 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0c0c0c;
-      --surface:   #161616;
-      --surface2:  #1e1e1e;
-      --border:    rgba(255,255,255,0.07);
-      --text:      #f0f0f0;
-      --muted:     rgba(255,255,255,0.4);
-      --accent:    #ff6b6b;
-      --accent2:   #f7d794;
-      --green:     #4ade80;
-      --yellow:    #fbbf24;
-      --blue:      #60a5fa;
+      --bg:      #0c0c0c;
+      --surface: #161616;
+      --sur2:    #1e1e1e;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #f0f0f0;
+      --muted:   rgba(255,255,255,0.4);
+      --accent:  #ff6b6b;
+      --green:   #4ade80;
+      --yellow:  #fbbf24;
+      --blue:    #60a5fa;
     }
-    body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-    /* ── LOGIN ── */
-    #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
-    .login-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:40px 36px; width:100%; max-width:380px; }
-    .login-logo { background:linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-size:28px; font-weight:800; margin-bottom:4px; }
-    .login-tag  { font-size:13px; color:var(--muted); margin-bottom:28px; }
-    .login-err  { background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.25); border-radius:10px; padding:10px 14px; font-size:13px; color:#ff8a8a; margin-bottom:14px; display:none; }
-    .login-input { width:100%; padding:12px 16px; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); border-radius:12px; color:var(--text); font-size:14px; font-family:'Poppins',sans-serif; margin-bottom:10px; transition:border-color .2s; }
-    .login-input::placeholder { color:var(--muted); }
-    .login-input:focus { outline:none; border-color:var(--accent); }
-    .login-btn { width:100%; padding:14px; background:linear-gradient(135deg,#ff6b6b,#f7d794); border:none; border-radius:12px; color:#000; font-size:15px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; margin-top:4px; transition:opacity .2s; }
-    .login-btn:hover { opacity:.9; } .login-btn:disabled { opacity:.5; cursor:not-allowed; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 
-    /* ── SHELL ── */
-    #dashboard { display:none; flex-direction:column; min-height:100vh; }
-    .header { background:var(--surface); border-bottom:1px solid var(--border); padding:0 24px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-    .header-brand { font-size:16px; font-weight:700; background:linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .header-right { display:flex; align-items:center; gap:12px; }
-    .header-user  { font-size:13px; color:var(--muted); }
-    .logout-btn   { padding:7px 14px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:13px; font-family:'Poppins',sans-serif; cursor:pointer; transition:color .2s,border-color .2s; }
-    .logout-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.15); }
+    /* ══ LOGIN ══ */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 20px;
+      width: 100%;
+      max-width: 360px;
+    }
+    @media (min-width: 480px) { .login-card { padding: 40px 36px; } }
 
-    /* ── TABS ── */
-    .tabs { display:flex; gap:2px; padding:16px 24px 0; border-bottom:1px solid var(--border); background:var(--surface); }
-    .tab-btn { padding:10px 20px; font-size:14px; font-weight:600; font-family:'Poppins',sans-serif; border:none; background:transparent; color:var(--muted); cursor:pointer; border-radius:10px 10px 0 0; transition:color .2s,background .2s; }
-    .tab-btn.active { color:var(--text); background:var(--bg); }
-    .tab-content { display:none; }
-    .tab-content.active { display:block; }
+    .login-logo { background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .login-tag  { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .login-err  { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #ff8a8a; margin-bottom: 14px; display: none; }
+    .login-input {
+      width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.05);
+      border: 1.5px solid var(--border); border-radius: 12px; color: var(--text);
+      font-size: 16px; /* 16px prevents iOS zoom */ font-family: 'Poppins', sans-serif;
+      margin-bottom: 10px; transition: border-color .2s; -webkit-appearance: none;
+    }
+    .login-input::placeholder { color: var(--muted); }
+    .login-input:focus { outline: none; border-color: var(--accent); }
+    .login-btn {
+      width: 100%; padding: 15px; background: linear-gradient(135deg,#ff6b6b,#f7d794);
+      border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 700;
+      font-family: 'Poppins', sans-serif; cursor: pointer; margin-top: 4px; transition: opacity .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .login-btn:active { opacity: .85; }
+    .login-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-    .main { padding:28px 24px; flex:1; max-width:1200px; margin:0 auto; width:100%; }
+    /* ══ SHELL ══ */
+    #dashboard { display: none; flex-direction: column; min-height: 100vh; }
 
-    /* ── STATS ── */
-    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:24px; }
-    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
-    .stat-label { font-size:11px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.8px; }
-    .stat-value { font-size:28px; font-weight:700; } .stat-value.green{color:var(--green);} .stat-value.yellow{color:var(--yellow);} .stat-value.blue{color:var(--blue);}
+    /* ══ HEADER ══ */
+    .header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 16px; height: 54px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 20;
+    }
+    @media (min-width: 600px) { .header { padding: 0 24px; height: 60px; } }
 
-    /* ── FILTERS ── */
-    .filters-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; align-items:center; }
-    .filter-select { padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; font-family:'Poppins',sans-serif; cursor:pointer; min-width:150px; }
-    .filter-select:focus { outline:none; border-color:var(--accent); }
-    .filter-search { padding:8px 14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; font-family:'Poppins',sans-serif; flex:1; min-width:200px; }
-    .filter-search::placeholder { color:var(--muted); }
-    .filter-search:focus { outline:none; border-color:var(--accent); }
-    .refresh-btn { padding:8px 14px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.2); border-radius:10px; color:var(--accent); font-size:13px; font-family:'Poppins',sans-serif; cursor:pointer; transition:background .2s; white-space:nowrap; }
-    .refresh-btn:hover { background:rgba(255,107,107,0.18); }
+    .header-brand { font-size: 15px; font-weight: 700; background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-user  { font-size: 11px; color: var(--muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
+    @media (min-width: 480px) { .header-user { display: block; } }
 
-    /* ── LEADS TABLE ── */
-    .leads-wrap { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
-    .leads-table-scroll { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; }
-    thead th { background:rgba(255,255,255,0.04); padding:12px 16px; text-align:left; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; white-space:nowrap; border-bottom:1px solid var(--border); }
-    tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
-    tbody tr:last-child { border-bottom:none; }
-    tbody tr:hover { background:rgba(255,255,255,0.025); }
-    tbody td { padding:13px 16px; font-size:13px; color:var(--text); vertical-align:middle; }
-    .td-name{font-weight:600;} .td-phone,.td-email,.td-time{color:var(--muted);} .td-email,.td-time{font-size:12px;}
-    .badge { display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
-    .badge-new{background:rgba(96,165,250,0.15);color:var(--blue);} .badge-contacted{background:rgba(251,191,36,0.15);color:var(--yellow);} .badge-converted{background:rgba(74,222,128,0.15);color:var(--green);}
-    .status-select { padding:4px 8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:12px; font-family:'Poppins',sans-serif; cursor:pointer; }
-    .status-select:focus { outline:none; border-color:var(--accent); }
-    .empty-state { padding:60px 24px; text-align:center; color:var(--muted); }
-    .empty-state-icon { font-size:40px; margin-bottom:12px; }
-    .loading-state { padding:60px 24px; text-align:center; color:var(--muted); font-size:14px; }
-    .program-pill { display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:600; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65); }
+    .logout-btn {
+      padding: 7px 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: 12px; font-family: 'Poppins', sans-serif;
+      cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent;
+    }
+    .logout-btn:active { color: var(--text); }
 
-    /* ── SLOTS TAB ── */
-    .slots-section { margin-bottom:32px; }
-    .slots-section-title { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
-    .slots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+    /* ══ TABS ══ */
+    .tabs {
+      display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    @media (min-width: 600px) { .tabs { padding: 0 24px; } }
 
-    .slot-card { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:14px; transition:border-color .2s; }
-    .slot-card.is-open { border-color:rgba(74,222,128,0.3); }
-    .slot-card.is-closed { border-color:rgba(255,107,107,0.2); }
+    .tab-btn {
+      padding: 14px 16px; font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif;
+      border: none; background: transparent; color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
+      white-space: nowrap; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
 
-    .slot-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .slot-card-info {}
-    .slot-card-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
-    .slot-card-center { font-size:12px; color:var(--muted); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    .slot-status-badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
-    .slot-status-badge.open   { background:rgba(74,222,128,0.15); color:var(--green); }
-    .slot-status-badge.closed { background:rgba(255,107,107,0.12); color:#ff8a8a; }
+    /* ══ MAIN ══ */
+    .main { padding: 16px; }
+    @media (min-width: 600px) { .main { padding: 24px; } }
+    @media (min-width: 960px) { .main { padding: 28px; max-width: 1200px; margin: 0 auto; } }
 
-    /* Toggle */
-    .toggle-row { display:flex; align-items:center; gap:10px; }
-    .toggle-label { font-size:13px; color:var(--muted); }
-    .toggle { position:relative; width:46px; height:26px; cursor:pointer; flex-shrink:0; }
-    .toggle input { opacity:0; width:0; height:0; position:absolute; }
-    .toggle-track { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:13px; transition:background .25s; }
-    .toggle input:checked ~ .toggle-track { background:linear-gradient(135deg,#4ade80,#22c55e); }
-    .toggle-thumb { position:absolute; top:3px; left:3px; width:20px; height:20px; background:#fff; border-radius:50%; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,0.4); }
-    .toggle input:checked ~ .toggle-track ~ .toggle-thumb,
-    .toggle input:checked + .toggle-track + .toggle-thumb { transform:translateX(20px); }
-    .toggle input:checked ~ .toggle-thumb { transform:translateX(20px); }
+    /* ══ STATS ══ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 600px) { .stats-row { gap: 14px; margin-bottom: 20px; } }
+    @media (min-width: 800px) { .stats-row { grid-template-columns: repeat(4, 1fr); } }
 
-    .slot-card-footer { display:flex; flex-direction:column; gap:8px; }
-    .leads-count { font-size:12px; color:var(--muted); }
-    .leads-count strong { color:var(--text); }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    @media (min-width: 600px) { .stat-card { border-radius: 14px; padding: 18px 20px; } }
+    .stat-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .8px; }
+    .stat-value { font-size: 24px; font-weight: 700; }
+    @media (min-width: 600px) { .stat-value { font-size: 28px; } }
+    .stat-value.green { color: var(--green); } .stat-value.yellow { color: var(--yellow); } .stat-value.blue { color: var(--blue); }
 
-    .notify-all-btn { width:100%; padding:10px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.2); border-radius:10px; color:var(--accent); font-size:13px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; transition:background .2s; }
-    .notify-all-btn:hover { background:rgba(255,107,107,0.18); }
-    .notify-all-btn:disabled { opacity:.4; cursor:not-allowed; }
-    .notify-all-btn.sending { opacity:.6; }
+    /* ══ FILTERS ══ */
+    .filters-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    @media (min-width: 600px) { .filters-row { flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; } }
 
-    /* Confirm overlay */
-    .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:100; padding:24px; backdrop-filter:blur(4px); }
-    .confirm-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; max-width:400px; width:100%; }
-    .confirm-title { font-size:18px; font-weight:700; margin-bottom:10px; }
-    .confirm-msg { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
-    .confirm-btns { display:flex; gap:10px; }
-    .confirm-yes { flex:1; padding:12px; background:linear-gradient(135deg,#ff6b6b,#f7d794); border:none; border-radius:10px; color:#000; font-size:14px; font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer; }
-    .confirm-no  { flex:1; padding:12px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:10px; color:var(--muted); font-size:14px; font-family:'Poppins',sans-serif; cursor:pointer; }
+    .filter-search, .filter-select {
+      width: 100%; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 14px; font-family: 'Poppins', sans-serif;
+      -webkit-appearance: none; appearance: none;
+    }
+    .filter-search:focus, .filter-select:focus { outline: none; border-color: var(--accent); }
+    .filter-search::placeholder { color: var(--muted); }
+    @media (min-width: 600px) {
+      .filter-search { flex: 1; min-width: 180px; width: auto; }
+      .filter-select { width: auto; min-width: 140px; }
+    }
 
-    .toast { position:fixed; bottom:24px; right:24px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px 20px; font-size:13px; color:var(--text); z-index:200; opacity:0; transform:translateY(8px); transition:opacity .3s,transform .3s; pointer-events:none; max-width:300px; }
-    .toast.show { opacity:1; transform:translateY(0); }
-    .toast.success { border-color:rgba(74,222,128,0.3); color:var(--green); }
-    .toast.error   { border-color:rgba(255,107,107,0.3); color:#ff8a8a; }
+    .refresh-btn {
+      width: 100%; padding: 10px 14px; background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2);
+      border-radius: 10px; color: var(--accent); font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    @media (min-width: 600px) { .refresh-btn { width: auto; white-space: nowrap; } }
+    .refresh-btn:active { background: rgba(255,107,107,0.18); }
 
-    @media(max-width:600px){.main{padding:16px;} .stats-row{grid-template-columns:repeat(2,1fr);} .header{padding:0 16px;} .slots-grid{grid-template-columns:1fr;}}
+    /* ══ LEADS TABLE ══ */
+    .leads-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .leads-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    table { width: 100%; border-collapse: collapse; min-width: 540px; }
+    thead th {
+      background: rgba(255,255,255,0.04); padding: 10px 14px; text-align: left;
+      font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .8px; white-space: nowrap; border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    @media (hover: hover) { tbody tr:hover { background: rgba(255,255,255,0.025); } }
+    tbody td { padding: 12px 14px; font-size: 12px; color: var(--text); vertical-align: middle; }
+
+    .td-name { font-weight: 600; font-size: 13px; }
+    .td-phone, .td-email, .td-time { color: var(--muted); }
+    .program-pill { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.65); white-space: nowrap; }
+
+    .status-select {
+      padding: 6px 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 12px; font-family: 'Poppins', sans-serif;
+      cursor: pointer; -webkit-appearance: none; appearance: none; min-width: 100px;
+    }
+    .status-select:focus { outline: none; border-color: var(--accent); }
+
+    .empty-state { padding: 48px 16px; text-align: center; color: var(--muted); }
+    .empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+    .loading-state { padding: 48px 16px; text-align: center; color: var(--muted); }
+
+    /* ══ SLOTS TAB ══ */
+    .slots-section { margin-bottom: 28px; }
+    .slots-section-title {
+      font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1.5px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 540px) { .slots-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .slots-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .slot-card {
+      background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px;
+      padding: 16px; display: flex; flex-direction: column; gap: 14px; transition: border-color .2s;
+    }
+    .slot-card.is-open   { border-color: rgba(74,222,128,0.3); }
+    .slot-card.is-closed { border-color: rgba(255,107,107,0.2); }
+
+    .slot-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .slot-card-name   { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .slot-card-center { font-size: 11px; color: var(--muted); }
+
+    .slot-status-badge {
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .slot-status-badge.open   { background: rgba(74,222,128,0.15); color: var(--green); }
+    .slot-status-badge.closed { background: rgba(255,107,107,0.12); color: #ff8a8a; }
+
+    /* ── Toggle ── */
+    .toggle-row { display: flex; align-items: center; gap: 12px; }
+    .toggle-label { font-size: 13px; color: var(--muted); }
+
+    .toggle { position: relative; width: 52px; height: 30px; cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0; background: rgba(255,255,255,0.1);
+      border-radius: 15px; transition: background .25s; pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-track { background: linear-gradient(135deg,#4ade80,#22c55e); }
+    .toggle-thumb {
+      position: absolute; top: 4px; left: 4px; width: 22px; height: 22px;
+      background: #fff; border-radius: 50%; transition: transform .25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4); pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
+
+    /* ── Slot card footer ── */
+    .slot-card-footer { display: flex; flex-direction: column; gap: 8px; }
+    .leads-count { font-size: 12px; color: var(--muted); }
+    .leads-count strong { color: var(--text); }
+
+    .notify-all-btn {
+      width: 100%; padding: 11px; background: rgba(255,107,107,0.08);
+      border: 1px solid rgba(255,107,107,0.2); border-radius: 10px; color: var(--accent);
+      font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: background .2s;
+    }
+    .notify-all-btn:active { background: rgba(255,107,107,0.18); }
+    .notify-all-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ══ CONFIRM OVERLAY ══ */
+    .confirm-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex;
+      align-items: flex-end; justify-content: center; z-index: 100;
+      padding: 0; backdrop-filter: blur(6px);
+    }
+    @media (min-width: 480px) { .confirm-overlay { align-items: center; padding: 24px; } }
+
+    .confirm-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0; padding: 24px 20px 32px; width: 100%;
+    }
+    @media (min-width: 480px) { .confirm-card { border-radius: 20px; max-width: 400px; padding: 28px; } }
+
+    .confirm-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .confirm-msg   { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+    .confirm-btns  { display: flex; flex-direction: column; gap: 10px; }
+    @media (min-width: 360px) { .confirm-btns { flex-direction: row; } }
+
+    .confirm-yes {
+      flex: 1; padding: 14px; background: linear-gradient(135deg,#ff6b6b,#f7d794);
+      border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 700;
+      font-family: 'Poppins', sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .confirm-no {
+      flex: 1; padding: 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--muted); font-size: 14px; font-family: 'Poppins', sans-serif; cursor: pointer;
+    }
+
+    /* ══ TOAST ══ */
+    .toast {
+      position: fixed; bottom: 16px; left: 16px; right: 16px; background: var(--sur2);
+      border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px;
+      font-size: 13px; color: var(--text); z-index: 200;
+      opacity: 0; transform: translateY(12px); transition: opacity .3s, transform .3s;
+      pointer-events: none; text-align: center;
+    }
+    @media (min-width: 480px) {
+      .toast { left: auto; right: 24px; bottom: 24px; width: auto; max-width: 300px; text-align: left; }
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(74,222,128,0.35); color: var(--green); }
+    .toast.error   { border-color: rgba(255,107,107,0.35); color: #ff8a8a; }
   </style>
 </head>
 <body>
@@ -160,6 +304,7 @@
 
   <!-- DASHBOARD -->
   <div id="dashboard">
+
     <header class="header">
       <div class="header-brand">G&amp;G Admin</div>
       <div class="header-right">
@@ -168,15 +313,15 @@
       </div>
     </header>
 
-    <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="leads">📋 Leads</button>
       <button class="tab-btn"        data-tab="slots">⚡ Slots</button>
     </div>
 
-    <!-- LEADS TAB -->
+    <!-- ── LEADS TAB ── -->
     <div class="tab-content active" id="tab-leads">
       <div class="main">
+
         <div class="stats-row">
           <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">—</div></div>
           <div class="stat-card"><div class="stat-label">New</div><div class="stat-value blue" id="stat-new">—</div></div>
@@ -185,19 +330,19 @@
         </div>
 
         <div class="filters-row">
-          <input type="text" class="filter-search" id="search-input" placeholder="Search name, phone, email…">
+          <input type="search" class="filter-search" id="search-input" placeholder="Search name, phone, email…">
           <select class="filter-select" id="filter-program">
             <option value="">All Programs</option>
-            <option value="Membership">Membership</option>
-            <option value="Trial Class">Trial Class</option>
-            <option value="Day Pass">Day Pass</option>
-            <option value="Train with Haristhenics">Train with Haristhenics</option>
-            <option value="Kids Fitness">Kids Fitness</option>
+            <option>Membership</option>
+            <option>Trial Class</option>
+            <option>Day Pass</option>
+            <option>Train with Haristhenics</option>
+            <option>Kids Fitness</option>
           </select>
           <select class="filter-select" id="filter-center">
             <option value="">All Centers</option>
-            <option value="Saket">Saket</option>
-            <option value="Lajpat Nagar">Lajpat Nagar</option>
+            <option>Saket</option>
+            <option>Lajpat Nagar</option>
           </select>
           <select class="filter-select" id="filter-status">
             <option value="">All Status</option>
@@ -215,7 +360,7 @@
               <thead>
                 <tr>
                   <th>Name</th><th>Phone</th><th>Email</th>
-                  <th>Program</th><th>Center</th><th>Status</th><th>Received</th>
+                  <th>Program</th><th>Center</th><th>Status</th><th>Date</th>
                 </tr>
               </thead>
               <tbody id="leads-tbody"></tbody>
@@ -226,10 +371,11 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
-    <!-- SLOTS TAB -->
+    <!-- ── SLOTS TAB ── -->
     <div class="tab-content" id="tab-slots">
       <div class="main">
 
@@ -239,14 +385,11 @@
           <div class="slots-grid">
             <div class="slot-card" id="sc-haristhenics">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Haristhenics Enrollment</div>
-                  <div class="slot-card-center">Grip&amp;Grab Saket</div>
-                </div>
+                <div><div class="slot-card-name">Enrollment</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
                 <span class="slot-status-badge closed" id="badge-haristhenics">Closed</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle" id="toggle-haristhenics">
+                <label class="toggle">
                   <input type="checkbox" id="chk-haristhenics">
                   <div class="toggle-track"></div>
                   <div class="toggle-thumb"></div>
@@ -255,9 +398,7 @@
               </div>
               <div class="slot-card-footer">
                 <div class="leads-count" id="lcount-haristhenics">— pending leads</div>
-                <button class="notify-all-btn" id="notify-haristhenics" onclick="notifyAll('haristhenics')">
-                  📢 Notify All Leads
-                </button>
+                <button class="notify-all-btn" onclick="notifyAll('haristhenics')">📢 Notify All Leads</button>
               </div>
             </div>
           </div>
@@ -270,18 +411,11 @@
 
             <div class="slot-card" id="sc-saket-membership">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Membership &amp; Kids</div>
-                  <div class="slot-card-center">Grip&amp;Grab Saket</div>
-                </div>
+                <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
                 <span class="slot-status-badge" id="badge-saket-membership">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-saket-membership">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-saket-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-saket-membership">—</span>
               </div>
               <div class="slot-card-footer">
@@ -292,18 +426,11 @@
 
             <div class="slot-card" id="sc-saket-trial">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Trial Class</div>
-                  <div class="slot-card-center">Grip&amp;Grab Saket</div>
-                </div>
+                <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
                 <span class="slot-status-badge" id="badge-saket-trial">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-saket-trial">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-saket-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-saket-trial">—</span>
               </div>
               <div class="slot-card-footer">
@@ -314,18 +441,11 @@
 
             <div class="slot-card" id="sc-saket-daypass">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Day Pass</div>
-                  <div class="slot-card-center">Grip&amp;Grab Saket</div>
-                </div>
+                <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
                 <span class="slot-status-badge" id="badge-saket-daypass">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-saket-daypass">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-saket-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-saket-daypass">—</span>
               </div>
               <div class="slot-card-footer">
@@ -344,18 +464,11 @@
 
             <div class="slot-card" id="sc-lajpat-membership">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Membership &amp; Kids</div>
-                  <div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div>
-                </div>
+                <div><div class="slot-card-name">Membership &amp; Kids</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
                 <span class="slot-status-badge" id="badge-lajpat-membership">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-lajpat-membership">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-lajpat-membership"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-lajpat-membership">—</span>
               </div>
               <div class="slot-card-footer">
@@ -366,18 +479,11 @@
 
             <div class="slot-card" id="sc-lajpat-trial">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Trial Class</div>
-                  <div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div>
-                </div>
+                <div><div class="slot-card-name">Trial Class</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
                 <span class="slot-status-badge" id="badge-lajpat-trial">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-lajpat-trial">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-lajpat-trial"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-lajpat-trial">—</span>
               </div>
               <div class="slot-card-footer">
@@ -388,18 +494,11 @@
 
             <div class="slot-card" id="sc-lajpat-daypass">
               <div class="slot-card-top">
-                <div class="slot-card-info">
-                  <div class="slot-card-name">Day Pass</div>
-                  <div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div>
-                </div>
+                <div><div class="slot-card-name">Day Pass</div><div class="slot-card-center">Grip&amp;Grab Lajpat Nagar</div></div>
                 <span class="slot-status-badge" id="badge-lajpat-daypass">—</span>
               </div>
               <div class="toggle-row">
-                <label class="toggle">
-                  <input type="checkbox" id="chk-lajpat-daypass">
-                  <div class="toggle-track"></div>
-                  <div class="toggle-thumb"></div>
-                </label>
+                <label class="toggle"><input type="checkbox" id="chk-lajpat-daypass"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 <span class="toggle-label" id="tlabel-lajpat-daypass">—</span>
               </div>
               <div class="slot-card-footer">
@@ -410,11 +509,13 @@
 
           </div>
         </div>
+
       </div>
-    </div><!-- /tab-slots -->
+    </div>
+
   </div><!-- /dashboard -->
 
-  <!-- Confirm overlay -->
+  <!-- Confirm sheet -->
   <div class="confirm-overlay" id="confirm-overlay" style="display:none">
     <div class="confirm-card">
       <div class="confirm-title" id="confirm-title"></div>
@@ -426,15 +527,14 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp }                                         from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { initializeApp }                              from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
-         signOut, onAuthStateChanged }                           from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+         signOut, onAuthStateChanged }                from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, query, orderBy,
-         getDocs, doc, updateDoc, getDoc, setDoc }               from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+         getDocs, doc, updateDoc, getDoc, setDoc }    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const FIREBASE_CONFIG = {
   apiKey:'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k',authDomain:'gripngrab.firebaseapp.com',
@@ -446,24 +546,19 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 let allLeads   = [];
-let slotConfig = {};   /* { haristhenics:{available}, saket:{membership,trial,daypass}, lajpat:{...} } */
+let slotConfig = {};
 
-/* ══════════════════════════════════════════════════════
-   SLOT CARD DEFINITIONS
-   ══════════════════════════════════════════════════════ */
 const SLOT_CARDS = [
-  { id:'haristhenics',     program:'Train with Haristhenics', center:'Grip&Grab Saket',        field:'haristhenics', key:'available'  },
-  { id:'saket-membership', program:'Membership',              center:'Grip&Grab Saket',        field:'saket',        key:'membership' },
-  { id:'saket-trial',      program:'Trial Class',             center:'Grip&Grab Saket',        field:'saket',        key:'trial'      },
-  { id:'saket-daypass',    program:'Day Pass',                center:'Grip&Grab Saket',        field:'saket',        key:'daypass'    },
-  { id:'lajpat-membership',program:'Membership',              center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'membership' },
-  { id:'lajpat-trial',     program:'Trial Class',             center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'trial'      },
-  { id:'lajpat-daypass',   program:'Day Pass',                center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'daypass'    },
+  {id:'haristhenics',     program:'Train with Haristhenics', center:'Grip&Grab Saket',        field:'haristhenics', key:'available' },
+  {id:'saket-membership', program:'Membership',              center:'Grip&Grab Saket',        field:'saket',        key:'membership'},
+  {id:'saket-trial',      program:'Trial Class',             center:'Grip&Grab Saket',        field:'saket',        key:'trial'     },
+  {id:'saket-daypass',    program:'Day Pass',                center:'Grip&Grab Saket',        field:'saket',        key:'daypass'   },
+  {id:'lajpat-membership',program:'Membership',              center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'membership'},
+  {id:'lajpat-trial',     program:'Trial Class',             center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'trial'     },
+  {id:'lajpat-daypass',   program:'Day Pass',                center:'Grip&Grab Lajpat Nagar', field:'lajpat',       key:'daypass'   },
 ];
 
-/* ══════════════════════════════════════════════════════
-   AUTH
-   ══════════════════════════════════════════════════════ */
+/* ── Auth ── */
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
@@ -484,20 +579,17 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const btn   = document.getElementById('login-btn');
   errEl.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Signing in…';
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
+  try { await signInWithEmailAndPassword(auth, email, pass); }
+  catch (e) {
     errEl.textContent = 'Invalid email or password';
     errEl.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Sign In';
   }
 });
-document.getElementById('login-password').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-btn').click(); });
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-btn').click(); });
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-/* ══════════════════════════════════════════════════════
-   TABS
-   ══════════════════════════════════════════════════════ */
+/* ── Tabs ── */
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn,.tab-content').forEach(el => el.classList.remove('active'));
@@ -506,16 +598,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-/* ══════════════════════════════════════════════════════
-   LEADS
-   ══════════════════════════════════════════════════════ */
+/* ── Leads ── */
 async function loadLeads() {
   const loading = document.getElementById('leads-loading');
   const table   = document.getElementById('leads-table');
   const empty   = document.getElementById('leads-empty');
   loading.style.display='block'; table.style.display='none'; empty.style.display='none';
   try {
-    const snap = await getDocs(query(collection(db,'notify-leads'),orderBy('timestamp','desc')));
+    const snap = await getDocs(query(collection(db,'notify-leads'), orderBy('timestamp','desc')));
     allLeads = [];
     snap.forEach(d => allLeads.push({id:d.id,...d.data()}));
     updateStats(allLeads);
@@ -537,34 +627,34 @@ function renderTable(leads) {
   const empty=document.getElementById('leads-empty');
   const tbody=document.getElementById('leads-tbody');
   loading.style.display='none';
-  if(!leads.length){table.style.display='none';empty.style.display='block';return;}
+  if (!leads.length) { table.style.display='none'; empty.style.display='block'; return; }
   empty.style.display='none'; table.style.display='table';
   tbody.innerHTML = leads.map(lead => {
     const ts = lead.timestamp?.toDate?.() ?? null;
-    const timeStr = ts ? ts.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}) : '—';
+    const timeStr = ts ? ts.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}) : '—';
     return `<tr>
       <td class="td-name">${esc(lead.name||'—')}</td>
       <td class="td-phone">${esc(lead.phone||'—')}</td>
-      <td class="td-email">${esc(lead.email||'—')}</td>
+      <td class="td-email" style="font-size:11px">${esc(lead.email||'—')}</td>
       <td><span class="program-pill">${esc(lead.program||'—')}</span></td>
-      <td style="font-size:12px;color:var(--muted)">${esc(lead.center||'—')}</td>
+      <td style="font-size:11px;color:var(--muted)">${esc((lead.center||'—').replace('Grip&Grab ',''))}</td>
       <td><select class="status-select" data-id="${lead.id}" onchange="window._updateStatus(this)">
         <option value="new"       ${lead.status==='new'?'selected':''}>New</option>
         <option value="contacted" ${lead.status==='contacted'?'selected':''}>Contacted</option>
         <option value="converted" ${lead.status==='converted'?'selected':''}>Converted</option>
       </select></td>
-      <td class="td-time">${timeStr}</td>
+      <td class="td-time" style="font-size:11px;white-space:nowrap">${timeStr}</td>
     </tr>`;
   }).join('');
 }
 
 window._updateStatus = async (sel) => {
-  const id = sel.dataset.id; const status = sel.value;
+  const id=sel.dataset.id; const status=sel.value;
   try {
     await updateDoc(doc(db,'notify-leads',id),{status});
-    const lead = allLeads.find(l=>l.id===id);
+    const lead=allLeads.find(l=>l.id===id);
     if(lead){lead.status=status; updateStats(applyFilters()); updateLeadCounts();}
-  } catch(e){alert('Failed: '+e.message);}
+  } catch(e){showToast('Failed: '+e.message,'error');}
 };
 
 function applyFilters() {
@@ -572,24 +662,22 @@ function applyFilters() {
   const pr = document.getElementById('filter-program').value;
   const ce = document.getElementById('filter-center').value;
   const st = document.getElementById('filter-status').value;
-  return allLeads.filter(l=>{
-    const ms = !s || [l.name,l.phone,l.email].some(v=>(v||'').toLowerCase().includes(s));
+  return allLeads.filter(l => {
+    const ms = !s  || [l.name,l.phone,l.email].some(v=>(v||'').toLowerCase().includes(s));
     const mp = !pr || l.program===pr;
     const mc = !ce || (l.center||'').includes(ce);
     const mst= !st || l.status===st;
     return ms&&mp&&mc&&mst;
   });
 }
-['search-input','filter-program','filter-center','filter-status'].forEach(id=>{
+['search-input','filter-program','filter-center','filter-status'].forEach(id => {
   const el = document.getElementById(id);
-  el.addEventListener('input', ()=>renderTable(applyFilters()));
-  el.addEventListener('change',()=>renderTable(applyFilters()));
+  el.addEventListener('input',  () => renderTable(applyFilters()));
+  el.addEventListener('change', () => renderTable(applyFilters()));
 });
 document.getElementById('refresh-btn').addEventListener('click', loadLeads);
 
-/* ══════════════════════════════════════════════════════
-   SLOTS
-   ══════════════════════════════════════════════════════ */
+/* ── Slots ── */
 async function loadSlotConfig() {
   try {
     const [hmSnap, sSnap, lSnap] = await Promise.all([
@@ -598,177 +686,142 @@ async function loadSlotConfig() {
       getDoc(doc(db,'slot-config','lajpat')),
     ]);
     slotConfig = {
-      haristhenics: hmSnap.exists() ? hmSnap.data() : { available: false },
-      saket:        sSnap.exists()  ? sSnap.data()  : { membership:true, trial:true, daypass:true },
-      lajpat:       lSnap.exists()  ? lSnap.data()  : { membership:false, trial:false, daypass:false },
+      haristhenics: hmSnap.exists() ? hmSnap.data() : {available:false},
+      saket:        sSnap.exists()  ? sSnap.data()  : {membership:true,trial:true,daypass:true},
+      lajpat:       lSnap.exists()  ? lSnap.data()  : {membership:false,trial:false,daypass:false},
     };
   } catch(e) {
-    slotConfig = {
-      haristhenics:{available:false},
-      saket:{membership:true,trial:true,daypass:true},
-      lajpat:{membership:false,trial:false,daypass:false},
-    };
+    slotConfig = {haristhenics:{available:false},saket:{membership:true,trial:true,daypass:true},lajpat:{membership:false,trial:false,daypass:false}};
   }
   renderSlots();
 }
 
 function getSlotValue(card) {
   const cfg = slotConfig[card.field] || {};
-  return !!(card.key === 'available' ? cfg.available : cfg[card.key]);
+  return !!(card.key==='available' ? cfg.available : cfg[card.key]);
 }
 
 function renderSlots() {
   SLOT_CARDS.forEach(card => {
     const isOpen = getSlotValue(card);
-    const chk    = document.getElementById('chk-' + card.id);
+    const chk = document.getElementById('chk-'+card.id);
     if (!chk) return;
     chk.checked = isOpen;
     updateSlotUI(card.id, isOpen);
-    /* Bind toggle change */
     chk.onchange = () => handleToggle(card, chk.checked);
   });
   updateLeadCounts();
 }
 
 function updateSlotUI(id, isOpen) {
-  const card   = document.getElementById('sc-' + id);
-  const badge  = document.getElementById('badge-' + id);
-  const tlabel = document.getElementById('tlabel-' + id);
+  const card   = document.getElementById('sc-'+id);
+  const badge  = document.getElementById('badge-'+id);
+  const tlabel = document.getElementById('tlabel-'+id);
   if (!card) return;
   card.classList.toggle('is-open',   isOpen);
   card.classList.toggle('is-closed', !isOpen);
-  if (badge)  { badge.textContent = isOpen ? 'Open' : 'Closed'; badge.className = 'slot-status-badge ' + (isOpen?'open':'closed'); }
-  if (tlabel) { tlabel.textContent = isOpen ? 'Slots open' : 'Slots closed'; }
+  if (badge)  { badge.textContent = isOpen?'Open':'Closed'; badge.className='slot-status-badge '+(isOpen?'open':'closed'); }
+  if (tlabel) { tlabel.textContent = isOpen?'Slots open':'Slots closed'; }
 }
 
 function updateLeadCounts() {
   SLOT_CARDS.forEach(card => {
-    const pending = allLeads.filter(l =>
-      l.program === card.program &&
+    const n = allLeads.filter(l =>
+      l.program===card.program &&
       (l.center||'').includes(card.center.replace('Grip&Grab ','')) &&
-      l.status !== 'converted'
+      l.status!=='converted'
     ).length;
-    const el = document.getElementById('lcount-' + card.id);
-    if (el) el.innerHTML = `<strong>${pending}</strong> pending leads`;
+    const el = document.getElementById('lcount-'+card.id);
+    if (el) el.innerHTML = `<strong>${n}</strong> pending lead${n===1?'':'s'}`;
   });
 }
 
 async function handleToggle(card, newValue) {
-  /* Update Firestore */
-  const docId = card.field;
   const update = {};
-  if (card.key === 'available') update.available = newValue;
-  else update[card.key] = newValue;
-
+  if (card.key==='available') update.available=newValue; else update[card.key]=newValue;
   try {
-    await setDoc(doc(db,'slot-config',docId), update, {merge:true});
-    if (!slotConfig[docId]) slotConfig[docId] = {};
-    if (card.key === 'available') slotConfig[docId].available = newValue;
-    else slotConfig[docId][card.key] = newValue;
+    await setDoc(doc(db,'slot-config',card.field), update, {merge:true});
+    if (!slotConfig[card.field]) slotConfig[card.field]={};
+    if (card.key==='available') slotConfig[card.field].available=newValue; else slotConfig[card.field][card.key]=newValue;
     updateSlotUI(card.id, newValue);
-    showToast('Saved!', 'success');
-
-    /* If turning ON — offer to notify leads */
+    showToast('Saved!','success');
     if (newValue) {
-      const pending = allLeads.filter(l =>
-        l.program === card.program &&
-        (l.center||'').includes(card.center.replace('Grip&Grab ','')) &&
-        l.status !== 'converted'
-      );
-      if (pending.length > 0) {
-        showConfirm(
-          '🎉 Notify leads?',
-          `${pending.length} people asked to be notified for <strong>${card.program}</strong> (${card.center}). Send them an email now?`,
+      const pending = pendingLeads(card);
+      if (pending.length>0) {
+        showConfirm('🎉 Notify leads?',
+          `<strong>${pending.length}</strong> people are waiting for <strong>${card.program}</strong> (${card.center.replace('Grip&Grab ','')}). Send them an email?`,
           () => sendNotifyEmails(card, pending)
         );
       }
     }
   } catch(e) {
-    /* Revert checkbox */
-    const chk = document.getElementById('chk-' + card.id);
+    const chk = document.getElementById('chk-'+card.id);
     if (chk) chk.checked = !newValue;
-    showToast('Save failed: ' + e.message, 'error');
+    showToast('Save failed: '+e.message,'error');
   }
+}
+
+function pendingLeads(card) {
+  return allLeads.filter(l =>
+    l.program===card.program &&
+    (l.center||'').includes(card.center.replace('Grip&Grab ','')) &&
+    l.status!=='converted'
+  );
 }
 
 async function sendNotifyEmails(card, leads) {
   showToast(`Sending to ${leads.length} leads…`);
   try {
-    const r = await fetch('/api/notify-open', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        program: card.program,
-        center:  card.center,
-        leads:   leads.map(l=>({name:l.name,email:l.email,phone:l.phone})),
-      }),
+    await fetch('/api/notify-open', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({program:card.program,center:card.center,leads:leads.map(l=>({name:l.name,email:l.email,phone:l.phone}))}),
     });
-    const data = await r.json();
-    /* Mark leads as contacted in Firestore */
     const updates = leads.filter(l=>l.email).map(l =>
       updateDoc(doc(db,'notify-leads',l.id),{status:'contacted'}).then(()=>{
-        const found = allLeads.find(a=>a.id===l.id);
-        if(found) found.status='contacted';
+        const f=allLeads.find(a=>a.id===l.id); if(f) f.status='contacted';
       })
     );
     await Promise.allSettled(updates);
-    updateStats(applyFilters());
-    updateLeadCounts();
-    renderTable(applyFilters());
-    showToast(`✓ Sent to ${data.sent || 0} leads!`, 'success');
-  } catch(e) {
-    showToast('Send failed: ' + e.message, 'error');
-  }
+    updateStats(applyFilters()); updateLeadCounts(); renderTable(applyFilters());
+    showToast(`✓ Done! Emails sent.`,'success');
+  } catch(e) { showToast('Send failed: '+e.message,'error'); }
 }
 
-/* Expose for onclick in HTML */
 window.notifyAll = function(cardId) {
-  const card = SLOT_CARDS.find(c => c.id === cardId);
+  const card = SLOT_CARDS.find(c=>c.id===cardId);
   if (!card) return;
-  const pending = allLeads.filter(l =>
-    l.program === card.program &&
-    (l.center||'').includes(card.center.replace('Grip&Grab ','')) &&
-    l.status !== 'converted'
-  );
-  if (!pending.length) { showToast('No pending leads for this slot.'); return; }
-  showConfirm(
-    `📢 Notify ${pending.length} leads`,
-    `Send "slots open" email to <strong>${pending.length} people</strong> who enquired about <strong>${card.program}</strong> (${card.center})?`,
+  const pending = pendingLeads(card);
+  if (!pending.length) { showToast('No pending leads.'); return; }
+  showConfirm(`📢 Notify ${pending.length} lead${pending.length===1?'':'s'}`,
+    `Send "slots open" email to <strong>${pending.length} people</strong> for <strong>${card.program}</strong> (${card.center.replace('Grip&Grab ','')})?`,
     () => sendNotifyEmails(card, pending)
   );
 };
 
-/* ══════════════════════════════════════════════════════
-   CONFIRM + TOAST
-   ══════════════════════════════════════════════════════ */
-let confirmCallback = null;
-
+/* ── Confirm + Toast ── */
+let confirmCb = null;
 function showConfirm(title, msg, onYes) {
   document.getElementById('confirm-title').innerHTML = title;
   document.getElementById('confirm-msg').innerHTML   = msg;
-  confirmCallback = onYes;
+  confirmCb = onYes;
   document.getElementById('confirm-overlay').style.display = 'flex';
 }
-
 document.getElementById('confirm-yes').addEventListener('click', () => {
-  document.getElementById('confirm-overlay').style.display = 'none';
-  if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+  document.getElementById('confirm-overlay').style.display='none';
+  if (confirmCb) { confirmCb(); confirmCb=null; }
 });
 document.getElementById('confirm-no').addEventListener('click', () => {
-  document.getElementById('confirm-overlay').style.display = 'none';
-  confirmCallback = null;
+  document.getElementById('confirm-overlay').style.display='none'; confirmCb=null;
 });
 
 let toastTimer;
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
+  t.textContent = msg; t.className = 'toast show ' + type;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
+  toastTimer = setTimeout(() => { t.className='toast'; }, 3000);
 }
-
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
