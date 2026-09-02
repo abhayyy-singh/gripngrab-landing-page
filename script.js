@@ -668,9 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
       altBtn.textContent = `Join ${alt} instead`;
       altBtn.onclick = () => onCenterSelect(alt);
       showStep('full');
-      window.NotifyLeads && window.NotifyLeads.render('nl-mm', 'Membership', centerName, {
-        plans: ['Monthly (₹8,000/month)', 'Quarterly (₹21,000/3 months)', 'Half Yearly (₹36,000/6 months)'],
-      });
+      window.NotifyLeads && window.NotifyLeads.render('nl-mm', 'Membership', centerName);
     }
   }
 
