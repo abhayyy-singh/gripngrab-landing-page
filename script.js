@@ -448,9 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <h4 class="mm-full-title" id="mmFullTitle"></h4>
       <p  class="mm-full-msg"   id="mmFullMsg"></p>
       <button class="mm-alt-btn"   id="mmAltBtn"        type="button"></button>
-      <a href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="mm-notify-btn">
-  🔔 Notify Me — Get latest updates, join our Broadcast Channel
-</a>
+      <div id="nl-mm"></div>
       <button class="mm-back-link" id="mmBackFromFull"  type="button">← Choose a different center</button>
     </div>
 
@@ -670,6 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
       altBtn.textContent = `Join ${alt} instead`;
       altBtn.onclick = () => onCenterSelect(alt);
       showStep('full');
+      window.NotifyLeads && window.NotifyLeads.render('nl-mm', 'Membership', centerName);
     }
   }
 
@@ -1027,9 +1026,7 @@ document.addEventListener('keydown', (e) => {
       <h4 class="km-full-title" id="kmFullTitle"></h4>
       <p  class="km-full-msg"   id="kmFullMsg"></p>
       <button class="km-alt-btn"   id="kmAltBtn"       type="button"></button>
-      <a href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="mm-notify-btn">
-  🔔 Notify Me — Get latest updates, join our Broadcast Channel
-</a>
+      <div id="nl-km"></div>
       <button class="km-back-link" id="kmBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -1208,6 +1205,7 @@ document.addEventListener('keydown', (e) => {
       altBtn.textContent = 'Enroll at ' + altFull;
       altBtn.onclick = function () { onCenterSelect(altShort); };
       showStep('full');
+      window.NotifyLeads && window.NotifyLeads.render('nl-km', 'Kids Fitness', 'Grip&Grab ' + shortName);
     } else {
       document.getElementById('kmFormTitle').textContent    = 'Kids Fitness — Grip&Grab ' + shortName;
       showStep('form');
@@ -1422,11 +1420,8 @@ document.addEventListener('keydown', (e) => {
         </svg>
       </div>
       <h4 class="hm-full-title">Harish's slots are currently full</h4>
-      <p class="hm-full-msg">We're not taking new enrollments for the Train with Harish program right now. Join our broadcast channel to get notified when spots open up.</p>
-      <a href="https://www.instagram.com/channel/AbZXE4Jq76d7C_Fa/"
-         target="_blank" rel="noopener noreferrer" class="hm-notify-btn">
-        🔔 Notify Me — Join our Broadcast Channel
-      </a>
+      <p class="hm-full-msg">We're not taking new enrollments for the Train with Harish program right now. Drop your details and we'll notify you when spots open up.</p>
+      <div id="nl-hm"></div>
     </div>
 
     <!-- FORM -->
@@ -1575,6 +1570,7 @@ document.addEventListener('keydown', (e) => {
     const config = window.HARISH_CONFIG;
     if (config && !config.available) {
       showStep('full');
+      window.NotifyLeads && window.NotifyLeads.render('nl-hm', 'Train with Haristhenics', 'Grip&Grab Saket');
     } else {
       showStep('manifesto');
     }

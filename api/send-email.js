@@ -34,7 +34,7 @@ module.exports = async function handler(req, res) {
 
   /* ── Guard: Resend key must be set ── */
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const NOTIFY_EMAIL   = process.env.NOTIFY_EMAIL ?? 'placeholder@example.com';
+  const NOTIFY_EMAIL   = process.env.NOTIFY_EMAIL ?? 'haristhenics06@gmail.com';
 
   if (!RESEND_API_KEY || RESEND_API_KEY === 'REPLACE_ME') {
     console.error('RESEND_API_KEY not set in environment variables');
@@ -48,8 +48,9 @@ module.exports = async function handler(req, res) {
     halfyearly: 'Half Yearly — ₹36,000 + GST',
     yearly:     'Yearly — ₹60,000 + GST',
     trial:      'Trial Class — ₹2,000',
-    'kids-monthly':    'Kids Monthly — ₹5,900 (₹5,000 + GST)',
+    'kids-monthly':    'Kids Monthly — ₹6,000 (Inclusive of GST)',
     'harish-monthly':  'Train with Haristhenics — 1 Month Program',
+    'day-pass':        'Day Pass — ₹1,000',
   };
   const planLabel = planLabels[plan] ?? plan;
 
@@ -92,6 +93,7 @@ module.exports = async function handler(req, res) {
   const mapsLink      = centerMeta.mapsLink;
   const isTrial       = plan === 'trial';
   const isHarish      = plan === 'harish-monthly';
+  const isDayPass     = plan === 'day-pass';
 
   /* ── Customer confirmation email ── */
   const customerEmail = {
@@ -101,13 +103,15 @@ module.exports = async function handler(req, res) {
       ? `Your trial class at Grip&Grab is confirmed!`
       : isHarish
         ? `Your Train with Haristhenics program is confirmed!`
-        : `Welcome to Grip&Grab! Your membership is confirmed`,
+        : isDayPass
+          ? `Your Day Pass at Grip&Grab is confirmed!`
+          : `Welcome to Grip&Grab! Your membership is confirmed`,
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>${isTrial ? 'Trial Class Confirmed' : 'Membership Confirmed'} — Grip&amp;Grab</title>
+  <title>${isTrial ? 'Trial Class Confirmed' : isDayPass ? 'Day Pass Confirmed' : 'Membership Confirmed'} — Grip&amp;Grab</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f4;font-family:'Helvetica Neue',Arial,sans-serif;">
 <table width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:32px 16px;">
@@ -127,7 +131,7 @@ module.exports = async function handler(req, res) {
         <tr>
           <td style="background:#18181b;padding:20px 40px;text-align:center;border-bottom:1px solid #e5e5e5;">
             <span style="display:inline-block;background:#dcfce7;color:#15803d;font-size:13px;font-weight:600;padding:6px 16px;border-radius:99px;letter-spacing:0.3px;">
-              ✓ &nbsp;${isTrial ? 'Booking Confirmed' : 'Membership Confirmed'}
+              ✓ &nbsp;${isTrial ? 'Booking Confirmed' : isDayPass ? 'Day Pass Confirmed' : 'Membership Confirmed'}
             </span>
           </td>
         </tr>
@@ -141,7 +145,9 @@ module.exports = async function handler(req, res) {
                 ? 'Your trial class at <strong>Grip&amp;Grab</strong> has been successfully booked. We\'re excited to have you!'
                 : isHarish
                   ? 'Your <strong>Train with Haristhenics</strong> program is now confirmed. Harish will personally call you within <strong>5-7 days</strong> to schedule your sessions.'
-                  : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
+                  : isDayPass
+                    ? `Your <strong>Day Pass</strong> at <strong>Grip&amp;Grab ${centerName}</strong> is confirmed. Walk in anytime during your chosen session on the booked date.`
+                    : `Your <strong>${planLabel}</strong> membership at <strong>Grip&amp;Grab</strong> is now active. Welcome to the family!`
               }
             </p>
           </td>
@@ -168,7 +174,7 @@ module.exports = async function handler(req, res) {
                 </td>
               </tr>
 
-              ${isTrial ? `
+              ${(isTrial || isDayPass) ? `
               <!-- Date -->
               <tr>
                 <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
@@ -176,10 +182,10 @@ module.exports = async function handler(req, res) {
                   <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${date}</p>
                 </td>
               </tr>
-              <!-- Time -->
+              <!-- Session/Time -->
               <tr>
                 <td style="padding:16px 20px;border-bottom:1px solid #e5e5e5;">
-                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Time Slot</p>
+                  <p style="margin:0;font-size:11px;color:#888888;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">${isDayPass ? 'Session' : 'Time Slot'}</p>
                   <p style="margin:4px 0 0;font-size:15px;color:#111111;font-weight:600;">${time}</p>
                 </td>
               </tr>` : `
@@ -233,6 +239,20 @@ module.exports = async function handler(req, res) {
               </tr>
             </table>
           </td>
+        </tr>` : isDayPass ? `
+        <!-- Day pass policy note -->
+        <tr>
+          <td style="padding:0 40px;">
+            <table width="100%" cellspacing="0" cellpadding="0" style="background:#fff1f1;border:1px solid #fecaca;border-radius:10px;margin-bottom:24px;">
+              <tr>
+                <td style="padding:16px 20px;">
+                  <p style="margin:0;font-size:13.5px;color:#991b1b;line-height:1.6;">
+                    <strong>⚠ Important:</strong> This day pass is valid <strong>only for ${date}</strong>. It is non-refundable and non-cancellable. Please reach on time.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
         </tr>` : ''}
 
         <!-- Help text -->
@@ -243,7 +263,9 @@ module.exports = async function handler(req, res) {
                 ? 'See you at the gym! Carry this email as your booking reference.'
                 : isHarish
                   ? 'Please be patient — Harish will personally reach out to you within 5-7 days to schedule your sessions and discuss your goals.'
-                  : 'Our team will be in touch shortly with your onboarding details.'
+                  : isDayPass
+                    ? `See you at the gym! Walk in anytime during your session window. Please carry this email as your booking reference.`
+                    : 'Our team will be in touch shortly with your onboarding details.'
               }<br><br>
               If you have any questions or need help, feel free to reach out to us on WhatsApp or give us a call — We\'re happy to assist.
             </p>
@@ -298,7 +320,7 @@ module.exports = async function handler(req, res) {
   const notifyEmail = {
     from:    'Grip&Grab Bookings <noreply@gripandgrab.com>',
     to:      [NOTIFY_EMAIL],
-    subject: `New ${plan === 'trial' ? 'Trial Booking' : plan === 'harish-monthly' ? 'Train with Haristhenics Enrollment' : 'Membership'}: ${name} — ${planLabel}`,
+    subject: `New ${plan === 'trial' ? 'Trial Booking' : plan === 'harish-monthly' ? 'Train with Haristhenics Enrollment' : plan === 'day-pass' ? 'Day Pass Booking' : 'Membership'}: ${name} — ${planLabel}`,
     html: `
 <div style="font-family:monospace;padding:24px;background:#0a0a0a;color:#fff;max-width:480px;">
   <h2 style="margin:0 0 16px;">New Membership Booking</h2>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grip&amp;Grab Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c0c;
+      --surface:   #161616;
+      --surface2:  #1e1e1e;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #f0f0f0;
+      --text-muted: rgba(255,255,255,0.4);
+      --accent:    #ff6b6b;
+      --accent2:   #f7d794;
+      --green:     #4ade80;
+      --yellow:    #fbbf24;
+      --blue:      #60a5fa;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-logo {
+      background: linear-gradient(135deg, #ff6b6b, #f7d794);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .login-tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .login-err {
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ff8a8a;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .login-field {
+      margin-bottom: 12px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color .2s;
+    }
+
+    .login-input::placeholder { color: var(--text-muted); }
+    .login-input:focus { outline: none; border-color: var(--accent); }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff6b6b, #f7d794);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity .2s;
+    }
+
+    .login-btn:hover { opacity: .9; }
+    .login-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; flex-direction: column; min-height: 100vh; }
+
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-brand {
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff6b6b, #f7d794);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .header-user {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .logout-btn {
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+
+    .logout-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+    .main { padding: 28px 24px; flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    /* ── STATS ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+
+    .stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .8px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--text); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.yellow { color: var(--yellow); }
+    .stat-value.blue   { color: var(--blue); }
+
+    /* ── FILTERS ── */
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    .filter-select:focus { outline: none; border-color: var(--accent); }
+
+    .filter-search {
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-search::placeholder { color: var(--text-muted); }
+    .filter-search:focus { outline: none; border-color: var(--accent); }
+
+    .refresh-btn {
+      padding: 8px 14px;
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.2);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+
+    .refresh-btn:hover { background: rgba(255,107,107,0.18); }
+
+    /* ── LEADS TABLE ── */
+    .leads-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .leads-table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: rgba(255,255,255,0.04);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+    tbody td {
+      padding: 13px 16px;
+      font-size: 13px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .td-name  { font-weight: 600; }
+    .td-phone { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+    .td-email { color: var(--text-muted); font-size: 12px; }
+    .td-time  { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-new       { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .badge-contacted { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-converted { background: rgba(74,222,128,0.15); color: var(--green); }
+
+    .status-select {
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+    }
+
+    .status-select:focus { outline: none; border-color: var(--accent); }
+
+    .empty-state {
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; }
+
+    .loading-state {
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .program-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.65);
+    }
+
+    @media (max-width: 600px) {
+      .main { padding: 16px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">Grip&amp;Grab</div>
+      <p class="login-tagline">Admin Panel — Notify Me Leads</p>
+      <div class="login-err" id="login-err"></div>
+      <div class="login-field">
+        <input type="email"    class="login-input" id="login-email"    placeholder="Admin email"    autocomplete="email">
+      </div>
+      <div class="login-field">
+        <input type="password" class="login-input" id="login-password" placeholder="Password"       autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="login-btn">Sign In</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <header class="header">
+      <div class="header-brand">G&amp;G Admin · Leads</div>
+      <div class="header-right">
+        <span class="header-user" id="header-user"></span>
+        <button class="logout-btn" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">New</div><div class="stat-value blue" id="stat-new">—</div></div>
+        <div class="stat-card"><div class="stat-label">Contacted</div><div class="stat-value yellow" id="stat-contacted">—</div></div>
+        <div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value green" id="stat-converted">—</div></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-row">
+        <input type="text" class="filter-search" id="search-input" placeholder="Search name, phone, email…">
+        <select class="filter-select" id="filter-program">
+          <option value="">All Programs</option>
+          <option value="Membership">Membership</option>
+          <option value="Trial Class">Trial Class</option>
+          <option value="Day Pass">Day Pass</option>
+          <option value="Train with Haristhenics">Train with Haristhenics</option>
+          <option value="Kids Fitness">Kids Fitness</option>
+        </select>
+        <select class="filter-select" id="filter-center">
+          <option value="">All Centers</option>
+          <option value="Grip&Grab Saket">Saket</option>
+          <option value="Grip&Grab Lajpat Nagar">Lajpat Nagar</option>
+        </select>
+        <select class="filter-select" id="filter-status">
+          <option value="">All Status</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="converted">Converted</option>
+        </select>
+        <button class="refresh-btn" id="refresh-btn">↻ Refresh</button>
+      </div>
+
+      <!-- Table -->
+      <div class="leads-wrap">
+        <div class="leads-table-scroll">
+          <div class="loading-state" id="leads-loading">Loading leads…</div>
+          <table id="leads-table" style="display:none">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Program</th>
+                <th>Center</th>
+                <th>Status</th>
+                <th>Received</th>
+              </tr>
+            </thead>
+            <tbody id="leads-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="leads-empty" style="display:none">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-text">No leads found</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp }                                   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword,
+         signOut, onAuthStateChanged }                     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, query,
+         orderBy, getDocs, doc, updateDoc }                from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k',
+  authDomain:        'gripngrab.firebaseapp.com',
+  projectId:         'gripngrab',
+  storageBucket:     'gripngrab.firebasestorage.app',
+  messagingSenderId: '568040807328',
+  appId:             '1:568040807328:web:e9ee4f1328064a3d69e2c5',
+};
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let allLeads = [];
+
+/* ── Auth state ── */
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display    = 'flex';
+    document.getElementById('header-user').textContent    = user.email;
+    loadLeads();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display    = 'none';
+  }
+});
+
+/* ── Login ── */
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const emailVal = document.getElementById('login-email').value.trim();
+  const passVal  = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-err');
+  const btn      = document.getElementById('login-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  try {
+    await signInWithEmailAndPassword(auth, emailVal, passVal);
+  } catch (e) {
+    errEl.textContent = e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found'
+      ? 'Invalid email or password'
+      : 'Sign-in failed. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+});
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-btn').click();
+});
+
+/* ── Logout ── */
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+/* ── Load leads ── */
+async function loadLeads() {
+  const loading = document.getElementById('leads-loading');
+  const table   = document.getElementById('leads-table');
+  const empty   = document.getElementById('leads-empty');
+  loading.style.display = 'block';
+  table.style.display   = 'none';
+  empty.style.display   = 'none';
+
+  try {
+    const q  = query(collection(db, 'notify-leads'), orderBy('timestamp', 'desc'));
+    const snap = await getDocs(q);
+    allLeads = [];
+    snap.forEach(d => allLeads.push({ id: d.id, ...d.data() }));
+    updateStats(allLeads);
+    renderTable(allLeads);
+  } catch (e) {
+    loading.textContent = 'Failed to load leads. ' + (e.message || '');
+  }
+}
+
+/* ── Stats ── */
+function updateStats(leads) {
+  document.getElementById('stat-total').textContent     = leads.length;
+  document.getElementById('stat-new').textContent       = leads.filter(l => l.status === 'new').length;
+  document.getElementById('stat-contacted').textContent = leads.filter(l => l.status === 'contacted').length;
+  document.getElementById('stat-converted').textContent = leads.filter(l => l.status === 'converted').length;
+}
+
+/* ── Render table ── */
+function renderTable(leads) {
+  const loading = document.getElementById('leads-loading');
+  const table   = document.getElementById('leads-table');
+  const empty   = document.getElementById('leads-empty');
+  const tbody   = document.getElementById('leads-tbody');
+
+  loading.style.display = 'none';
+
+  if (leads.length === 0) {
+    table.style.display  = 'none';
+    empty.style.display  = 'block';
+    return;
+  }
+
+  empty.style.display  = 'none';
+  table.style.display  = 'table';
+
+  tbody.innerHTML = leads.map(lead => {
+    const ts = lead.timestamp?.toDate?.() ?? null;
+    const timeStr = ts
+      ? ts.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true, timeZone:'Asia/Kolkata' })
+      : '—';
+    const statusBadge = { new: 'badge-new', contacted: 'badge-contacted', converted: 'badge-converted' }[lead.status] || 'badge-new';
+    return `
+      <tr>
+        <td class="td-name">${esc(lead.name || '—')}</td>
+        <td class="td-phone">${esc(lead.phone || '—')}</td>
+        <td class="td-email">${esc(lead.email || '—')}</td>
+        <td><span class="program-pill">${esc(lead.program || '—')}</span></td>
+        <td style="font-size:12px;color:var(--text-muted)">${esc(lead.center || '—')}</td>
+        <td>
+          <select class="status-select" data-id="${lead.id}" onchange="window._updateStatus(this)">
+            <option value="new"       ${lead.status==='new'       ? 'selected':''}>New</option>
+            <option value="contacted" ${lead.status==='contacted' ? 'selected':''}>Contacted</option>
+            <option value="converted" ${lead.status==='converted' ? 'selected':''}>Converted</option>
+          </select>
+        </td>
+        <td class="td-time">${timeStr}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ── Update lead status ── */
+window._updateStatus = async function(selectEl) {
+  const id     = selectEl.dataset.id;
+  const status = selectEl.value;
+  try {
+    await updateDoc(doc(db, 'notify-leads', id), { status });
+    const lead = allLeads.find(l => l.id === id);
+    if (lead) { lead.status = status; updateStats(applyFilters()); }
+  } catch (e) {
+    alert('Failed to update status: ' + e.message);
+    selectEl.value = allLeads.find(l => l.id === id)?.status || 'new';
+  }
+};
+
+/* ── Filters ── */
+function applyFilters() {
+  const search  = document.getElementById('search-input').value.toLowerCase();
+  const program = document.getElementById('filter-program').value;
+  const center  = document.getElementById('filter-center').value;
+  const status  = document.getElementById('filter-status').value;
+
+  return allLeads.filter(l => {
+    const matchSearch  = !search  || [l.name, l.phone, l.email].some(v => (v||'').toLowerCase().includes(search));
+    const matchProgram = !program || l.program === program;
+    const matchCenter  = !center  || (l.center||'').includes(center.replace('Grip&Grab ', '').replace('Grip&amp;Grab ', ''));
+    const matchStatus  = !status  || l.status === status;
+    return matchSearch && matchProgram && matchCenter && matchStatus;
+  });
+}
+
+['search-input','filter-program','filter-center','filter-status'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => renderTable(applyFilters()));
+  document.getElementById(id).addEventListener('change', () => renderTable(applyFilters()));
+});
+
+document.getElementById('refresh-btn').addEventListener('click', loadLeads);
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

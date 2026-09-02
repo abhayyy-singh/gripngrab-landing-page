@@ -764,9 +764,47 @@ body {
 
 .pricing-contact {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 14px;
+}
+
+.daypass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(13px, 3.5vw, 18px) clamp(20px, 5.5vw, 44px);
+  min-height: 56px;
+  background: transparent;
+  border: 2px solid rgba(255, 107, 107, 0.6);
+  border-radius: 99px;
+  color: #ff6b6b;
+  font-size: clamp(0.78rem, 3vw, 1.05rem);
+  font-weight: 800;
+  font-family: inherit;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.daypass-btn:hover {
+  background: linear-gradient(135deg, #ff6b6b, #f7d794);
+  border-color: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.35);
+}
+
+@media (max-width: 500px) {
+  .trial-modal-trigger,
+  .daypass-btn {
+    width: 100%;
+    max-width: 360px;
+  }
 }
 
 .pricing-contact span {
@@ -2622,18 +2660,19 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 18px 44px;
-  min-height: 60px;
+  padding: clamp(13px, 3.5vw, 18px) clamp(22px, 6vw, 44px);
+  min-height: 56px;
   background: linear-gradient(135deg, #ff6b6b, #f7d794);
   border: none;
   border-radius: 99px;
   color: #000;
-  font-size: 1.1rem;
+  font-size: clamp(0.82rem, 3.4vw, 1.1rem);
   font-weight: 800;
   font-family: inherit;
   text-decoration: none;
-  white-space: nowrap;
-  line-height: 1.5;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.4;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   cursor: pointer;
@@ -7270,28 +7309,17 @@ body {
   color: rgba(255,255,255,0.22);
 }
 .premium-card__video {
-  position: relative;
   width: 100%;
-  padding-bottom: 52%;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 12px;
   border: 1px solid rgba(255,107,107,0.15);
 }
-.premium-card__video iframe {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
 .premium-card__thumb {
-  position: absolute;
-  top: 0; left: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
+  object-fit: cover;
 }
 .premium-card__video-overlay {
   position: absolute;

@@ -100,9 +100,7 @@
       <h4 class="ptm-full-title" id="ptFullTitle"></h4>
       <p  class="ptm-full-msg"   id="ptFullMsg"></p>
       <button class="ptm-alt-btn"   id="ptAltBtn"       type="button"></button>
-      <a id="ptNotifyBtn" href="https://www.instagram.com/channel/AbYqrbkMTx_toK10/?igsh=ZGo3NDY3OG8wcDhr" target="_blank" rel="noopener noreferrer" class="ptm-notify-btn">
-  🔔 Notify Me — Get latest updates, join our Broadcast Channel
-</a>
+      <div id="nl-ptm"></div>
       <button class="ptm-back-link" id="ptBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -298,11 +296,8 @@
      altBtn.textContent = 'Book trial at ' + altFull;
 altBtn.onclick = function () { onCenterSelect(altShort); };
 
-var notifyBtn = document.getElementById('ptNotifyBtn');
-if (notifyBtn) {
-  notifyBtn.style.display = 'block';
-}
 showStep('full');
+window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&Grab ' + shortName);
     } else {
       document.getElementById('ptFormTitle').textContent    = 'Book Trial — Grip&Grab ' + shortName;
       document.getElementById('ptLocation').value           = shortName;
