@@ -447,8 +447,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <h4 class="mm-full-title" id="mmFullTitle"></h4>
       <p  class="mm-full-msg"   id="mmFullMsg"></p>
-      <button class="mm-alt-btn"   id="mmAltBtn"        type="button"></button>
       <div id="nl-mm"></div>
+      <button class="mm-alt-btn"   id="mmAltBtn"        type="button"></button>
       <button class="mm-back-link" id="mmBackFromFull"  type="button">← Choose a different center</button>
     </div>
 
@@ -552,8 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
 .mm-full-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,180,0,0.1);border:1.5px solid rgba(255,180,0,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#f7d794;}
 .mm-full-title{font-size:18px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;}
 .mm-full-msg{font-size:14px;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.7;}
-.mm-alt-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s;margin-bottom:12px;}
-.mm-alt-btn:hover{opacity:0.9;}
+.mm-alt-btn{display:block;width:100%;padding:11px 14px;background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;border-radius:12px;cursor:pointer;transition:border-color 0.2s,color 0.2s;margin-top:10px;margin-bottom:8px;box-sizing:border-box;}
+.mm-alt-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff;}
 /* Plans */
 .mm-plans{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:6px;}
 @media(min-width:440px){.mm-plans{grid-template-columns:repeat(4,1fr);}}
@@ -668,7 +668,9 @@ document.addEventListener('DOMContentLoaded', () => {
       altBtn.textContent = `Join ${alt} instead`;
       altBtn.onclick = () => onCenterSelect(alt);
       showStep('full');
-      window.NotifyLeads && window.NotifyLeads.render('nl-mm', 'Membership', centerName);
+      window.NotifyLeads && window.NotifyLeads.render('nl-mm', 'Membership', centerName, {
+        plans: ['Monthly (₹8,000/month)', 'Quarterly (₹21,000/3 months)', 'Half Yearly (₹36,000/6 months)'],
+      });
     }
   }
 
@@ -1025,8 +1027,8 @@ document.addEventListener('keydown', (e) => {
       </div>
       <h4 class="km-full-title" id="kmFullTitle"></h4>
       <p  class="km-full-msg"   id="kmFullMsg"></p>
-      <button class="km-alt-btn"   id="kmAltBtn"       type="button"></button>
       <div id="nl-km"></div>
+      <button class="km-alt-btn"   id="kmAltBtn"       type="button"></button>
       <button class="km-back-link" id="kmBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -1131,8 +1133,8 @@ document.addEventListener('keydown', (e) => {
 .km-full-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,180,0,0.1);border:1.5px solid rgba(255,180,0,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#f7d794;}
 .km-full-title{font-size:18px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;}
 .km-full-msg{font-size:14px;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.7;}
-.km-alt-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s;margin-bottom:12px;}
-.km-alt-btn:hover{opacity:0.9;}
+.km-alt-btn{display:block;width:100%;padding:11px 14px;background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;border-radius:12px;cursor:pointer;transition:border-color 0.2s,color 0.2s;margin-top:10px;margin-bottom:8px;box-sizing:border-box;}
+.km-alt-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff;}
 .km-plan-card{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,107,107,0.4);border-radius:14px;padding:16px 18px;margin-bottom:20px;}
 .km-plan-card__name{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px;}
 .km-plan-card__note{font-size:11px;color:rgba(255,255,255,0.35);}

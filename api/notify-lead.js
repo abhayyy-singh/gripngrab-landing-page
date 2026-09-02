@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, phone, email, program, center } = req.body ?? {};
+  const { name, phone, email, program, center, interestedPlan } = req.body ?? {};
 
   if (!name || !phone || !program) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -69,9 +69,16 @@ module.exports = async function handler(req, res) {
           <td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:#f0f0f0;font-weight:600;">${program}</td>
         </tr>
         <tr>
-          <td style="padding:10px 0;font-size:13px;color:rgba(255,255,255,0.45);">Center</td>
-          <td style="padding:10px 0;font-size:14px;color:#f0f0f0;font-weight:600;">${center || '—'}</td>
+          <td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;color:rgba(255,255,255,0.45);">Center</td>
+          <td style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:#f0f0f0;font-weight:600;">${center || '—'}</td>
         </tr>
+        ${interestedPlan ? `<tr>
+          <td style="padding:10px 0;font-size:13px;color:rgba(255,255,255,0.45);">Plan Interest</td>
+          <td style="padding:10px 0;font-size:14px;color:#f0f0f0;font-weight:600;">${interestedPlan}</td>
+        </tr>` : `<tr>
+          <td style="padding:10px 0;font-size:13px;color:rgba(255,255,255,0.45);">Plan Interest</td>
+          <td style="padding:10px 0;font-size:14px;color:#f0f0f0;font-weight:600;">—</td>
+        </tr>`}
       </table>
 
       <div style="margin-top:20px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 16px;">

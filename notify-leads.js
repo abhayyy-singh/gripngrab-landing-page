@@ -32,6 +32,12 @@ if (!document.getElementById('nl-styles')) {
       box-sizing:border-box;transition:border-color .2s;}
     .nl-input::placeholder{color:rgba(255,255,255,0.25);}
     .nl-input:focus{outline:none;border-color:#ff6b6b;}
+    .nl-select{width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;
+      background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:14px;
+      font-family:'Poppins',sans-serif;box-sizing:border-box;transition:border-color .2s;
+      -webkit-appearance:none;appearance:none;cursor:pointer;}
+    .nl-select option{background:#1a1a1a;color:#f0f0f0;}
+    .nl-select:focus{outline:none;border-color:#ff6b6b;}
     .nl-err{font-size:11px;color:#ff6b6b;min-height:14px;line-height:1.4;}
     .nl-submit{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ff6b6b,#f7d794);
       color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;
@@ -44,10 +50,19 @@ if (!document.getElementById('nl-styles')) {
   document.head.appendChild(s);
 }
 
-/* ── render a fresh form into containerId ── */
-function render(containerId, program, center) {
+/* ── render a fresh form into containerId ──
+   extra.plans = ['Monthly', '3 Months', ...] → shows optional plan dropdown
+*/
+function render(containerId, program, center, extra) {
   const el = document.getElementById(containerId);
   if (!el) return;
+
+  const planDropdown = (extra && extra.plans && extra.plans.length)
+    ? `<select class="nl-select" id="${containerId}-plan">
+         <option value="">Plan interested in (optional)</option>
+         ${extra.plans.map(p => `<option value="${p}">${p}</option>`).join('')}
+       </select>`
+    : '';
 
   el.innerHTML = `
     <p class="nl-intro">Get notified when slots open up:</p>
@@ -58,6 +73,7 @@ function render(containerId, program, center) {
       <div   class="nl-err"               id="${containerId}-phone-err"></div>
       <input type="email" class="nl-input" id="${containerId}-email" placeholder="Email address" autocomplete="email">
       <div   class="nl-err"               id="${containerId}-email-err"></div>
+      ${planDropdown}
     </div>
     <button class="nl-submit" id="${containerId}-btn" type="button">
       <span class="nl-btn-text">🔔 Notify Me When Slots Open</span>
@@ -77,6 +93,7 @@ function submit(containerId, program, center) {
   const nameEl  = document.getElementById(containerId + '-name');
   const phoneEl = document.getElementById(containerId + '-phone');
   const emailEl = document.getElementById(containerId + '-email');
+  const planEl  = document.getElementById(containerId + '-plan');
   const btn     = document.getElementById(containerId + '-btn');
 
   ['name', 'phone', 'email'].forEach(f => {
@@ -109,8 +126,14 @@ function submit(containerId, program, center) {
   text.style.display   = 'none';
   loader.style.display = 'block';
 
-  const lead = { name: nameEl.value.trim(), phone: phoneEl.value.trim(),
-                 email: emailEl.value.trim(), program, center };
+  const lead = {
+    name:    nameEl.value.trim(),
+    phone:   phoneEl.value.trim(),
+    email:   emailEl.value.trim(),
+    program,
+    center,
+  };
+  if (planEl && planEl.value) lead.interestedPlan = planEl.value;
 
   addDoc(collection(db, 'notify-leads'), { ...lead, timestamp: serverTimestamp(), status: 'new' })
     .then(() => {

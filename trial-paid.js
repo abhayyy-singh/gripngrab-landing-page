@@ -99,8 +99,8 @@
       </div>
       <h4 class="ptm-full-title" id="ptFullTitle"></h4>
       <p  class="ptm-full-msg"   id="ptFullMsg"></p>
-      <button class="ptm-alt-btn"   id="ptAltBtn"       type="button"></button>
       <div id="nl-ptm"></div>
+      <button class="ptm-alt-btn"   id="ptAltBtn"       type="button"></button>
       <button class="ptm-back-link" id="ptBackFromFull" type="button">← Choose a different center</button>
     </div>
 
@@ -209,8 +209,8 @@
   .ptm-full-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,180,0,0.1);border:1.5px solid rgba(255,180,0,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:#f7d794;}
   .ptm-full-title{font-size:18px;font-weight:700;color:#fff;margin:0 0 10px;line-height:1.3;}
   .ptm-full-msg{font-size:14px;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.7;}
-  .ptm-alt-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;border:none;border-radius:14px;cursor:pointer;transition:opacity 0.2s;margin-bottom:12px;}
-  .ptm-alt-btn:hover{opacity:0.9;}
+  .ptm-alt-btn{display:block;width:100%;padding:11px 14px;background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;border-radius:12px;cursor:pointer;transition:border-color 0.2s,color 0.2s;margin-top:10px;margin-bottom:8px;box-sizing:border-box;}
+  .ptm-alt-btn:hover{border-color:rgba(255,255,255,0.3);color:#fff;}
   .ptm-back-link{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;font-family:'Poppins',sans-serif;padding:0;margin-bottom:16px;display:block;transition:color 0.2s;}
   .ptm-back-link:hover{color:rgba(255,255,255,0.75);}
   .ptm-banner{display:flex;align-items:flex-start;gap:10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);border-radius:12px;padding:12px 14px;margin-bottom:22px;font-size:13px;color:#ffb3b3;line-height:1.55;}
