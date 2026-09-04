@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work With Us — Grip&amp;Grab</title>
+  <meta name="description" content="Join the Grip&Grab team. Open roles for coaches, content creators, and more.">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0a; --surface: #141414; --sur2: #1c1c1c;
+      --border: rgba(255,255,255,0.08); --text: #f0f0f0;
+      --muted: rgba(255,255,255,0.42); --accent: #ff6b6b; --gold: #f7d794;
+    }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+
+    /* ── NAV ── */
+    .nav { position: sticky; top: 0; z-index: 50; background: rgba(10,10,10,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-size: 16px; font-weight: 800; background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+    .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero { padding: 56px 20px 40px; text-align: center; max-width: 640px; margin: 0 auto; }
+    .hero-tag { display: inline-block; padding: 5px 14px; border-radius: 20px; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.25); color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; }
+    .hero h1 { font-size: clamp(28px,7vw,52px); font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+    .hero h1 span { background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 480px; margin: 0 auto; }
+
+    /* ── JOBS GRID ── */
+    .jobs-section { padding: 20px 16px 80px; max-width: 900px; margin: 0 auto; }
+    @media (min-width: 600px) { .jobs-section { padding: 28px 24px 80px; } }
+
+    .section-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.8px; margin-bottom: 16px; }
+
+    .jobs-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 640px) { .jobs-grid { grid-template-columns: 1fr 1fr; } }
+
+    .job-card {
+      background: var(--surface); border: 1.5px solid var(--border); border-radius: 18px;
+      overflow: hidden; transition: border-color .2s;
+    }
+    .job-card.is-open { border-color: rgba(255,107,107,0.3); }
+
+    .job-card-header { padding: 20px 20px 16px; }
+    .job-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .job-type { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .job-type.fulltime  { background: rgba(96,165,250,0.12); color: #60a5fa; }
+    .job-type.parttime  { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .job-type.freelance { background: rgba(167,139,250,0.12); color: #a78bfa; }
+    .job-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .job-status-dot.open   { background: #4ade80; box-shadow: 0 0 6px #4ade8099; }
+    .job-status-dot.closed { background: rgba(255,255,255,0.2); }
+    .job-status-text { font-size: 11px; color: var(--muted); }
+
+    .job-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .job-desc  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .job-card-footer { padding: 0 20px 20px; }
+
+    /* Apply button */
+    .apply-btn {
+      display: block; width: 100%; padding: 13px; margin-top: 14px;
+      background: linear-gradient(135deg,#ff6b6b,#f7d794); border: none;
+      border-radius: 12px; color: #000; font-size: 14px; font-weight: 700;
+      font-family: 'Poppins',sans-serif; cursor: pointer; transition: opacity .2s;
+    }
+    .apply-btn:hover { opacity: .9; }
+
+    /* Notify btn */
+    .notify-btn {
+      display: block; width: 100%; padding: 13px; margin-top: 14px;
+      background: transparent; border: 1.5px solid var(--border);
+      border-radius: 12px; color: var(--muted); font-size: 14px; font-weight: 600;
+      font-family: 'Poppins',sans-serif; cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .notify-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── INLINE FORM (apply + notify) ── */
+    .inline-form { display: none; border-top: 1px solid var(--border); padding: 18px 20px 20px; background: var(--sur2); }
+    .inline-form.visible { display: block; }
+    .form-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+    .field-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .form-input, .form-textarea {
+      width: 100%; padding: 11px 14px; background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px; color: var(--text);
+      font-size: 14px; font-family: 'Poppins',sans-serif; transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.22); }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+    .form-submit {
+      display: block; width: 100%; padding: 13px;
+      background: linear-gradient(135deg,#ff6b6b,#f7d794); border: none;
+      border-radius: 12px; color: #000; font-size: 14px; font-weight: 700;
+      font-family: 'Poppins',sans-serif; cursor: pointer; transition: opacity .2s;
+    }
+    .form-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .form-err { font-size: 11px; color: #ff6b6b; min-height: 14px; margin-bottom: 6px; }
+    .form-success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25); border-radius: 10px; padding: 14px; font-size: 13px; color: #4ade80; font-weight: 600; text-align: center; }
+    .close-form-btn { display: block; width: 100%; padding: 9px; margin-top: 8px; background: transparent; border: none; color: var(--muted); font-size: 12px; font-family: 'Poppins',sans-serif; cursor: pointer; }
+
+    /* ── FOOTER ── */
+    .page-footer { text-align: center; padding: 32px 20px; border-top: 1px solid var(--border); }
+    .page-footer a { color: var(--muted); font-size: 13px; text-decoration: none; }
+    .page-footer a:hover { color: var(--text); }
+
+    /* ── LOADING SKELETON ── */
+    .skeleton { background: linear-gradient(90deg, var(--surface) 25%, var(--sur2) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 10px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 20px; left: 16px; right: 16px; background: var(--sur2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; font-size: 13px; color: var(--text); z-index: 200; opacity: 0; transform: translateY(10px); transition: opacity .3s, transform .3s; pointer-events: none; text-align: center; }
+    @media (min-width: 480px) { .toast { left: auto; right: 24px; bottom: 24px; width: auto; max-width: 300px; text-align: left; } }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(74,222,128,0.35); color: #4ade80; }
+    .toast.error   { border-color: rgba(255,107,107,0.35); color: #ff8a8a; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">Grip&amp;Grab</a>
+  <a href="/" class="nav-back">← Back to site</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">We're Hiring</div>
+  <h1>Work With <span>Us</span></h1>
+  <p>Join the Grip&amp;Grab team. We're building something real — come be part of it.</p>
+</div>
+
+<div class="jobs-section">
+  <div class="section-label">Open &amp; Upcoming Positions</div>
+  <div class="jobs-grid" id="jobs-grid">
+    <!-- Cards rendered by JS -->
+    <div style="grid-column:1/-1;padding:48px;text-align:center;color:var(--muted);font-size:13px;" id="jobs-loading">Loading positions…</div>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <a href="/">← gripandgrab.com</a>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp }
+                           from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const FIREBASE_CONFIG = {
+  apiKey:'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k', authDomain:'gripngrab.firebaseapp.com',
+  projectId:'gripngrab', storageBucket:'gripngrab.firebasestorage.app',
+  messagingSenderId:'568040807328', appId:'1:568040807328:web:e9ee4f1328064a3d69e2c5',
+};
+const app = initializeApp(FIREBASE_CONFIG, 'gng-jobs');
+const db  = getFirestore(app);
+
+const JOBS = [
+  { id:'personal-trainer',  title:'Personal Trainer / Coach',    type:'fulltime',  typeLabel:'Full-time',  desc:'Lead group and one-on-one training sessions at our Saket and Lajpat Nagar centers.' },
+  { id:'kids-coach',        title:'Kids Fitness Coach',          type:'parttime',  typeLabel:'Part-time',  desc:'Conduct fun, structured fitness programs for children aged 6–14.' },
+  { id:'content-creator',   title:'Content Creator & Editor',    type:'freelance', typeLabel:'Freelance',  desc:'Create reels, edits, thumbnails, and social content for Grip&Grab and Haristhenics.' },
+  { id:'front-desk',        title:'Front Desk & Operations',     type:'fulltime',  typeLabel:'Full-time',  desc:'Manage member check-ins, inquiries, and daily gym operations.' },
+];
+
+/* Load open/closed state from Firestore */
+async function loadJobConfig() {
+  const snaps = await Promise.all(JOBS.map(j => getDoc(doc(db,'job-config',j.id))));
+  const config = {};
+  snaps.forEach((snap, i) => {
+    config[JOBS[i].id] = snap.exists() ? snap.data() : { open: false };
+  });
+  return config;
+}
+
+async function init() {
+  let config = {};
+  try { config = await loadJobConfig(); } catch(e) { console.warn('job-config load failed', e); }
+
+  const grid = document.getElementById('jobs-grid');
+  grid.innerHTML = JOBS.map(job => {
+    const isOpen = !!(config[job.id]?.open);
+    return `
+    <div class="job-card ${isOpen?'is-open':''}" id="jcard-${job.id}">
+      <div class="job-card-header">
+        <div class="job-meta">
+          <span class="job-type ${job.type}">${job.typeLabel}</span>
+          <span class="job-status-dot ${isOpen?'open':'closed'}"></span>
+          <span class="job-status-text">${isOpen?'Accepting applications':'Currently closed'}</span>
+        </div>
+        <div class="job-title">${job.title}</div>
+        <div class="job-desc">${job.desc}</div>
+      </div>
+      <div class="job-card-footer">
+        ${isOpen
+          ? `<button class="apply-btn" onclick="toggleApply('${job.id}')">Apply Now →</button>`
+          : `<button class="notify-btn" onclick="toggleNotify('${job.id}')">🔔 Notify Me When Open</button>`
+        }
+      </div>
+      <!-- Apply form -->
+      <div class="inline-form" id="jform-apply-${job.id}">
+        <div class="form-title">Apply for: ${job.title}</div>
+        <div class="field-group">
+          <input class="form-input" id="ja-name-${job.id}"      type="text"  placeholder="Full name *" autocomplete="name">
+          <div class="form-err" id="ja-err-name-${job.id}"></div>
+          <input class="form-input" id="ja-phone-${job.id}"     type="tel"   placeholder="Phone number *" autocomplete="tel">
+          <div class="form-err" id="ja-err-phone-${job.id}"></div>
+          <input class="form-input" id="ja-email-${job.id}"     type="email" placeholder="Email address *" autocomplete="email">
+          <div class="form-err" id="ja-err-email-${job.id}"></div>
+          <input class="form-input" id="ja-exp-${job.id}"       type="text"  placeholder="Experience (e.g. 2 years PT, CrossFit L1)">
+          <input class="form-input" id="ja-portfolio-${job.id}" type="url"   placeholder="Portfolio / Instagram / LinkedIn (optional)">
+          <textarea class="form-textarea" id="ja-note-${job.id}" placeholder="Why Grip&amp;Grab? (optional — 2-3 lines)"></textarea>
+        </div>
+        <button class="form-submit" id="ja-btn-${job.id}" onclick="submitApply('${job.id}','${job.title}')">Submit Application</button>
+        <button class="close-form-btn" onclick="closeForm('apply','${job.id}')">Cancel</button>
+        <div class="form-success" id="ja-success-${job.id}" style="display:none">✓ Application received! We'll be in touch soon.</div>
+      </div>
+      <!-- Notify form -->
+      <div class="inline-form" id="jform-notify-${job.id}">
+        <div class="form-title">Get notified when this role opens</div>
+        <p class="form-hint">We'll email you as soon as we start accepting applications.</p>
+        <div class="field-group">
+          <input class="form-input" id="jn-name-${job.id}"  type="text"  placeholder="Full name *" autocomplete="name">
+          <div class="form-err" id="jn-err-name-${job.id}"></div>
+          <input class="form-input" id="jn-phone-${job.id}" type="tel"   placeholder="Phone number *" autocomplete="tel">
+          <div class="form-err" id="jn-err-phone-${job.id}"></div>
+          <input class="form-input" id="jn-email-${job.id}" type="email" placeholder="Email address *" autocomplete="email">
+          <div class="form-err" id="jn-err-email-${job.id}"></div>
+        </div>
+        <button class="form-submit" id="jn-btn-${job.id}" onclick="submitNotify('${job.id}','${job.title}')">🔔 Notify Me</button>
+        <button class="close-form-btn" onclick="closeForm('notify','${job.id}')">Cancel</button>
+        <div class="form-success" id="jn-success-${job.id}" style="display:none">✓ You're on the list! We'll reach out when this opens.</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Form toggles ── */
+window.toggleApply = function(id) {
+  closeAllForms();
+  const f = document.getElementById('jform-apply-'+id);
+  f.classList.add('visible');
+  f.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+window.toggleNotify = function(id) {
+  closeAllForms();
+  const f = document.getElementById('jform-notify-'+id);
+  f.classList.add('visible');
+  f.scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+window.closeForm = function(type, id) {
+  document.getElementById('jform-'+type+'-'+id).classList.remove('visible');
+};
+function closeAllForms() {
+  document.querySelectorAll('.inline-form').forEach(f => f.classList.remove('visible'));
+}
+
+/* ── Submit Application ── */
+window.submitApply = async function(jobId, jobTitle) {
+  const get  = id => document.getElementById(id);
+  const name      = get('ja-name-'+jobId).value.trim();
+  const phone     = get('ja-phone-'+jobId).value.trim();
+  const email     = get('ja-email-'+jobId).value.trim();
+  const exp       = get('ja-exp-'+jobId).value.trim();
+  const portfolio = get('ja-portfolio-'+jobId).value.trim();
+  const note      = get('ja-note-'+jobId).value.trim();
+
+  ['name','phone','email'].forEach(f => { get('ja-err-'+f+'-'+jobId).textContent=''; get('ja-'+f+'-'+jobId).style.borderColor=''; });
+
+  let valid = true;
+  if (!name || name.length<2)                             { fieldErr('ja','name',jobId,'Please enter your name'); valid=false; }
+  if (!/^[6-9][0-9]{9}$/.test(phone))                    { fieldErr('ja','phone',jobId,'Enter a valid 10-digit mobile number'); valid=false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))         { fieldErr('ja','email',jobId,'Enter a valid email address'); valid=false; }
+  if (!valid) return;
+
+  const btn = get('ja-btn-'+jobId);
+  btn.disabled=true; btn.textContent='Submitting…';
+
+  try {
+    /* Write to Firestore first — reliable */
+    await addDoc(collection(db,'job-applications'), { name, phone, email, role: jobTitle, jobId, experience: exp, portfolio, note, timestamp: serverTimestamp(), status: 'new' });
+    /* Email admin — fire-and-forget */
+    fetch('/api/job-apply', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name, phone, email, role: jobTitle, experience: exp, portfolio, note }),
+    }).catch(()=>{});
+    btn.style.display='none';
+    get('ja-success-'+jobId).style.display='block';
+  } catch(e) {
+    btn.disabled=false; btn.textContent='Submit Application';
+    showToast('Something went wrong. Try again.','error');
+  }
+};
+
+/* ── Submit Notify ── */
+window.submitNotify = async function(jobId, jobTitle) {
+  const get  = id => document.getElementById(id);
+  const name  = get('jn-name-'+jobId).value.trim();
+  const phone = get('jn-phone-'+jobId).value.trim();
+  const email = get('jn-email-'+jobId).value.trim();
+
+  ['name','phone','email'].forEach(f => { get('jn-err-'+f+'-'+jobId).textContent=''; get('jn-'+f+'-'+jobId).style.borderColor=''; });
+
+  let valid = true;
+  if (!name || name.length<2)                           { fieldErr('jn','name',jobId,'Please enter your name'); valid=false; }
+  if (!/^[6-9][0-9]{9}$/.test(phone))                  { fieldErr('jn','phone',jobId,'Enter a valid 10-digit number'); valid=false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))       { fieldErr('jn','email',jobId,'Enter a valid email'); valid=false; }
+  if (!valid) return;
+
+  const btn = get('jn-btn-'+jobId);
+  btn.disabled=true; btn.textContent='Saving…';
+
+  try {
+    await addDoc(collection(db,'job-notify'), { name, phone, email, role: jobTitle, jobId, timestamp: serverTimestamp(), status: 'new' });
+    btn.style.display='none';
+    get('jn-success-'+jobId).style.display='block';
+  } catch(e) {
+    btn.disabled=false; btn.textContent='🔔 Notify Me';
+    showToast('Something went wrong. Try again.','error');
+  }
+};
+
+function fieldErr(prefix, field, jobId, msg) {
+  const err = document.getElementById(prefix+'-err-'+field+'-'+jobId);
+  const inp = document.getElementById(prefix+'-'+field+'-'+jobId);
+  if (err) err.textContent = msg;
+  if (inp) inp.style.borderColor = '#ff4444';
+}
+
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.className='toast'; }, 3000);
+}
+
+init();
+</script>
+</body>
+</html>

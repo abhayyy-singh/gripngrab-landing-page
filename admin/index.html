@@ -248,6 +248,7 @@
     <button class="tab-btn active" data-tab="leads">📋 Leads</button>
     <button class="tab-btn"        data-tab="enrollments">💰 Enrollments</button>
     <button class="tab-btn"        data-tab="slots">⚡ Slots</button>
+    <button class="tab-btn"        data-tab="jobs">💼 Jobs</button>
   </div>
 
   <!-- ── LEADS TAB ── -->
@@ -529,11 +530,46 @@
     </div>
   </div>
 
+  <!-- ── JOBS TAB ── -->
+  <div class="tab-content" id="tab-jobs">
+    <div class="main">
+
+      <div class="slots-section">
+        <div class="slots-section-title">Job Positions</div>
+        <div class="slots-grid" id="job-cards-grid">
+          <!-- rendered by JS -->
+          <div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--muted);font-size:13px;">Loading…</div>
+        </div>
+      </div>
+
+      <div class="slots-section">
+        <div class="slots-section-title">Applications</div>
+        <div class="leads-wrap">
+          <div class="leads-table-scroll">
+            <div class="loading-state" id="apps-loading" style="display:none">Loading applications…</div>
+            <table id="apps-table" style="display:none">
+              <thead>
+                <tr><th>Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Experience</th><th>Portfolio</th><th>Date</th></tr>
+              </thead>
+              <tbody id="apps-tbody"></tbody>
+            </table>
+            <div class="empty-state" id="apps-empty" style="display:none">
+              <div class="empty-state-icon">📭</div>
+              <div>No applications yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Bottom nav (mobile only) -->
   <nav class="bottom-nav" id="bottom-nav">
     <button class="bnav-btn active" data-tab="leads"><span class="bnav-icon">📋</span>Leads</button>
-    <button class="bnav-btn"        data-tab="enrollments"><span class="bnav-icon">💰</span>Enrollments</button>
+    <button class="bnav-btn"        data-tab="enrollments"><span class="bnav-icon">💰</span>Revenue</button>
     <button class="bnav-btn"        data-tab="slots"><span class="bnav-icon">⚡</span>Slots</button>
+    <button class="bnav-btn"        data-tab="jobs"><span class="bnav-icon">💼</span>Jobs</button>
   </nav>
 
 </div><!-- /dashboard -->
@@ -621,6 +657,7 @@ function switchTab(tabName) {
   document.querySelectorAll('[data-tab="'+tabName+'"]').forEach(b => b.classList.add('active'));
   document.getElementById('tab-'+tabName).classList.add('active');
   if (tabName === 'enrollments' && !enrollLoaded) { loadEnrollments(); enrollLoaded = true; }
+  if (tabName === 'jobs'        && !jobsLoaded)   { loadJobsTab();     jobsLoaded  = true; }
 }
 
 document.querySelectorAll('.tab-btn,.bnav-btn').forEach(btn => {
@@ -954,6 +991,173 @@ function showToast(msg, type='') {
   toastTimer = setTimeout(() => { t.className='toast'; }, 3000);
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── JOBS ── */
+const JOB_POSITIONS = [
+  { id:'personal-trainer', title:'Personal Trainer / Coach',  type:'Full-time'  },
+  { id:'kids-coach',       title:'Kids Fitness Coach',        type:'Part-time'  },
+  { id:'content-creator',  title:'Content Creator & Editor',  type:'Freelance'  },
+  { id:'front-desk',       title:'Front Desk & Operations',   type:'Full-time'  },
+];
+
+let jobConfig      = {};
+let allApplications= [];
+let jobsLoaded     = false;
+
+async function loadJobsTab() {
+  await loadJobConfig();
+  await loadApplications();
+}
+
+async function loadJobConfig() {
+  try {
+    const snaps = await Promise.all(JOB_POSITIONS.map(j => getDoc(doc(db,'job-config',j.id))));
+    jobConfig = {};
+    snaps.forEach((snap,i) => { jobConfig[JOB_POSITIONS[i].id] = snap.exists() ? snap.data() : { open:false }; });
+  } catch(e) { jobConfig={}; }
+  renderJobCards();
+}
+
+function renderJobCards() {
+  const grid = document.getElementById('job-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = JOB_POSITIONS.map(pos => {
+    const isOpen = !!(jobConfig[pos.id]?.open);
+    const notifyCount = allApplications.filter(a=>a.jobId===pos.id&&a._collection==='job-notify'&&a.status!=='notified').length;
+    return `
+    <div class="slot-card ${isOpen?'is-open':'is-closed'}" id="jsc-${pos.id}">
+      <div class="slot-card-top">
+        <div>
+          <div class="slot-card-name">${esc(pos.title)}</div>
+          <div class="slot-card-center">${esc(pos.type)}</div>
+        </div>
+        <span class="slot-status-badge ${isOpen?'open':'closed'}" id="jbadge-${pos.id}">${isOpen?'Open':'Closed'}</span>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="jchk-${pos.id}" ${isOpen?'checked':''}>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+        <span class="toggle-label" id="jtlabel-${pos.id}">${isOpen?'Accepting applications':'Closed'}</span>
+      </div>
+      <div class="slot-card-footer">
+        <div class="leads-count" id="jlcount-${pos.id}"><strong>${notifyCount}</strong> waiting</div>
+        <button class="notify-all-btn" onclick="notifyJobLeads('${pos.id}')">📢 Notify Waiting Leads</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  JOB_POSITIONS.forEach(pos => {
+    const chk = document.getElementById('jchk-'+pos.id);
+    if (chk) chk.onchange = () => handleJobToggle(pos, chk.checked);
+  });
+}
+
+async function handleJobToggle(pos, newValue) {
+  try {
+    await setDoc(doc(db,'job-config',pos.id), { open: newValue }, { merge:true });
+    jobConfig[pos.id] = { ...(jobConfig[pos.id]||{}), open: newValue };
+    renderJobCards();
+    showToast('Saved!','success');
+    if (newValue) {
+      const waiting = allApplications.filter(a=>a.jobId===pos.id&&a._collection==='job-notify'&&a.status!=='notified');
+      if (waiting.length>0) {
+        showConfirm('🎉 Notify waiting leads?',
+          `<strong>${waiting.length}</strong> people are waiting for <strong>${esc(pos.title)}</strong>. Send them an email?`,
+          () => sendJobNotifyEmails(pos, waiting)
+        );
+      }
+    }
+  } catch(e) {
+    const chk = document.getElementById('jchk-'+pos.id);
+    if (chk) chk.checked = !newValue;
+    showToast('Save failed: '+e.message,'error');
+  }
+}
+
+async function loadApplications() {
+  const loading=document.getElementById('apps-loading');
+  const table=document.getElementById('apps-table');
+  const empty=document.getElementById('apps-empty');
+  if(loading) loading.style.display='block';
+  if(table)   table.style.display='none';
+  if(empty)   empty.style.display='none';
+  try {
+    const [appSnap, notifySnap] = await Promise.all([
+      getDocs(query(collection(db,'job-applications'), orderBy('timestamp','desc'))),
+      getDocs(query(collection(db,'job-notify'),        orderBy('timestamp','desc'))),
+    ]);
+    allApplications = [];
+    appSnap.forEach(d   => allApplications.push({id:d.id,...d.data(),_collection:'job-applications'}));
+    notifySnap.forEach(d=> allApplications.push({id:d.id,...d.data(),_collection:'job-notify'}));
+    renderApplications();
+  } catch(e) { if(loading) loading.textContent='Failed: '+e.message; }
+}
+
+function renderApplications() {
+  const loading=document.getElementById('apps-loading');
+  const table=document.getElementById('apps-table');
+  const empty=document.getElementById('apps-empty');
+  const tbody=document.getElementById('apps-tbody');
+  const apps = allApplications.filter(a=>a._collection==='job-applications');
+  if(loading) loading.style.display='none';
+  if (!apps.length) { if(table) table.style.display='none'; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  if(table) table.style.display='table';
+  tbody.innerHTML = apps.map(a => {
+    const ts = a.timestamp?.toDate?.() ?? null;
+    const timeStr = ts ? ts.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}) : '—';
+    return `<tr>
+      <td class="td-name">${esc(a.name||'—')}</td>
+      <td class="td-phone">${esc(a.phone||'—')}</td>
+      <td class="td-email" style="font-size:11px">${esc(a.email||'—')}</td>
+      <td><span class="program-pill">${esc(a.role||'—')}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${esc(a.experience||'—')}</td>
+      <td style="font-size:11px">${a.portfolio?`<a href="${esc(a.portfolio)}" target="_blank" style="color:var(--accent);text-decoration:none">Link ↗</a>`:'—'}</td>
+      <td class="td-time" style="font-size:11px;white-space:nowrap">${timeStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function sendJobNotifyEmails(pos, leads) {
+  showToast('Sending…');
+  const RESEND_KEY = '';
+  try {
+    await fetch('/api/notify-open', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        program: pos.title,
+        center:  'Grip&Grab',
+        leads:   leads.map(l=>({name:l.name,email:l.email,phone:l.phone})),
+      }),
+    });
+    const updates = leads.filter(l=>l.email).map(l =>
+      updateDoc(doc(db,'job-notify',l.id),{status:'notified'}).then(()=>{
+        const f=allApplications.find(a=>a.id===l.id); if(f) f.status='notified';
+      })
+    );
+    await Promise.allSettled(updates);
+    renderJobCards();
+    showToast('✓ Emails sent!','success');
+  } catch(e) { showToast('Failed: '+e.message,'error'); }
+}
+
+window.notifyJobLeads = function(posId) {
+  const pos = JOB_POSITIONS.find(p=>p.id===posId);
+  if (!pos) return;
+  const waiting = allApplications.filter(a=>a.jobId===posId&&a._collection==='job-notify'&&a.status!=='notified');
+  if (!waiting.length) { showToast('No waiting leads.'); return; }
+  showConfirm(`📢 Notify ${waiting.length} lead${waiting.length===1?'':'s'}`,
+    `Send "role is open" email to <strong>${waiting.length} people</strong> for <strong>${esc(pos.title)}</strong>?`,
+    () => sendJobNotifyEmails(pos, waiting)
+  );
+};
+
+/* Hook into switchTab to lazy-load Jobs */
+const _origSwitchTab = switchTab;
+// Patch loadJobsTab call into switchTab
+const origEnrollLoad = document.currentScript; // not needed, just use the flag below
 </script>
 </body>
 </html>
