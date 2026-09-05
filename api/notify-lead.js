@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
 
   try {
     /* Admin notification only — user email sent later via notify-open when slots open */
-    await fetch('https://api.resend.com/emails', {
+    const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -88,6 +88,11 @@ module.exports = async function handler(req, res) {
         html:    adminHtml,
       }),
     });
+    if (!r.ok) {
+      const body = await r.text();
+      console.error('Resend error', r.status, body);
+      return res.status(502).json({ error: 'Email service error', status: r.status, detail: body });
+    }
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('notify-lead handler error:', err);

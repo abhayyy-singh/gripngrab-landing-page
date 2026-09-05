@@ -549,7 +549,7 @@
             <div class="loading-state" id="apps-loading" style="display:none">Loading applications…</div>
             <table id="apps-table" style="display:none">
               <thead>
-                <tr><th>Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Experience</th><th>Portfolio</th><th>Date</th></tr>
+                <tr><th>Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Experience</th><th>Portfolio</th><th>Why G&amp;G?</th><th>Date</th></tr>
               </thead>
               <tbody id="apps-tbody"></tbody>
             </table>
@@ -1115,6 +1115,7 @@ function renderApplications() {
       <td><span class="program-pill">${esc(a.role||'—')}</span></td>
       <td style="font-size:11px;color:var(--muted)">${esc(a.experience||'—')}</td>
       <td style="font-size:11px">${a.portfolio?`<a href="${esc(a.portfolio)}" target="_blank" style="color:var(--accent);text-decoration:none">Link ↗</a>`:'—'}</td>
+      <td style="font-size:11px;color:var(--muted);max-width:180px;white-space:normal;line-height:1.4">${esc(a.note||'—')}</td>
       <td class="td-time" style="font-size:11px;white-space:nowrap">${timeStr}</td>
     </tr>`;
   }).join('');

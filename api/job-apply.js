@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
         ${row('Email',       email)}
         ${row('Experience',  experience || '—')}
         ${row('Portfolio',   portfolio  || '—')}
-        ${row('Note',        note       || '—')}
+        ${row('Why Grip&amp;Grab?', note || '—')}
       </table>
       <div style="margin-top:20px;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 16px;">
         <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.35);">Received at ${now}</p>
@@ -61,7 +61,7 @@ module.exports = async function handler(req, res) {
 </body></html>`.trim();
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const r = await fetch('https://api.resend.com/emails', {
       method:  'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -71,6 +71,11 @@ module.exports = async function handler(req, res) {
         html,
       }),
     });
+    if (!r.ok) {
+      const body = await r.text();
+      console.error('Resend error', r.status, body);
+      return res.status(502).json({ error: 'Email service error', status: r.status, detail: body });
+    }
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('job-apply error:', err);
