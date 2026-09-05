@@ -404,7 +404,7 @@
       description: CONFIG.razorpay.description,
       image:       CONFIG.razorpay.image,
       prefill:     { name: formData.name, email: formData.email, contact: formData.phone },
-      notes:       { location: formData.location, date: formData.date, session: formData.session },
+      notes:       { plan: 'day-pass', planLabel: 'Day Pass', customerName: formData.name, center: 'Grip&Grab ' + formData.location, date: formData.date, time: formData.session },
       theme:       CONFIG.razorpay.theme,
       handler: function (response) {
         onPaymentSuccess(formData, response.razorpay_payment_id, response.razorpay_order_id || '');

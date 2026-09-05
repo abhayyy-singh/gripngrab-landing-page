@@ -738,6 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
       email:       payload.email,
       phone:       payload.phone,
       description: `${payload.plan.label} Membership — ${payload.center}`,
+      notes:       { plan: payload.plan.id, planLabel: payload.plan.label, center: payload.center, customerName: payload.name, dob: payload.dob || '' },
 
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
@@ -867,6 +868,7 @@ function processPayment(options) {
     name:        'Grip&Grab',
     description: options.description,
     prefill:     { name: options.name, email: options.email, contact: options.phone },
+    notes:       options.notes || {},
     theme:       { color: '#ff6b6b' },
     handler:     (response) => options.onSuccess(response.razorpay_payment_id),
     modal:       { ondismiss: () => options.onDismiss() },
@@ -1257,6 +1259,7 @@ document.addEventListener('keydown', (e) => {
       email,
       phone,
       description: `Kids Monthly Membership — Grip&Grab ${selectedCenter}`,
+      notes:       { plan: 'kids-monthly', planLabel: 'Kids Monthly', center: 'Grip&Grab ' + selectedCenter, customerName: name, dob: dob || '' },
 
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
@@ -1627,6 +1630,7 @@ document.addEventListener('keydown', (e) => {
       amountPaise: total * 100,
       name, email, phone,
       description: 'Train with Harish — 1 Month Program',
+      notes:       { plan: 'harish-monthly', planLabel: 'Train with Harish — Monthly', center: 'Grip&Grab Saket', customerName: name, dob: dob || '' },
 
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
