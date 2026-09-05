@@ -446,9 +446,10 @@ window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&G
 
     setSubmitting(true);
 
+    var liveAmount = (window.GNG_PRICING && window.GNG_PRICING.trialAmountPaise) || CONFIG.razorpay.amount;
     var rzp = new Razorpay({
       key:         CONFIG.razorpay.keyId,
-      amount:      CONFIG.razorpay.amount,
+      amount:      liveAmount,
       currency:    CONFIG.razorpay.currency,
       name:        CONFIG.razorpay.name,
       description: CONFIG.razorpay.description,
@@ -475,7 +476,8 @@ window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&G
      ============================================================ */
   function onPaymentSuccess(formData, paymentId, orderId) {
     /* Firestore enrollment save — idempotent via paymentId */
-    window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'trial', planLabel: 'Trial Class', amount: CONFIG.razorpay.amount / 100, date: formData.date, time: formData.time, paymentId, orderId });
+    var paidAmount = (window.GNG_PRICING && window.GNG_PRICING.trialAmountPaise) || CONFIG.razorpay.amount;
+    window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'trial', planLabel: 'Trial Class', amount: paidAmount / 100, date: formData.date, time: formData.time, paymentId, orderId });
     sendConfirmationEmail(formData, paymentId, orderId);
     logToSheets(formData, paymentId);
     showSuccess(paymentId);
@@ -491,7 +493,7 @@ window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&G
         phone:     formData.phone,
         dob:       '',
         plan:      'trial',
-        amount:    CONFIG.razorpay.amount,
+        amount:    paidAmount,
         paymentId: paymentId,
         orderId:   orderId,
         location:  formData.location,

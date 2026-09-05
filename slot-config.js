@@ -21,11 +21,18 @@ const db  = getFirestore(app);
 
 async function loadSlotConfig() {
   try {
-    const [hmSnap, saketSnap, lajpatSnap] = await Promise.all([
+    const [hmSnap, saketSnap, lajpatSnap, pricingSnap] = await Promise.all([
       getDoc(doc(db, 'slot-config', 'haristhenics')),
       getDoc(doc(db, 'slot-config', 'saket')),
       getDoc(doc(db, 'slot-config', 'lajpat')),
+      getDoc(doc(db, 'pricing-config', 'trial')),
     ]);
+
+    /* Trial price */
+    if (pricingSnap.exists()) {
+      const d = pricingSnap.data();
+      if (d.amountPaise) window.GNG_PRICING = { trialAmountPaise: d.amountPaise };
+    }
 
     /* Haristhenics */
     if (hmSnap.exists() && window.HARISH_CONFIG) {
