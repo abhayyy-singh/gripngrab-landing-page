@@ -109,7 +109,7 @@ module.exports = async function handler(req, res) {
   </td></tr>
   <tr><td style="padding:40px 40px 20px;">
     <h2 style="color:#1a1a1a;margin:0;font-size:22px;">Hi ${name.split(' ')[0]},</h2>
-    <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;">Your personal training program at <strong>Grip&amp;Grab</strong> is confirmed. Harish will personally reach out to you to discuss your schedule and goals.</p>
+    <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;">Your personalized training program at <strong>Grip&amp;Grab</strong> is confirmed. Harish will personally reach out to you to discuss your schedule and goals.</p>
   </td></tr>
   <tr><td style="padding:0 40px 30px;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fc;border-radius:12px;border-left:4px solid #ff6b6b;">
@@ -121,23 +121,8 @@ module.exports = async function handler(req, res) {
       <tr><td style="padding:20px 25px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📅 Date</td><td style="padding:20px 25px 25px;color:#1f2937;border-top:1px solid #e5e7eb;">${bookingDate}</td></tr>
     </table>
   </td></tr>
-  <tr><td style="padding:0 40px 30px;text-align:center;">
-    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
-      <tr>
-        <td style="padding-right:12px;">
-          <a href="https://gripandgrab.com" style="display:inline-block;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;text-decoration:none;font-size:14px;font-weight:700;padding:13px 28px;border-radius:8px;">Visit Grip&amp;Grab →</a>
-        </td>
-        <td style="padding-right:12px;">
-          <a href="tel:+917827373852" style="display:inline-block;background:#000;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;">📞 Call</a>
-        </td>
-        <td>
-          <a href="https://wa.me/917827373852" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;">💬 WhatsApp</a>
-        </td>
-      </tr>
-    </table>
-  </td></tr>
-  <tr><td style="padding:20px 40px 30px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
-    <p style="margin:0;color:#9ca3af;font-size:11px;">© ${new Date().getFullYear()} Grip&amp;Grab · gripandgrab.com</p>
+  <tr><td style="padding:20px 40px 28px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
+    <p style="margin:0;color:#9ca3af;font-size:12px;">Want help? Mail us at <a href="mailto:haristhenics06@gmail.com" style="color:#ff6b6b;text-decoration:none;">haristhenics06@gmail.com</a></p>
   </td></tr>
 </table>
 </td></tr></table></div>`,

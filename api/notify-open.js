@@ -43,8 +43,7 @@ module.exports = async function handler(req, res) {
     <a href="${bookingLink}" style="display:inline-block;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;text-decoration:none;font-size:15px;font-weight:700;padding:15px 36px;border-radius:10px;">Enroll Now for Train with Haristhenics →</a>
   </td></tr>
   <tr><td style="padding:20px 40px 28px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
-    <p style="margin:0;color:#6b7280;font-size:13px;">Questions? <a href="https://wa.me/917827373852" style="color:#ff6b6b;text-decoration:none;">WhatsApp us</a> or call <a href="tel:+917827373852" style="color:#ff6b6b;text-decoration:none;">+91 78273 73852</a></p>
-    <p style="margin:8px 0 0;color:#9ca3af;font-size:11px;">You received this because you signed up for slot notifications at gripandgrab.com</p>
+    <p style="margin:0;color:#9ca3af;font-size:11px;">You received this because you signed up for slot notifications at gripandgrab.com</p>
   </td></tr>
 </table>
 </td></tr></table></div>`;
