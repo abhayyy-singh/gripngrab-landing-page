@@ -353,7 +353,7 @@ module.exports = async function handler(req, res) {
   const notifyEmail = {
     from:    'Grip&Grab Bookings <noreply@gripandgrab.com>',
     to:      [NOTIFY_EMAIL],
-    subject: `New ${plan === 'trial' ? 'Trial Booking' : plan === 'harish-monthly' ? 'Train with Haristhenics Enrollment' : plan === 'day-pass' ? 'Day Pass Booking' : 'Membership'}: ${name} — ${planLabel}`,
+    subject: `New ${plan === 'trial' ? 'Trial Booking' : plan === 'harish-monthly' ? 'Enrollment' : plan === 'day-pass' ? 'Day Pass Booking' : 'Membership'}: ${name} — ${planLabel}`,
     html: `
 <div style="font-family:monospace;padding:24px;background:#0a0a0a;color:#fff;max-width:480px;">
   <h2 style="margin:0 0 16px;">New Membership Booking</h2>
