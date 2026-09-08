@@ -45,7 +45,7 @@ const CENTER_CONFIG = {
 };
 
 const HARISH_CONFIG = {
-  available: true,//yaha se trin with harish ke clot open close honge
+  available: false, // default false — slot-config.js patches this from Firestore
 };
 window.HARISH_CONFIG = HARISH_CONFIG; 
 /* ── Time slots — single source of truth for all modals ── */

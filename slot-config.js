@@ -1,66 +1,66 @@
 /* ============================================================================
    slot-config.js — Grip & Grab
-   Reads slot availability from Firestore and patches window.HARISH_CONFIG
-   and window.CENTER_CONFIG so slots can be toggled from the admin panel
-   without any code changes.
+   Reads slot availability via Firestore REST API (no auth needed).
+   Patches window.HARISH_CONFIG and window.CENTER_CONFIG so slots can be
+   toggled from the admin panel without any code changes.
    ============================================================================ */
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-const FIREBASE_CONFIG = {
-  apiKey:            'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k',
-  authDomain:        'gripngrab.firebaseapp.com',
-  projectId:         'gripngrab',
-  storageBucket:     'gripngrab.firebasestorage.app',
-  messagingSenderId: '568040807328',
-  appId:             '1:568040807328:web:e9ee4f1328064a3d69e2c5',
-};
+const API_KEY   = 'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k';
+const BASE      = `https://firestore.googleapis.com/v1/projects/gripngrab/databases/(default)/documents`;
 
-const app = initializeApp(FIREBASE_CONFIG, 'gng-slots');
-const db  = getFirestore(app);
+async function getDocRest(path) {
+  const r = await fetch(`${BASE}/${path}?key=${API_KEY}`);
+  if (!r.ok) return null;
+  const json = await r.json();
+  if (!json.fields) return null;
+  /* Convert Firestore field format → plain object */
+  const out = {};
+  for (const [k, v] of Object.entries(json.fields)) {
+    if      ('booleanValue' in v) out[k] = v.booleanValue;
+    else if ('integerValue'  in v) out[k] = Number(v.integerValue);
+    else if ('doubleValue'   in v) out[k] = v.doubleValue;
+    else if ('stringValue'   in v) out[k] = v.stringValue;
+  }
+  return out;
+}
 
 async function loadSlotConfig() {
   try {
-    const [hmSnap, saketSnap, lajpatSnap, pricingSnap] = await Promise.all([
-      getDoc(doc(db, 'slot-config', 'haristhenics')),
-      getDoc(doc(db, 'slot-config', 'saket')),
-      getDoc(doc(db, 'slot-config', 'lajpat')),
-      getDoc(doc(db, 'pricing-config', 'trial')),
+    const [hm, saket, lajpat, pricing] = await Promise.all([
+      getDocRest('slot-config/haristhenics'),
+      getDocRest('slot-config/saket'),
+      getDocRest('slot-config/lajpat'),
+      getDocRest('pricing-config/trial'),
     ]);
 
     /* Trial price */
-    if (pricingSnap.exists()) {
-      const d = pricingSnap.data();
-      if (d.amountPaise) window.GNG_PRICING = { trialAmountPaise: d.amountPaise };
+    if (pricing && pricing.amountPaise) {
+      window.GNG_PRICING = { trialAmountPaise: pricing.amountPaise };
     }
 
     /* Haristhenics */
-    if (hmSnap.exists() && window.HARISH_CONFIG) {
-      const d = hmSnap.data();
-      if (typeof d.available === 'boolean') window.HARISH_CONFIG.available = d.available;
+    if (hm && window.HARISH_CONFIG && typeof hm.available === 'boolean') {
+      window.HARISH_CONFIG.available = hm.available;
     }
 
     const CC = window.CENTER_CONFIG;
 
     /* Saket */
-    if (saketSnap.exists() && CC && CC['Grip&Grab Saket']) {
-      const d = saketSnap.data();
-      if (typeof d.membership === 'boolean') CC['Grip&Grab Saket'].available        = d.membership;
-      if (typeof d.trial      === 'boolean') CC['Grip&Grab Saket'].trialAvailable   = d.trial;
-      if (typeof d.daypass    === 'boolean') CC['Grip&Grab Saket'].daypassAvailable = d.daypass;
+    if (saket && CC && CC['Grip&Grab Saket']) {
+      if (typeof saket.membership === 'boolean') CC['Grip&Grab Saket'].available        = saket.membership;
+      if (typeof saket.trial      === 'boolean') CC['Grip&Grab Saket'].trialAvailable   = saket.trial;
+      if (typeof saket.daypass    === 'boolean') CC['Grip&Grab Saket'].daypassAvailable = saket.daypass;
     }
 
     /* Lajpat Nagar */
-    if (lajpatSnap.exists() && CC && CC['Grip&Grab Lajpat Nagar']) {
-      const d = lajpatSnap.data();
-      if (typeof d.membership === 'boolean') CC['Grip&Grab Lajpat Nagar'].available        = d.membership;
-      if (typeof d.trial      === 'boolean') CC['Grip&Grab Lajpat Nagar'].trialAvailable   = d.trial;
-      if (typeof d.daypass    === 'boolean') CC['Grip&Grab Lajpat Nagar'].daypassAvailable = d.daypass;
+    if (lajpat && CC && CC['Grip&Grab Lajpat Nagar']) {
+      if (typeof lajpat.membership === 'boolean') CC['Grip&Grab Lajpat Nagar'].available        = lajpat.membership;
+      if (typeof lajpat.trial      === 'boolean') CC['Grip&Grab Lajpat Nagar'].trialAvailable   = lajpat.trial;
+      if (typeof lajpat.daypass    === 'boolean') CC['Grip&Grab Lajpat Nagar'].daypassAvailable = lajpat.daypass;
     }
 
   } catch (e) {
-    /* On failure, hardcoded defaults in script.js remain active */
-    console.warn('[slot-config] Using hardcoded defaults:', e.message);
+    console.warn('[slot-config] REST read failed, using defaults:', e.message);
   }
 }
 
