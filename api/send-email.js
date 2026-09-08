@@ -95,6 +95,56 @@ module.exports = async function handler(req, res) {
   const isHarish      = plan === 'harish-monthly';
   const isDayPass     = plan === 'day-pass';
 
+  /* ── Train with Haristhenics — dedicated confirmation email ── */
+  const harishCustomerEmail = {
+    from:    'Grip&Grab <noreply@gripandgrab.com>',
+    to:      [email],
+    subject: `Training Registration Confirmed — ${name} | Grip&Grab`,
+    html: `<div style="font-family:'Segoe UI',sans-serif;background:#f4f7fa;padding:40px 20px;">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#ff6b6b 0%,#f7d794 100%);padding:40px 30px;text-align:center;">
+    <h1 style="color:#000;margin:0;font-size:28px;font-weight:700;">Grip&amp;Grab</h1>
+    <p style="color:rgba(0,0,0,0.6);margin:8px 0 0;font-size:15px;font-weight:500;">Train with Haristhenics — Registration Confirmed</p>
+  </td></tr>
+  <tr><td style="padding:40px 40px 20px;">
+    <h2 style="color:#1a1a1a;margin:0;font-size:22px;">Hi ${name.split(' ')[0]},</h2>
+    <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;">Your personal training program at <strong>Grip&amp;Grab Saket</strong> is confirmed. Harish will personally reach out to you to confirm your schedule. Sessions run <strong>Mon–Sat | 5:30 PM – 8:30 PM.</strong></p>
+  </td></tr>
+  <tr><td style="padding:0 40px 30px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fc;border-radius:12px;border-left:4px solid #ff6b6b;">
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;">👤 Name</td><td style="padding:20px 25px;color:#1f2937;">${name}</td></tr>
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📧 Email</td><td style="padding:20px 25px;color:#1f2937;border-top:1px solid #e5e7eb;">${email}</td></tr>
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📱 Phone</td><td style="padding:20px 25px;color:#1f2937;border-top:1px solid #e5e7eb;">${phone}</td></tr>
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📍 Center</td><td style="padding:20px 25px;color:#1f2937;border-top:1px solid #e5e7eb;">Grip&amp;Grab Saket — 241, 2nd Floor, Westend Marg, near Garden of Five Senses, New Delhi 110030</td></tr>
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">💰 Amount Paid</td><td style="padding:20px 25px;color:#1f2937;font-weight:700;border-top:1px solid #e5e7eb;">₹${(amount / 100).toLocaleString('en-IN')}</td></tr>
+      <tr><td style="padding:20px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📋 Payment ID</td><td style="padding:20px 25px;color:#1f2937;font-family:monospace;font-size:13px;border-top:1px solid #e5e7eb;">${paymentId}</td></tr>
+      <tr><td style="padding:20px 25px 25px;color:#6b7280;font-size:14px;font-weight:600;border-top:1px solid #e5e7eb;">📅 Date</td><td style="padding:20px 25px 25px;color:#1f2937;border-top:1px solid #e5e7eb;">${bookingDate}</td></tr>
+    </table>
+  </td></tr>
+  <tr><td style="padding:0 40px 30px;text-align:center;">
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+      <tr>
+        <td style="padding-right:12px;">
+          <a href="https://gripandgrab.com" style="display:inline-block;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;text-decoration:none;font-size:14px;font-weight:700;padding:13px 28px;border-radius:8px;">Visit Grip&amp;Grab →</a>
+        </td>
+        <td style="padding-right:12px;">
+          <a href="tel:+917827373852" style="display:inline-block;background:#000;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;">📞 Call</a>
+        </td>
+        <td>
+          <a href="https://wa.me/917827373852" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;">💬 WhatsApp</a>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td style="padding:20px 40px 30px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
+    <a href="https://maps.app.goo.gl/agrpCqbk3xc4wn9q7" style="color:#ff6b6b;font-size:13px;">View on Google Maps →</a>
+    <p style="margin:8px 0 0;color:#9ca3af;font-size:11px;">© ${new Date().getFullYear()} Grip&amp;Grab · gripandgrab.com</p>
+  </td></tr>
+</table>
+</td></tr></table></div>`,
+  };
+
   /* ── Customer confirmation email ── */
   const customerEmail = {
     from:    'Grip&Grab <noreply@gripandgrab.com>',
@@ -359,7 +409,7 @@ module.exports = async function handler(req, res) {
       return r.json();
     };
 
-    await sendMail(customerEmail);
+    await sendMail(isHarish ? harishCustomerEmail : customerEmail);
     await sendMail(notifyEmail);
 
     return res.status(200).json({ success: true });
