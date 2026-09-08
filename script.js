@@ -1577,7 +1577,7 @@ document.addEventListener('keydown', (e) => {
     const config = window.HARISH_CONFIG;
     if (config && !config.available) {
       showStep('full');
-      window.NotifyLeads && window.NotifyLeads.render('nl-hm', 'Train with Haristhenics', 'Grip&Grab Saket');
+      window.NotifyLeads && window.NotifyLeads.render('nl-hm', 'Train with Haristhenics', 'Grip&Grab');
     } else {
       showStep('manifesto');
     }

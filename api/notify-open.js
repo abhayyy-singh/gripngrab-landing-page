@@ -23,7 +23,9 @@ module.exports = async function handler(req, res) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) return res.status(500).json({ error: 'Email service not configured' });
 
-  const bookingLink = 'https://gripandgrab.com';
+  const bookingLink = isHarish
+    ? 'https://gripandgrab.com/#premium-training'
+    : 'https://gripandgrab.com';
   const isHarish = program === 'harish-monthly' || /harish/i.test(program);
 
   function buildHarishEmail(name) {
