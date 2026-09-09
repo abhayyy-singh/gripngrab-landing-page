@@ -743,11 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
         window.GNG && window.GNG.saveEnrollment({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, planLabel: payload.plan.label, amount: total, paymentId: txId });
-        /* Fire-and-forget — never block success UX */
-        fetch('/api/send-email', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.id, amount: total * 100, paymentId: txId }),
-        }).catch((err) => console.error('Email:', err));
+        /* Email handled by Razorpay webhook (server-to-server, reliable) */
         fetch(SHEETS_WEBHOOK_URL, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'Membership', name: payload.name, email: payload.email, phone: payload.phone, dob: payload.dob, center: payload.center, plan: payload.plan.label, amount: `₹${total.toLocaleString('en-IN')}`, paymentId: txId, timestamp: new Date().toISOString() }),
@@ -1264,17 +1260,7 @@ document.addEventListener('keydown', (e) => {
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
         window.GNG && window.GNG.saveEnrollment({ name, email, phone, dob, center: 'Grip&Grab ' + selectedCenter, plan: 'kids-monthly', planLabel: 'Kids Monthly', amount: total, paymentId: txId });
-        /* Email */
-        fetch('/api/send-email', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name, email, phone, dob,
-            center: 'Grip&Grab ' + selectedCenter,
-            plan:   'kids-monthly',
-            amount: total * 100,
-            paymentId: txId,
-          }),
-        }).catch((err) => console.error('Email:', err));
+        /* Email handled by Razorpay webhook (server-to-server, reliable) */
 
         /* Sheets */
         const sheetsParams = new URLSearchParams({
@@ -1635,16 +1621,7 @@ document.addEventListener('keydown', (e) => {
       onSuccess: async (txId) => {
         /* Firestore enrollment save — must happen first, idempotent via paymentId */
         window.GNG && window.GNG.saveEnrollment({ name, email, phone, dob, center: 'Grip&Grab Saket', plan: 'harish-monthly', planLabel: 'Train with Harish — Monthly', amount: total, paymentId: txId });
-        /* Email */
-        fetch('/api/send-email', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name, email, phone, dob,
-            plan:      'harish-monthly',
-            amount:    total * 100,
-            paymentId: txId,
-          }),
-        }).catch((err) => console.error('Email:', err));
+        /* Email handled by Razorpay webhook (server-to-server, reliable) */
 
         /* Sheets */
         const sheetsParams = new URLSearchParams({
