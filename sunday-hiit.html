@@ -383,31 +383,15 @@
         name: 'Grip&Grab',
         description: 'Sunday HIIT Class',
         prefill: { name: name, contact: phone },
-        handler: async (response) => {
-          try {
-            const verifyRes = await fetch('/api/sunday-class-verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: data.razorpayOrderId,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-              }),
-            });
-
-            if (verifyRes.ok) {
-              successMessage.classList.add('show');
-              form.reset();
-              submitBtn.textContent = 'Registration Closed';
-              submitBtn.disabled = true;
-              btnText.style.display = 'inline';
-              btnLoader.style.display = 'none';
-            }
-          } catch (err) {
-            console.error('Verification failed:', err);
-            alert('Verification failed. Please contact us.');
-            resetBtn();
-          }
+        handler: () => {
+          /* Payment captured — Razorpay webhook (server-to-server) handles
+             Firestore + both emails reliably, even if this tab closes now. */
+          successMessage.classList.add('show');
+          form.reset();
+          submitBtn.textContent = 'Registration Closed';
+          submitBtn.disabled = true;
+          btnText.style.display = 'inline';
+          btnLoader.style.display = 'none';
         },
         modal: { ondismiss: () => resetBtn() },
       };
