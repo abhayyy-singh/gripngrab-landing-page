@@ -364,25 +364,17 @@
     btnLoader.style.display = 'inline-block';
 
     try {
-      const res = await fetch('/api/sunday-class-register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone }),
-      });
-
-      if (!res.ok) throw new Error('Registration failed');
-
-      const data = await res.json();
-      if (!data.razorpayOrderId) throw new Error('No order ID');
+      if (typeof Razorpay === 'undefined') throw new Error('Payment gateway not loaded');
 
       const options = {
-        key: 'rzp_live_7XnomlpUEFLMdK',
+        key: 'rzp_live_ShEMzudk4Y6hrO',
         amount: 50000,
         currency: 'INR',
-        order_id: data.razorpayOrderId,
         name: 'Grip&Grab',
         description: 'Sunday HIIT Class',
         prefill: { name: name, contact: phone },
+        notes: { name: name, phone: phone, class: 'sunday-hiit' },
+        theme: { color: '#ff6b6b' },
         handler: () => {
           /* Payment captured — Razorpay webhook (server-to-server) handles
              Firestore + both emails reliably, even if this tab closes now. */
@@ -397,10 +389,14 @@
       };
 
       const razorpay = new Razorpay(options);
+      razorpay.on('payment.failed', (r) => {
+        alert('Payment failed: ' + (r.error.description || 'Please try again.'));
+        resetBtn();
+      });
       razorpay.open();
     } catch (err) {
       console.error('Error:', err);
-      alert('Registration failed. Please try again.');
+      alert('Something went wrong. Please try again.');
       resetBtn();
     }
   });
