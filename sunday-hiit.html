@@ -17,18 +17,26 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: #fff;
       line-height: 1.6;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .container {
       max-width: 480px;
       margin: 0 auto;
-      padding: 48px 20px 60px;
+      padding: clamp(32px, 10vw, 48px) clamp(16px, 5vw, 20px) calc(env(safe-area-inset-bottom, 0px) + clamp(36px, 8vw, 60px));
+    }
+
+    /* Breathing room on tablets/desktop — card stays readable, doesn't stretch edge to edge */
+    @media (min-width: 560px) {
+      .container { max-width: 460px; padding-top: 64px; }
     }
 
     /* ── Header ── */
@@ -58,11 +66,12 @@
     }
 
     .header h1 {
-      font-size: 34px;
+      font-size: clamp(26px, 8vw, 34px);
       font-weight: 800;
       color: #fff;
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: 12px;
+      text-wrap: balance;
     }
 
     .header h1 span {
@@ -73,7 +82,7 @@
     }
 
     .header p {
-      font-size: 14px;
+      font-size: clamp(12.5px, 3.4vw, 14px);
       color: rgba(255,255,255,0.5);
       max-width: 340px;
       margin: 0 auto;
@@ -84,7 +93,7 @@
       background: linear-gradient(135deg, rgba(255,107,107,0.06), rgba(247,215,148,0.04));
       border: 1px solid rgba(255,107,107,0.18);
       border-radius: 18px;
-      padding: 24px 22px;
+      padding: clamp(18px, 5vw, 24px) clamp(16px, 5vw, 22px);
       margin-bottom: 20px;
     }
 
@@ -108,18 +117,26 @@
       flex-wrap: nowrap;
       gap: 6px;
       margin-top: 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      /* fade edge hints on very narrow screens where tags scroll */
+      mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent);
     }
 
+    .tags::-webkit-scrollbar { display: none; }
+
     .tag {
-      font-size: 11px;
+      font-size: clamp(9.5px, 2.6vw, 11px);
       font-weight: 600;
       color: rgba(255,255,255,0.75);
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
-      padding: 6px 10px;
+      padding: 6px clamp(8px, 2.4vw, 10px);
       border-radius: 99px;
       white-space: nowrap;
-      flex: 0 1 auto;
+      flex-shrink: 0;
     }
 
     /* ── Form card ── */
@@ -127,7 +144,7 @@
       background: var(--card-bg);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 18px;
-      padding: 26px 22px;
+      padding: clamp(20px, 5.5vw, 26px) clamp(16px, 5vw, 22px);
     }
 
     .form-section h3 {
@@ -157,9 +174,10 @@
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 16px; /* keep >=16px — smaller sizes trigger iOS Safari auto-zoom on focus */
       font-family: inherit;
       color: #fff;
+      min-height: 48px; /* comfortable touch target on all phone sizes */
       transition: border-color 0.2s, background 0.2s;
     }
 
@@ -212,6 +230,7 @@
     /* ── Submit ── */
     .submit-btn {
       width: 100%;
+      min-height: 50px;
       padding: 15px;
       background: linear-gradient(135deg, var(--accent), var(--gold));
       color: #000;
@@ -280,6 +299,21 @@
     .footer a {
       color: var(--accent);
       text-decoration: none;
+    }
+
+    /* ── Very narrow devices (older iPhone SE, folded Z Flip/Fold cover screen, etc.) ── */
+    @media (max-width: 340px) {
+      .header { margin-bottom: 24px; }
+      .about, .form-section { border-radius: 14px; }
+      .eyebrow { gap: 6px; font-size: 10px; }
+      .price-row .price { font-size: 23px; }
+    }
+
+    /* ── Short viewports (landscape phones) — trim vertical rhythm ── */
+    @media (max-height: 560px) and (orientation: landscape) {
+      .container { padding-top: 24px; padding-bottom: 24px; }
+      .header { margin-bottom: 20px; }
+      .about { margin-bottom: 14px; }
     }
   </style>
 </head>
