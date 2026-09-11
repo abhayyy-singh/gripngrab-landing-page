@@ -146,12 +146,14 @@ module.exports = async function handler(req, res) {
    ============================================================================ */
 async function handleSundayHiit(payment, notes, res) {
   const paymentId = payment.id ?? '';
-  const email     = payment.email ?? '';
+  /* notes.email is our own mandatory form field — more reliable than payment.email,
+     which Razorpay sometimes skips collecting on UPI-intent/QR payment flows. */
+  const email     = notes.email || payment.email || '';
   const name      = notes.name  ?? '';
   const phone     = notes.phone ?? '';
 
-  if (!paymentId || !name || !phone) {
-    console.warn('[webhook][sunday-hiit] Missing fields — paymentId:', paymentId, 'name:', name, 'phone:', phone);
+  if (!paymentId || !name || !phone || !email) {
+    console.warn('[webhook][sunday-hiit] Missing fields — paymentId:', paymentId, 'name:', name, 'phone:', phone, 'email:', email);
     return res.status(200).json({ ok: true, warn: 'missing fields, sunday-hiit skipped' });
   }
 
