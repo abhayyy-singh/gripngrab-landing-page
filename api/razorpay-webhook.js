@@ -248,7 +248,8 @@ function buildSundayUserEmail(name) {
   <tr><td style="padding:20px 40px;background:#f8f9fc;border-top:1px solid #e5e7eb;">
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr><td style="color:#6b7280;font-size:13px;font-weight:600;padding:8px 0;">Class Fee</td><td style="color:#1f2937;text-align:right;font-weight:700;">₹500</td></tr>
-      <tr><td style="color:#6b7280;font-size:13px;font-weight:600;padding:8px 0;">Status</td><td style="color:#16a34a;text-align:right;font-weight:700;">Confirmed</td></tr>
+      <tr><td style="color:#6b7280;font-size:13px;font-weight:600;padding:8px 0;border-top:1px solid #e5e7eb;">Timing</td><td style="color:#1f2937;text-align:right;font-weight:700;border-top:1px solid #e5e7eb;">Starts from 9:00 AM</td></tr>
+      <tr><td style="color:#6b7280;font-size:13px;font-weight:600;padding:8px 0;border-top:1px solid #e5e7eb;">Status</td><td style="color:#16a34a;text-align:right;font-weight:700;border-top:1px solid #e5e7eb;">Confirmed</td></tr>
     </table>
   </td></tr>
   <tr><td style="padding:20px 40px 28px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
