@@ -223,6 +223,15 @@ async function handleSundayHiit(payment, notes, res) {
   return res.status(200).json({ ok: true, ...results });
 }
 
+function getNextSundayDate() {
+  const now = new Date();
+  const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const day = istNow.getDay(); /* 0 = Sunday */
+  const daysUntilSunday = day === 0 ? 0 : 7 - day;
+  istNow.setDate(istNow.getDate() + daysUntilSunday);
+  return istNow.toLocaleDateString('en-IN', { day: 'numeric', month: 'long' });
+}
+
 function buildSundayUserEmail(name) {
   return `<div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7fa;padding:40px 20px;">
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
@@ -234,7 +243,7 @@ function buildSundayUserEmail(name) {
   <tr><td style="padding:40px 40px 20px;">
     <h2 style="color:#1a1a1a;margin:0;font-size:22px;">Hi ${name},</h2>
     <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;">Your registration for our <strong>Sunday HIIT Class</strong> is confirmed. Get ready for an intense, energetic workout session with like-minded fitness enthusiasts.</p>
-    <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;"><strong>What to bring:</strong> Water bottle, towel, and your best energy!</p>
+    <p style="color:#666;margin:15px 0 0;font-size:15px;line-height:1.7;">See you on <strong>${getNextSundayDate()}</strong>!</p>
   </td></tr>
   <tr><td style="padding:20px 40px;background:#f8f9fc;border-top:1px solid #e5e7eb;">
     <table width="100%" cellpadding="0" cellspacing="0">
