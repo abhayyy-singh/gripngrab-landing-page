@@ -354,7 +354,7 @@
     </div>
     <div class="timing">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>Class starts from 9:00 AM</span>
+      <span id="timingDate">Class starts from 9:00 AM</span>
     </div>
   </div>
 
@@ -385,7 +385,7 @@
 
       <div class="success-message" id="successMessage">
         <strong>You're in!</strong>
-        <p>Check your email for confirmation. See you Sunday.</p>
+        <p>Check your email for confirmation. <span id="successDate">See you Sunday.</span></p>
       </div>
     </form>
   </div>
@@ -397,6 +397,20 @@
 </div>
 
 <script>
+  /* Always shows the next upcoming Sunday — auto-updates week to week */
+  function getNextSundayDate() {
+    const now = new Date();
+    const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const day = istNow.getDay(); /* 0 = Sunday */
+    const daysUntilSunday = day === 0 ? 0 : 7 - day;
+    istNow.setDate(istNow.getDate() + daysUntilSunday);
+    return istNow.toLocaleDateString('en-IN', { day: 'numeric', month: 'long' });
+  }
+
+  const nextSunday = getNextSundayDate();
+  document.getElementById('timingDate').textContent = `${nextSunday} · Starts from 9:00 AM`;
+  document.getElementById('successDate').textContent = `See you on ${nextSunday}.`;
+
   const form = document.getElementById('registrationForm');
   const submitBtn = document.getElementById('submitBtn');
   const btnText = document.getElementById('btnText');
