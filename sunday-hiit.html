@@ -150,6 +150,39 @@
 
     .arrival-note strong { color: rgba(255,255,255,0.8); }
 
+    /* ── Full / sold-out state ── */
+    .full-state { text-align: center; }
+
+    .full-state .full-badge {
+      display: inline-block;
+      background: rgba(255,107,107,0.12);
+      border: 1px solid rgba(255,107,107,0.35);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+
+    .full-state h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-bottom: 8px;
+    }
+
+    .full-state > p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
     .tag {
       font-size: clamp(9.5px, 2.6vw, 11px);
       font-weight: 600;
@@ -368,7 +401,15 @@
     <p class="arrival-note">You need to be here by <strong>8:45 AM</strong> — no entries will be taken after that.</p>
   </div>
 
-  <div class="form-section">
+  <!-- FULL: session sold out — capture leads for the next one -->
+  <div class="form-section full-state" id="fullState" hidden>
+    <span class="full-badge">Session Full</span>
+    <h3>This Sunday is fully booked</h3>
+    <p>All spots for this session are taken. Drop your details and we'll let you know the moment the next session opens up.</p>
+    <div id="nl-sunday"></div>
+  </div>
+
+  <div class="form-section" id="registerSection">
     <h3>Register</h3>
     <form id="registrationForm" novalidate>
       <div class="form-group">
@@ -427,6 +468,26 @@
   document.getElementById('timingDate').textContent = `${nextSunday} · Starts from 9:00 AM`;
   document.getElementById('successDate').textContent = `See you on ${nextSunday}.`;
 
+  /* Open by default; slot-config.js patches this from Firestore, then calls back */
+  window.SUNDAY_HIIT_CONFIG = { available: true };
+
+  window.onSundayHiitConfigLoaded = () => {
+    if (window.SUNDAY_HIIT_CONFIG.available) return;
+    document.getElementById('registerSection').hidden = true;
+    document.getElementById('fullState').hidden = false;
+    renderNotifyForm();
+  };
+
+  /* notify-leads.js is a separate module — it may still be loading when the
+     config resolves, so poll briefly for it rather than dropping the form. */
+  function renderNotifyForm(attempt = 0) {
+    if (window.NotifyLeads) {
+      window.NotifyLeads.render('nl-sunday', 'Sunday HIIT Class', 'Grip&Grab');
+    } else if (attempt < 40) {
+      setTimeout(() => renderNotifyForm(attempt + 1), 100);
+    }
+  }
+
   const form = document.getElementById('registrationForm');
   const submitBtn = document.getElementById('submitBtn');
   const btnText = document.getElementById('btnText');
@@ -447,6 +508,12 @@
     btnLoader.style.display = 'inline-block';
 
     try {
+      if (!window.SUNDAY_HIIT_CONFIG.available) {
+        window.onSundayHiitConfigLoaded();
+        resetBtn();
+        return;
+      }
+
       if (typeof Razorpay === 'undefined') throw new Error('Payment gateway not loaded');
 
       const options = {
@@ -526,6 +593,8 @@
 </script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="module" src="./notify-leads.js"></script>
+<script type="module" src="./slot-config.js"></script>
 
 </body>
 </html>

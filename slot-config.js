@@ -26,11 +26,12 @@ async function getDocRest(path) {
 
 async function loadSlotConfig() {
   try {
-    const [hm, saket, lajpat, pricing] = await Promise.all([
+    const [hm, saket, lajpat, pricing, sundayHiit] = await Promise.all([
       getDocRest('slot-config/haristhenics'),
       getDocRest('slot-config/saket'),
       getDocRest('slot-config/lajpat'),
       getDocRest('pricing-config/trial'),
+      getDocRest('slot-config/sunday-hiit'),
     ]);
 
     /* Trial price */
@@ -41,6 +42,14 @@ async function loadSlotConfig() {
     /* Haristhenics */
     if (hm && window.HARISH_CONFIG && typeof hm.available === 'boolean') {
       window.HARISH_CONFIG.available = hm.available;
+    }
+
+    /* Sunday HIIT */
+    if (sundayHiit && window.SUNDAY_HIIT_CONFIG && typeof sundayHiit.available === 'boolean') {
+      window.SUNDAY_HIIT_CONFIG.available = sundayHiit.available;
+    }
+    if (typeof window.onSundayHiitConfigLoaded === 'function') {
+      window.onSundayHiitConfigLoaded();
     }
 
     const CC = window.CENTER_CONFIG;
@@ -61,6 +70,9 @@ async function loadSlotConfig() {
 
   } catch (e) {
     console.warn('[slot-config] REST read failed, using defaults:', e.message);
+    if (typeof window.onSundayHiitConfigLoaded === 'function') {
+      window.onSundayHiitConfigLoaded();
+    }
   }
 }
 

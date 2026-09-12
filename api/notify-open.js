@@ -23,10 +23,12 @@ module.exports = async function handler(req, res) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) return res.status(500).json({ error: 'Email service not configured' });
 
-  const isHarish = program === 'harish-monthly' || /haris/i.test(program);
-  const bookingLink = isHarish
-    ? 'https://gripandgrab.com/#premium-training'
-    : 'https://gripandgrab.com';
+  const isHarish     = program === 'harish-monthly' || /haris/i.test(program);
+  const isSundayHiit = /sunday\s*hiit/i.test(program);
+
+  const bookingLink = isHarish     ? 'https://gripandgrab.com/#premium-training'
+                    : isSundayHiit ? 'https://gripandgrab.com/sunday-hiit.html'
+                    :                'https://gripandgrab.com';
 
   function buildHarishEmail(name) {
     return `<div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7fa;padding:40px 20px;">

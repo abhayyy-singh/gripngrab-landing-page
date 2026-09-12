@@ -406,7 +406,7 @@
         <div class="slots-grid">
           <div class="slot-card" id="sc-haristhenics">
             <div class="slot-card-top">
-              <div><div class="slot-card-name">Enrollment</div><div class="slot-card-center">Grip&amp;Grab Saket</div></div>
+              <div><div class="slot-card-name">Enrollment</div><div class="slot-card-center">Grip&amp;Grab</div></div>
               <span class="slot-status-badge closed" id="badge-haristhenics">Closed</span>
             </div>
             <div class="toggle-row">
@@ -416,6 +416,27 @@
             <div class="slot-card-footer">
               <div class="leads-count" id="lcount-haristhenics">— pending leads</div>
               <button class="notify-all-btn" onclick="notifyAll('haristhenics')">📢 Notify All Leads</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sunday HIIT -->
+      <div class="slots-section">
+        <div class="slots-section-title">Sunday HIIT Class</div>
+        <div class="slots-grid">
+          <div class="slot-card" id="sc-sunday-hiit">
+            <div class="slot-card-top">
+              <div><div class="slot-card-name">Registration</div><div class="slot-card-center">Grip&amp;Grab</div></div>
+              <span class="slot-status-badge closed" id="badge-sunday-hiit">Closed</span>
+            </div>
+            <div class="toggle-row">
+              <label class="toggle"><input type="checkbox" id="chk-sunday-hiit"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              <span class="toggle-label" id="tlabel-sunday-hiit">Slots closed</span>
+            </div>
+            <div class="slot-card-footer">
+              <div class="leads-count" id="lcount-sunday-hiit">— pending leads</div>
+              <button class="notify-all-btn" onclick="notifyAll('sunday-hiit')">📢 Notify All Leads</button>
             </div>
           </div>
         </div>
@@ -617,7 +638,8 @@ let slotConfig     = {};
 let enrollLoaded   = false;
 
 const SLOT_CARDS = [
-  {id:'haristhenics',     program:'Train with Haristhenics', center:'Grip&Grab Saket',        field:'haristhenics', key:'available' },
+  {id:'haristhenics',     program:'Train with Haristhenics', center:'Grip&Grab',              field:'haristhenics', key:'available' },
+  {id:'sunday-hiit',      program:'Sunday HIIT Class',       center:'Grip&Grab',              field:'sunday-hiit',  key:'available' },
   {id:'saket-membership', program:'Membership',              center:'Grip&Grab Saket',        field:'saket',        key:'membership'},
   {id:'saket-trial',      program:'Trial Class',             center:'Grip&Grab Saket',        field:'saket',        key:'trial'     },
   {id:'saket-daypass',    program:'Day Pass',                center:'Grip&Grab Saket',        field:'saket',        key:'daypass'   },
@@ -858,18 +880,20 @@ document.getElementById('enroll-refresh-btn').addEventListener('click', () => { 
 /* ── SLOTS ── */
 async function loadSlotConfig() {
   try {
-    const [hmSnap, sSnap, lSnap] = await Promise.all([
+    const [hmSnap, sSnap, lSnap, shSnap] = await Promise.all([
       getDoc(doc(db,'slot-config','haristhenics')),
       getDoc(doc(db,'slot-config','saket')),
       getDoc(doc(db,'slot-config','lajpat')),
+      getDoc(doc(db,'slot-config','sunday-hiit')),
     ]);
     slotConfig = {
-      haristhenics: hmSnap.exists() ? hmSnap.data() : {available:false},
-      saket:        sSnap.exists()  ? sSnap.data()  : {membership:true,trial:true,daypass:true},
-      lajpat:       lSnap.exists()  ? lSnap.data()  : {membership:false,trial:false,daypass:false},
+      haristhenics:  hmSnap.exists() ? hmSnap.data() : {available:false},
+      saket:         sSnap.exists()  ? sSnap.data()  : {membership:true,trial:true,daypass:true},
+      lajpat:        lSnap.exists()  ? lSnap.data()  : {membership:false,trial:false,daypass:false},
+      'sunday-hiit': shSnap.exists() ? shSnap.data() : {available:true},
     };
   } catch(e) {
-    slotConfig = {haristhenics:{available:false},saket:{membership:true,trial:true,daypass:true},lajpat:{membership:false,trial:false,daypass:false}};
+    slotConfig = {haristhenics:{available:false},saket:{membership:true,trial:true,daypass:true},lajpat:{membership:false,trial:false,daypass:false},'sunday-hiit':{available:true}};
   }
   renderSlots();
 }
