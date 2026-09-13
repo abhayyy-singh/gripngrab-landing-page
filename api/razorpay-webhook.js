@@ -229,7 +229,8 @@ function getNextSundayDate() {
   const now = new Date();
   const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   const day = istNow.getDay(); /* 0 = Sunday */
-  const daysUntilSunday = day === 0 ? 0 : 7 - day;
+  /* On Sunday, keep today's session until 12 PM IST, then roll to next Sunday */
+  const daysUntilSunday = day === 0 ? (istNow.getHours() < 12 ? 0 : 7) : 7 - day;
   istNow.setDate(istNow.getDate() + daysUntilSunday);
   return istNow.toLocaleDateString('en-IN', { day: 'numeric', month: 'long' });
 }
@@ -256,6 +257,7 @@ function buildSundayUserEmail(name) {
   </td></tr>
   <tr><td style="padding:16px 40px 0;">
     <p style="margin:0;color:#6b7280;font-size:12.5px;line-height:1.6;">You need to be here by <strong style="color:#1f2937;">8:45 AM</strong> — no entries will be taken after that.</p>
+    <p style="margin:8px 0 0;color:#6b7280;font-size:12.5px;line-height:1.6;">Dress code: <strong style="color:#1f2937;">strictly black, white or grey gym wear</strong>, so you look sharp and presentable throughout the session.</p>
   </td></tr>
   <tr><td style="padding:20px 40px 28px;background:#f8f9fc;border-top:1px solid #e5e7eb;text-align:center;">
     <p style="margin:0;color:#9ca3af;font-size:11px;">See you on Sunday! Get ready to push your limits.</p>

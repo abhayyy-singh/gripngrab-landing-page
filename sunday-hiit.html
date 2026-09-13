@@ -399,6 +399,7 @@
       <span id="timingDate">Class starts from 9:00 AM</span>
     </div>
     <p class="arrival-note">You need to be here by <strong>8:45 AM</strong> — no entries will be taken after that.</p>
+    <p class="arrival-note">Dress code: <strong>strictly black, white or grey gym wear</strong>, so you look sharp and presentable throughout the session.</p>
   </div>
 
   <!-- FULL: session sold out — capture leads for the next one -->
@@ -459,7 +460,8 @@
     const now = new Date();
     const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
     const day = istNow.getDay(); /* 0 = Sunday */
-    const daysUntilSunday = day === 0 ? 0 : 7 - day;
+    /* On Sunday, keep today's session until 12 PM IST, then roll to next Sunday */
+    const daysUntilSunday = day === 0 ? (istNow.getHours() < 12 ? 0 : 7) : 7 - day;
     istNow.setDate(istNow.getDate() + daysUntilSunday);
     return istNow.toLocaleDateString('en-IN', { day: 'numeric', month: 'long' });
   }
