@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/staff/sync-sheets.js": {
+      "maxDuration": 60
+    }
+  }
+}
