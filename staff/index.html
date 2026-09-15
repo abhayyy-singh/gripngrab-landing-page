@@ -8,15 +8,28 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0c0c0c; --surface: #161616; --sur2: #1e1e1e; --border: rgba(255,255,255,0.07);
-      --text: #f0f0f0; --muted: rgba(255,255,255,0.4); --accent: #ff6b6b;
+      --bg: #0c0c0c; --surface: #161616; --sur2: #1e1e1e; --sur3: #262626; --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0; --muted: rgba(255,255,255,0.45); --faint: rgba(255,255,255,0.25); --accent: #ff6b6b;
       --green: #4ade80; --yellow: #fbbf24; --red: #ff6b6b; --blue: #60a5fa;
     }
     html { -webkit-text-size-adjust: 100%; }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
     a { color: inherit; }
+    button, input, select { font-family: inherit; }
 
-    #loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2.5px solid rgba(255,255,255,0.15); border-top-color: var(--accent);
+      animation: spin .7s linear infinite; display: inline-block; flex-shrink: 0;
+    }
+    .spinner.sm { width: 13px; height: 13px; border-width: 2px; }
+
+    #loading {
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; color: var(--muted); font-size: 13px;
+    }
 
     .header {
       background: var(--surface); border-bottom: 1px solid var(--border);
@@ -27,59 +40,109 @@
     .header-right { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
     .role-badge { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); border-radius: 99px; padding: 3px 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
     .role-badge.owner { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.3); }
-    .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-    .tabs { display: flex; gap: 4px; padding: 10px 16px 0; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
-    .tab-btn { background: none; border: none; color: var(--muted); padding: 10px 14px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab-btn { background: none; border: none; color: var(--muted); padding: 13px 14px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
     .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+    .tab-count { background: var(--sur3); color: var(--muted); border-radius: 99px; padding: 1px 7px; font-size: 10.5px; margin-left: 6px; }
 
     .main { padding: 16px; max-width: 1100px; margin: 0 auto; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* ── Due-status summary strip ── */
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .stat-tile {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+      cursor: pointer; transition: border-color .15s; text-align: left;
+    }
+    .stat-tile:hover { border-color: rgba(255,255,255,0.2); }
+    .stat-tile.selected { border-color: var(--accent); background: var(--sur2); }
+    .stat-tile .num { font-size: 22px; font-weight: 800; line-height: 1.1; }
+    .stat-tile .lbl { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; margin-top: 3px; }
+    .stat-tile.overdue .num { color: var(--red); }
+    .stat-tile.due .num { color: var(--yellow); }
+    .stat-tile.active .num { color: var(--green); }
+    .stat-tile.unknown .num { color: var(--muted); }
+
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; align-items: center; }
     .toolbar select, .toolbar input[type=text] {
       background: var(--sur2); border: 1px solid var(--border); color: var(--text);
-      padding: 9px 12px; border-radius: 10px; font-size: 13px; font-family: inherit;
+      padding: 9px 12px; border-radius: 10px; font-size: 13px;
     }
     .toolbar input[type=text] { flex: 1; min-width: 160px; }
-    .btn { background: linear-gradient(135deg,#ff6b6b,#f7d794); color: #000; border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn {
+      background: linear-gradient(135deg,#ff6b6b,#f7d794); color: #000; border: none; border-radius: 10px;
+      padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
     .btn-ghost { background: var(--sur2); color: var(--text); border: 1px solid var(--border); }
-    .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    .btn-sm { padding: 6px 11px; font-size: 12px; border-radius: 8px; }
 
-    .sync-summary { background: var(--sur2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: var(--muted); white-space: pre-wrap; display: none; }
+    /* ── Sync progress ── */
+    .sync-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: none; }
+    .sync-panel.show { display: block; }
+    .sync-status-line { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 10px; }
+    .progress-track { height: 6px; background: var(--sur2); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg,#ff6b6b,#f7d794); border-radius: 99px; width: 5%; transition: width .4s ease; }
+    .sync-result { margin-top: 12px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
+    .sync-result strong { color: var(--text); }
 
     .card-list { display: flex; flex-direction: column; gap: 8px; }
-    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
-    .member-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .member-name { font-size: 14px; font-weight: 700; }
-    .member-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-    .pill { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .member-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .member-name { font-size: 14.5px; font-weight: 700; }
+    .member-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+    .pill { font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; flex-shrink: 0; }
     .pill.active  { background: rgba(74,222,128,0.15); color: var(--green); }
     .pill.due     { background: rgba(251,191,36,0.15); color: var(--yellow); }
     .pill.overdue { background: rgba(255,107,107,0.15); color: var(--red); }
     .pill.unknown { background: rgba(255,255,255,0.08); color: var(--muted); }
-    .member-row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap; }
-    .contact-line { font-size: 12px; color: var(--muted); }
-    .contact-hidden { font-style: italic; }
+    .member-row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--border); }
+    .contact-block { font-size: 12px; color: var(--text); display: flex; flex-direction: column; gap: 2px; }
+    .contact-block .contact-item { display: flex; gap: 6px; }
+    .contact-block .contact-item .k { color: var(--faint); min-width: 42px; }
+    .contact-hidden-label { font-size: 12px; color: var(--faint); font-style: italic; }
+    .card-actions { display: flex; gap: 6px; }
 
-    .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+    .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
     .review-type { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--yellow); letter-spacing: .04em; }
-    .review-data { font-size: 12px; color: var(--muted); margin: 6px 0; word-break: break-word; }
+    .review-sub { font-size: 11px; color: var(--faint); margin-top: 2px; }
+    .review-data { font-size: 12.5px; color: var(--muted); margin: 8px 0; word-break: break-word; background: var(--sur2); border-radius: 8px; padding: 8px 10px; }
+    .review-data strong { color: var(--text); }
     .review-actions { display: flex; gap: 8px; margin-top: 8px; }
 
-    .audit-row { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 12.5px; }
+    .audit-row { border-bottom: 1px solid var(--border); padding: 11px 0; font-size: 12.5px; }
     .audit-actor { font-weight: 700; }
     .audit-action { color: var(--blue); }
-    .audit-time { color: var(--muted); font-size: 11px; }
+    .audit-time { color: var(--muted); font-size: 11px; margin-top: 2px; }
 
-    .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 13px; }
+    .empty { text-align: center; color: var(--muted); padding: 50px 20px; font-size: 13px; }
+    .loading-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 50px 20px; color: var(--muted); font-size: 13px; }
+
+    /* ── Edit modal ── */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+    .modal-backdrop.show { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 16px; margin-bottom: 16px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .02em; }
+    .field input, .field select {
+      width: 100%; background: var(--sur2); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 12px; border-radius: 9px; font-size: 13.5px;
+    }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; justify-content: flex-end; }
+    .modal-err { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
 
-<div id="loading">Loading…</div>
+<div id="loading">
+  <div class="spinner"></div>
+  <div>Signing in…</div>
+</div>
 
 <div id="app" style="display:none;">
   <div class="header">
@@ -92,8 +155,8 @@
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="members">Members</button>
-    <button class="tab-btn" data-tab="review">Migration Review</button>
+    <button class="tab-btn active" data-tab="members">Members <span class="tab-count" id="members-count"></span></button>
+    <button class="tab-btn" data-tab="review">Migration Review <span class="tab-count" id="review-count"></span></button>
     <button class="tab-btn" id="audit-tab-btn" data-tab="audit" style="display:none;">Audit Log</button>
   </div>
 
@@ -101,6 +164,9 @@
 
     <!-- MEMBERS -->
     <div class="tab-content active" id="tab-members">
+
+      <div class="stat-row" id="stat-row"></div>
+
       <div class="toolbar">
         <select id="center-filter">
           <option value="all">All Centers</option>
@@ -110,8 +176,19 @@
         <input type="text" id="search-input" placeholder="Search by name…">
         <button class="btn" id="sync-btn">Sync Now</button>
       </div>
-      <div class="sync-summary" id="sync-summary"></div>
-      <div id="members-list" class="card-list"><div class="empty">Loading members…</div></div>
+
+      <div class="sync-panel" id="sync-panel">
+        <div class="sync-status-line">
+          <span class="spinner sm" id="sync-spinner"></span>
+          <span id="sync-status-text">Starting…</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="sync-result" id="sync-result"></div>
+      </div>
+
+      <div id="members-list" class="card-list">
+        <div class="loading-row"><span class="spinner"></span> Loading members…</div>
+      </div>
     </div>
 
     <!-- MIGRATION REVIEW -->
@@ -119,14 +196,43 @@
       <div class="toolbar">
         <button class="btn btn-ghost" id="refresh-review-btn">Refresh</button>
       </div>
-      <div id="review-list"></div>
+      <div id="review-list"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
     </div>
 
     <!-- AUDIT LOG -->
     <div class="tab-content" id="tab-audit">
-      <div id="audit-list"></div>
+      <div id="audit-list"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
     </div>
 
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" id="edit-backdrop">
+  <div class="modal">
+    <h3>Edit Member</h3>
+    <div class="field"><label>Name</label><input type="text" id="f-name"></div>
+    <div class="field">
+      <label>Plan</label>
+      <select id="f-plan">
+        <option value="">— not set —</option>
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="half-yearly">Half-Yearly</option>
+        <option value="yearly">Yearly</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="field"><label>Start Date</label><input type="date" id="f-start"></div>
+    <div class="field"><label>Due Date</label><input type="date" id="f-due"></div>
+    <div class="field"><label>Default Fee (₹)</label><input type="number" id="f-fee"></div>
+    <div class="field"><label>Phone</label><input type="text" id="f-phone"></div>
+    <div class="field"><label>Email</label><input type="text" id="f-email"></div>
+    <div class="modal-err" id="edit-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="edit-cancel">Cancel</button>
+      <button class="btn btn-sm" id="edit-save">Save</button>
+    </div>
   </div>
 </div>
 
@@ -149,6 +255,7 @@
   let idToken = null;
   let myRole = null;
   let allMembers = [];
+  let activeDueFilter = 'all';
 
   onAuthStateChanged(auth, async user => {
     if (!user) { window.location.href = './login.html'; return; }
@@ -164,11 +271,7 @@
   async function api(path, options = {}) {
     const res = await fetch(path, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`,
-        ...(options.headers || {}),
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}`, ...(options.headers || {}) },
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
@@ -198,11 +301,14 @@
   }
 
   async function loadMembers() {
+    document.getElementById('members-list').innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading members…</div>';
     try {
       const center = document.getElementById('center-filter').value;
       const { members, role } = await api(`/api/staff/members?center=${center}`);
       allMembers = members;
       if (myRole !== role) { myRole = role; applyRoleUI(); }
+      document.getElementById('members-count').textContent = members.length;
+      renderStats();
       renderMembers();
     } catch (e) {
       document.getElementById('members-list').innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
@@ -216,32 +322,58 @@
     document.getElementById('audit-tab-btn').style.display = myRole === 'owner' ? 'inline-block' : 'none';
   }
 
+  function renderStats() {
+    const counts = { overdue: 0, due: 0, active: 0, unknown: 0 };
+    for (const m of allMembers) counts[dueStatus(m).cls]++;
+    const tiles = [
+      { key: 'all',     cls: '',        num: allMembers.length, lbl: 'All Members' },
+      { key: 'overdue', cls: 'overdue', num: counts.overdue,    lbl: 'Overdue' },
+      { key: 'due',     cls: 'due',     num: counts.due,        lbl: 'Due Soon' },
+      { key: 'active',  cls: 'active',  num: counts.active,     lbl: 'Active' },
+      { key: 'unknown', cls: 'unknown', num: counts.unknown,    lbl: 'No Due Date' },
+    ];
+    document.getElementById('stat-row').innerHTML = tiles.map(t => `
+      <button class="stat-tile ${t.cls} ${activeDueFilter === t.key ? 'selected' : ''}" data-filter="${t.key}">
+        <div class="num">${t.num}</div>
+        <div class="lbl">${t.lbl}</div>
+      </button>`).join('');
+    document.querySelectorAll('.stat-tile').forEach(el => el.addEventListener('click', () => {
+      activeDueFilter = el.dataset.filter;
+      renderStats(); renderMembers();
+    }));
+  }
+
   function renderMembers() {
     const search = document.getElementById('search-input').value.trim().toUpperCase();
     const list = document.getElementById('members-list');
     let filtered = allMembers;
+    if (activeDueFilter !== 'all') filtered = filtered.filter(m => dueStatus(m).cls === activeDueFilter);
     if (search) filtered = filtered.filter(m => (m.name || '').includes(search));
+    filtered = [...filtered].sort((a, b) => (a.dueDate || '9999') < (b.dueDate || '9999') ? -1 : 1);
 
-    if (!filtered.length) { list.innerHTML = '<div class="empty">No members found.</div>'; return; }
+    if (!filtered.length) { list.innerHTML = '<div class="empty">No members match this view.</div>'; return; }
 
     list.innerHTML = filtered.map(m => {
       const status = dueStatus(m);
-      const contactLine = m.contactHidden
-        ? `<span class="contact-line contact-hidden">Contact hidden</span>`
-        : `<span class="contact-line">${m.phone || '—'} · ${m.email || '—'}</span>`;
+      const contactBlock = m.contactHidden
+        ? `<span class="contact-hidden-label">Contact hidden</span>`
+        : `<div class="contact-block">
+             <div class="contact-item"><span class="k">Phone</span><span>${m.phone || '—'}</span></div>
+             <div class="contact-item"><span class="k">Email</span><span>${m.email || '—'}</span></div>
+           </div>`;
       return `
         <div class="member-card" data-id="${m.id}">
           <div class="member-top">
             <div>
               <div class="member-name">${m.name || '—'}</div>
-              <div class="member-meta">${(m.center||'—').toUpperCase()} · ${m.plan || 'no plan'} · ${m.memberType === 'personal-training' ? 'Personal Training' : m.memberType === 'kids' ? 'Kids' : 'General'}</div>
+              <div class="member-meta">${(m.center||'—').toUpperCase()} · ${m.plan || 'no plan set'} · ${m.memberType === 'personal-training' ? 'Personal Training' : m.memberType === 'kids' ? 'Kids' : 'General'}</div>
             </div>
             <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + m.dueDate : ''}</span>
           </div>
           <div class="member-row2">
-            ${contactLine}
-            <div style="display:flex;gap:6px;">
-              ${myRole === 'owner' ? `<button class="btn btn-ghost btn-sm reveal-btn" data-id="${m.id}">Show Contact</button>` : ''}
+            ${contactBlock}
+            <div class="card-actions">
+              ${myRole === 'owner' && m.contactHidden ? `<button class="btn btn-ghost btn-sm reveal-btn" data-id="${m.id}">Show Contact</button>` : ''}
               <button class="btn btn-ghost btn-sm edit-btn" data-id="${m.id}">Edit</button>
             </div>
           </div>
@@ -249,15 +381,21 @@
     }).join('');
 
     list.querySelectorAll('.reveal-btn').forEach(btn => btn.addEventListener('click', () => revealContact(btn.dataset.id, btn)));
-    list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => editMember(btn.dataset.id)));
+    list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
   }
 
   async function revealContact(id, btn) {
-    btn.disabled = true; btn.textContent = 'Loading…';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner sm"></span> Loading…';
     try {
       const { phone, email, address } = await api('/api/staff/reveal-contact', { method: 'POST', body: JSON.stringify({ id }) });
       const card = btn.closest('.member-card');
-      card.querySelector('.contact-line').outerHTML = `<span class="contact-line">${phone || '—'} · ${email || '—'}${address ? ' · ' + address : ''}</span>`;
+      card.querySelector('.contact-hidden-label, .contact-block').outerHTML =
+        `<div class="contact-block">
+           <div class="contact-item"><span class="k">Phone</span><span>${phone || '—'}</span></div>
+           <div class="contact-item"><span class="k">Email</span><span>${email || '—'}</span></div>
+           ${address ? `<div class="contact-item"><span class="k">Addr</span><span>${address}</span></div>` : ''}
+         </div>`;
       btn.remove();
     } catch (e) {
       alert('Failed: ' + e.message);
@@ -265,73 +403,152 @@
     }
   }
 
-  function editMember(id) {
+  /* ── Edit modal ── */
+  let editingId = null;
+  function openEditModal(id) {
     const m = allMembers.find(x => x.id === id);
     if (!m) return;
-    const name = prompt('Name', m.name) ?? m.name;
-    const plan = prompt('Plan (monthly/quarterly/half-yearly/yearly/custom)', m.plan || '') ?? m.plan;
-    const startDate = prompt('Start date (YYYY-MM-DD)', m.startDate || '') ?? m.startDate;
-    const dueDate = prompt('Due date (YYYY-MM-DD)', m.dueDate || '') ?? m.dueDate;
-    const defaultFeeAmount = prompt('Default fee amount (₹)', m.defaultFeeAmount || '') ?? m.defaultFeeAmount;
-    api('/api/staff/members', {
-      method: 'POST',
-      body: JSON.stringify({ id, name, plan, startDate, dueDate, defaultFeeAmount: defaultFeeAmount ? parseFloat(defaultFeeAmount) : null }),
-    }).then(() => loadMembers()).catch(e => alert('Save failed: ' + e.message));
+    editingId = id;
+    document.getElementById('f-name').value = m.name || '';
+    document.getElementById('f-plan').value = m.plan || '';
+    document.getElementById('f-start').value = m.startDate || '';
+    document.getElementById('f-due').value = m.dueDate || '';
+    document.getElementById('f-fee').value = m.defaultFeeAmount || '';
+    document.getElementById('f-phone').value = m.contactHidden ? '' : (m.phone || '');
+    document.getElementById('f-email').value = m.contactHidden ? '' : (m.email || '');
+    document.getElementById('f-phone').placeholder = m.contactHidden ? 'Hidden — Show Contact first to edit' : '';
+    document.getElementById('f-email').placeholder = m.contactHidden ? 'Hidden — Show Contact first to edit' : '';
+    document.getElementById('edit-err').style.display = 'none';
+    document.getElementById('edit-backdrop').classList.add('show');
   }
+  function closeEditModal() { document.getElementById('edit-backdrop').classList.remove('show'); editingId = null; }
+  document.getElementById('edit-cancel').addEventListener('click', closeEditModal);
+  document.getElementById('edit-backdrop').addEventListener('click', e => { if (e.target.id === 'edit-backdrop') closeEditModal(); });
+
+  document.getElementById('edit-save').addEventListener('click', async () => {
+    if (!editingId) return;
+    const btn = document.getElementById('edit-save');
+    const errEl = document.getElementById('edit-err');
+    errEl.style.display = 'none';
+    const payload = {
+      id: editingId,
+      name: document.getElementById('f-name').value.trim(),
+      plan: document.getElementById('f-plan').value || null,
+      startDate: document.getElementById('f-start').value || null,
+      dueDate: document.getElementById('f-due').value || null,
+      defaultFeeAmount: document.getElementById('f-fee').value ? parseFloat(document.getElementById('f-fee').value) : null,
+    };
+    const phoneVal = document.getElementById('f-phone').value.trim();
+    const emailVal = document.getElementById('f-email').value.trim();
+    if (phoneVal) payload.phone = phoneVal;
+    if (emailVal) payload.email = emailVal;
+
+    btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span> Saving…';
+    try {
+      await api('/api/staff/members', { method: 'POST', body: JSON.stringify(payload) });
+      closeEditModal();
+      await loadMembers();
+    } catch (e) {
+      errEl.textContent = 'Save failed: ' + e.message;
+      errEl.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = 'Save';
+  });
 
   document.getElementById('center-filter').addEventListener('change', loadMembers);
   document.getElementById('search-input').addEventListener('input', renderMembers);
 
+  /* ── Sync Now — animated progress since the server doesn't stream real progress ── */
+  const SYNC_STEPS = [
+    { at: 0,    label: 'Reading Saket sheet…' },
+    { at: 3000, label: 'Reading Lajpat sheet…' },
+    { at: 8000, label: 'Matching members and payments…' },
+    { at: 13000, label: 'Matching Bank Receipts…' },
+    { at: 17000, label: 'Writing to database…' },
+  ];
   document.getElementById('sync-btn').addEventListener('click', async () => {
     const btn = document.getElementById('sync-btn');
-    const summary = document.getElementById('sync-summary');
-    btn.disabled = true; btn.textContent = 'Syncing…';
-    summary.style.display = 'block';
-    summary.textContent = 'Reading both sheets — this can take a minute…';
+    const panel = document.getElementById('sync-panel');
+    const fill = document.getElementById('progress-fill');
+    const statusText = document.getElementById('sync-status-text');
+    const spinner = document.getElementById('sync-spinner');
+    const resultEl = document.getElementById('sync-result');
+
+    btn.disabled = true;
+    panel.classList.add('show');
+    resultEl.innerHTML = '';
+    spinner.style.display = 'inline-block';
+    fill.style.width = '4%';
+
+    const startedAt = Date.now();
+    const EXPECTED_MS = 22000; // observed ~17-23s live; used only to pace the bar, not a hard limit
+    const timers = SYNC_STEPS.map(step => setTimeout(() => { statusText.textContent = step.label; }, step.at));
+    const progressTimer = setInterval(() => {
+      const pct = Math.min(92, 4 + (Date.now() - startedAt) / EXPECTED_MS * 88);
+      fill.style.width = pct + '%';
+    }, 200);
+
     try {
       const { summary: s } = await api('/api/staff/sync-sheets', { method: 'POST' });
-      summary.textContent =
-        `SAKET  — members: ${s.saket.membersUpserted}, duplicates flagged: ${s.saket.membersDuplicateSkipped}, payments: ${s.saket.paymentsWritten}, review items: ${s.saket.reviewQueued}\n` +
-        `LAJPAT — members: ${s.lajpat.membersUpserted}, duplicates flagged: ${s.lajpat.membersDuplicateSkipped}, payments: ${s.lajpat.paymentsWritten}, review items: ${s.lajpat.reviewQueued}\n` +
-        `BANK RECEIPTS — matched: ${s.lajpat.bankReceiptsMatched}, unmatched (review): ${s.lajpat.bankReceiptsUnmatched}\n` +
-        `Tabs read — Saket: ${s.saket.tabs.join(', ')} | Lajpat: ${s.lajpat.tabs.join(', ')}`;
+      clearInterval(progressTimer);
+      timers.forEach(clearTimeout);
+      fill.style.width = '100%';
+      spinner.style.display = 'none';
+      const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+      statusText.textContent = `Done in ${elapsed}s`;
+      resultEl.innerHTML = `
+        <div><strong>Saket</strong> — ${s.saket.membersUpserted} members, ${s.saket.paymentsWritten} payments, ${s.saket.reviewQueued} flagged for review${s.saket.membersDuplicateSkipped ? `, ${s.saket.membersDuplicateSkipped} duplicate names skipped` : ''}</div>
+        <div><strong>Lajpat Nagar</strong> — ${s.lajpat.membersUpserted} members, ${s.lajpat.paymentsWritten} payments, ${s.lajpat.reviewQueued} flagged for review${s.lajpat.membersDuplicateSkipped ? `, ${s.lajpat.membersDuplicateSkipped} duplicate names skipped` : ''}</div>
+        <div><strong>Bank Receipts</strong> — ${s.lajpat.bankReceiptsMatched} matched, ${s.lajpat.bankReceiptsUnmatched} unmatched (added to review)</div>
+        <div style="margin-top:6px;color:var(--faint);">Tabs read — Saket: ${s.saket.tabs.join(', ')} · Lajpat: ${s.lajpat.tabs.join(', ')}</div>
+      `;
       await loadMembers();
     } catch (e) {
-      summary.textContent = 'Sync failed: ' + e.message;
+      clearInterval(progressTimer);
+      timers.forEach(clearTimeout);
+      spinner.style.display = 'none';
+      statusText.textContent = 'Sync failed';
+      resultEl.innerHTML = `<div style="color:var(--red);">${e.message}</div>`;
     }
-    btn.disabled = false; btn.textContent = 'Sync Now';
+    btn.disabled = false;
   });
 
   /* ── Migration Review ── */
   async function loadReview() {
     const list = document.getElementById('review-list');
-    list.innerHTML = '<div class="empty">Loading…</div>';
+    list.innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading…</div>';
     try {
       const { items } = await api('/api/staff/migration-review');
+      document.getElementById('review-count').textContent = items.length || '';
       if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review.</div>'; return; }
       list.innerHTML = items.map(item => `
         <div class="review-card" data-id="${item.id}">
-          <div class="review-type">${item.type} · ${item.sheet} · ${item.tab || ''}</div>
-          <div class="review-data">${JSON.stringify(item.rawData)}</div>
+          <div class="review-type">${item.type.replace(/-/g, ' ')}</div>
+          <div class="review-sub">${item.sheet} · ${item.tab || ''}</div>
+          <div class="review-data">${Object.entries(item.rawData || {}).map(([k, v]) => `<strong>${k}:</strong> ${v}`).join('<br>')}</div>
           ${item.suggestedMatch ? `<div class="review-data">Suggested match: <strong>${item.suggestedMatch}</strong></div>` : ''}
           <div class="review-actions">
             <button class="btn btn-sm reject-btn" data-id="${item.id}">Reject</button>
             <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">Mark Confirmed</button>
           </div>
         </div>`).join('');
-      list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject')));
-      list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm')));
+      list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
+      list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
     } catch (e) {
       list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
     }
   }
 
-  async function resolveReview(id, resolution) {
+  async function resolveReview(id, resolution, btn) {
+    const card = btn.closest('.review-card');
+    card.querySelectorAll('button').forEach(b => b.disabled = true);
+    btn.innerHTML = '<span class="spinner sm"></span>';
     try {
       await api('/api/staff/migration-review', { method: 'POST', body: JSON.stringify({ id, resolution }) });
       loadReview();
     } catch (e) {
       alert('Failed: ' + e.message);
+      card.querySelectorAll('button').forEach(b => b.disabled = false);
     }
   }
 
@@ -340,7 +557,7 @@
   /* ── Audit Log ── */
   async function loadAudit() {
     const list = document.getElementById('audit-list');
-    list.innerHTML = '<div class="empty">Loading…</div>';
+    list.innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading…</div>';
     try {
       const { entries } = await api('/api/staff/audit-log');
       if (!entries.length) { list.innerHTML = '<div class="empty">No activity yet.</div>'; return; }
