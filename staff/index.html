@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grip&amp;Grab Staff</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0c0c0c; --surface: #161616; --sur2: #1e1e1e; --border: rgba(255,255,255,0.07);
+      --text: #f0f0f0; --muted: rgba(255,255,255,0.4); --accent: #ff6b6b;
+      --green: #4ade80; --yellow: #fbbf24; --red: #ff6b6b; --blue: #60a5fa;
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+    a { color: inherit; }
+
+    #loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+
+    .header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 16px; height: 54px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 20;
+    }
+    .header-brand { font-size: 15px; font-weight: 700; background: linear-gradient(135deg,#ff6b6b,#f7d794); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-right { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+    .role-badge { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); border-radius: 99px; padding: 3px 10px; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    .role-badge.owner { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.3); }
+    .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
+
+    .tabs { display: flex; gap: 4px; padding: 10px 16px 0; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab-btn { background: none; border: none; color: var(--muted); padding: 10px 14px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    .main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; align-items: center; }
+    .toolbar select, .toolbar input[type=text] {
+      background: var(--sur2); border: 1px solid var(--border); color: var(--text);
+      padding: 9px 12px; border-radius: 10px; font-size: 13px; font-family: inherit;
+    }
+    .toolbar input[type=text] { flex: 1; min-width: 160px; }
+    .btn { background: linear-gradient(135deg,#ff6b6b,#f7d794); color: #000; border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-ghost { background: var(--sur2); color: var(--text); border: 1px solid var(--border); }
+    .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+
+    .sync-summary { background: var(--sur2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: var(--muted); white-space: pre-wrap; display: none; }
+
+    .card-list { display: flex; flex-direction: column; gap: 8px; }
+    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .member-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .member-name { font-size: 14px; font-weight: 700; }
+    .member-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .pill { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+    .pill.active  { background: rgba(74,222,128,0.15); color: var(--green); }
+    .pill.due     { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .pill.overdue { background: rgba(255,107,107,0.15); color: var(--red); }
+    .pill.unknown { background: rgba(255,255,255,0.08); color: var(--muted); }
+    .member-row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap; }
+    .contact-line { font-size: 12px; color: var(--muted); }
+    .contact-hidden { font-style: italic; }
+
+    .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+    .review-type { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--yellow); letter-spacing: .04em; }
+    .review-data { font-size: 12px; color: var(--muted); margin: 6px 0; word-break: break-word; }
+    .review-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+    .audit-row { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 12.5px; }
+    .audit-actor { font-weight: 700; }
+    .audit-action { color: var(--blue); }
+    .audit-time { color: var(--muted); font-size: 11px; }
+
+    .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div id="loading">Loading…</div>
+
+<div id="app" style="display:none;">
+  <div class="header">
+    <div class="header-brand">Grip&amp;Grab Staff</div>
+    <div class="header-right">
+      <span id="user-email"></span>
+      <span class="role-badge" id="role-badge">—</span>
+      <button class="signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="members">Members</button>
+    <button class="tab-btn" data-tab="review">Migration Review</button>
+    <button class="tab-btn" id="audit-tab-btn" data-tab="audit" style="display:none;">Audit Log</button>
+  </div>
+
+  <div class="main">
+
+    <!-- MEMBERS -->
+    <div class="tab-content active" id="tab-members">
+      <div class="toolbar">
+        <select id="center-filter">
+          <option value="all">All Centers</option>
+          <option value="saket">Saket</option>
+          <option value="lajpat">Lajpat Nagar</option>
+        </select>
+        <input type="text" id="search-input" placeholder="Search by name…">
+        <button class="btn" id="sync-btn">Sync Now</button>
+      </div>
+      <div class="sync-summary" id="sync-summary"></div>
+      <div id="members-list" class="card-list"><div class="empty">Loading members…</div></div>
+    </div>
+
+    <!-- MIGRATION REVIEW -->
+    <div class="tab-content" id="tab-review">
+      <div class="toolbar">
+        <button class="btn btn-ghost" id="refresh-review-btn">Refresh</button>
+      </div>
+      <div id="review-list"></div>
+    </div>
+
+    <!-- AUDIT LOG -->
+    <div class="tab-content" id="tab-audit">
+      <div id="audit-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const FIREBASE_CONFIG = {
+    apiKey:            'AIzaSyB8hiRT58l-n5f5nbaqtuViCJeOqEMp-_k',
+    authDomain:        'gripngrab.firebaseapp.com',
+    projectId:         'gripngrab',
+    storageBucket:     'gripngrab.firebasestorage.app',
+    messagingSenderId: '568040807328',
+    appId:             '1:568040807328:web:e9ee4f1328064a3d69e2c5',
+  };
+
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+
+  let idToken = null;
+  let myRole = null;
+  let allMembers = [];
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = './login.html'; return; }
+    idToken = await user.getIdToken();
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await loadMembers();
+  });
+
+  document.getElementById('signout-btn').addEventListener('click', () => signOut(auth));
+
+  async function api(path, options = {}) {
+    const res = await fetch(path, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+        ...(options.headers || {}),
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    return data;
+  }
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'review') loadReview();
+      if (btn.dataset.tab === 'audit') loadAudit();
+    });
+  });
+
+  /* ── Members ── */
+  function dueStatus(m) {
+    if (!m.dueDate) return { label: 'Unknown', cls: 'unknown' };
+    const today = new Date().toISOString().slice(0, 10);
+    if (m.dueDate < today) return { label: 'Overdue', cls: 'overdue' };
+    const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+    if (m.dueDate <= in7) return { label: 'Due Soon', cls: 'due' };
+    return { label: 'Active', cls: 'active' };
+  }
+
+  async function loadMembers() {
+    try {
+      const center = document.getElementById('center-filter').value;
+      const { members, role } = await api(`/api/staff/members?center=${center}`);
+      allMembers = members;
+      if (myRole !== role) { myRole = role; applyRoleUI(); }
+      renderMembers();
+    } catch (e) {
+      document.getElementById('members-list').innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  function applyRoleUI() {
+    const badge = document.getElementById('role-badge');
+    badge.textContent = myRole;
+    badge.classList.toggle('owner', myRole === 'owner');
+    document.getElementById('audit-tab-btn').style.display = myRole === 'owner' ? 'inline-block' : 'none';
+  }
+
+  function renderMembers() {
+    const search = document.getElementById('search-input').value.trim().toUpperCase();
+    const list = document.getElementById('members-list');
+    let filtered = allMembers;
+    if (search) filtered = filtered.filter(m => (m.name || '').includes(search));
+
+    if (!filtered.length) { list.innerHTML = '<div class="empty">No members found.</div>'; return; }
+
+    list.innerHTML = filtered.map(m => {
+      const status = dueStatus(m);
+      const contactLine = m.contactHidden
+        ? `<span class="contact-line contact-hidden">Contact hidden</span>`
+        : `<span class="contact-line">${m.phone || '—'} · ${m.email || '—'}</span>`;
+      return `
+        <div class="member-card" data-id="${m.id}">
+          <div class="member-top">
+            <div>
+              <div class="member-name">${m.name || '—'}</div>
+              <div class="member-meta">${(m.center||'—').toUpperCase()} · ${m.plan || 'no plan'} · ${m.memberType === 'personal-training' ? 'Personal Training' : m.memberType === 'kids' ? 'Kids' : 'General'}</div>
+            </div>
+            <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + m.dueDate : ''}</span>
+          </div>
+          <div class="member-row2">
+            ${contactLine}
+            <div style="display:flex;gap:6px;">
+              ${myRole === 'owner' ? `<button class="btn btn-ghost btn-sm reveal-btn" data-id="${m.id}">Show Contact</button>` : ''}
+              <button class="btn btn-ghost btn-sm edit-btn" data-id="${m.id}">Edit</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.reveal-btn').forEach(btn => btn.addEventListener('click', () => revealContact(btn.dataset.id, btn)));
+    list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => editMember(btn.dataset.id)));
+  }
+
+  async function revealContact(id, btn) {
+    btn.disabled = true; btn.textContent = 'Loading…';
+    try {
+      const { phone, email, address } = await api('/api/staff/reveal-contact', { method: 'POST', body: JSON.stringify({ id }) });
+      const card = btn.closest('.member-card');
+      card.querySelector('.contact-line').outerHTML = `<span class="contact-line">${phone || '—'} · ${email || '—'}${address ? ' · ' + address : ''}</span>`;
+      btn.remove();
+    } catch (e) {
+      alert('Failed: ' + e.message);
+      btn.disabled = false; btn.textContent = 'Show Contact';
+    }
+  }
+
+  function editMember(id) {
+    const m = allMembers.find(x => x.id === id);
+    if (!m) return;
+    const name = prompt('Name', m.name) ?? m.name;
+    const plan = prompt('Plan (monthly/quarterly/half-yearly/yearly/custom)', m.plan || '') ?? m.plan;
+    const startDate = prompt('Start date (YYYY-MM-DD)', m.startDate || '') ?? m.startDate;
+    const dueDate = prompt('Due date (YYYY-MM-DD)', m.dueDate || '') ?? m.dueDate;
+    const defaultFeeAmount = prompt('Default fee amount (₹)', m.defaultFeeAmount || '') ?? m.defaultFeeAmount;
+    api('/api/staff/members', {
+      method: 'POST',
+      body: JSON.stringify({ id, name, plan, startDate, dueDate, defaultFeeAmount: defaultFeeAmount ? parseFloat(defaultFeeAmount) : null }),
+    }).then(() => loadMembers()).catch(e => alert('Save failed: ' + e.message));
+  }
+
+  document.getElementById('center-filter').addEventListener('change', loadMembers);
+  document.getElementById('search-input').addEventListener('input', renderMembers);
+
+  document.getElementById('sync-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('sync-btn');
+    const summary = document.getElementById('sync-summary');
+    btn.disabled = true; btn.textContent = 'Syncing…';
+    summary.style.display = 'block';
+    summary.textContent = 'Reading both sheets — this can take a minute…';
+    try {
+      const { summary: s } = await api('/api/staff/sync-sheets', { method: 'POST' });
+      summary.textContent =
+        `SAKET  — members: ${s.saket.membersUpserted}, duplicates flagged: ${s.saket.membersDuplicateSkipped}, payments: ${s.saket.paymentsWritten}, review items: ${s.saket.reviewQueued}\n` +
+        `LAJPAT — members: ${s.lajpat.membersUpserted}, duplicates flagged: ${s.lajpat.membersDuplicateSkipped}, payments: ${s.lajpat.paymentsWritten}, review items: ${s.lajpat.reviewQueued}\n` +
+        `BANK RECEIPTS — matched: ${s.lajpat.bankReceiptsMatched}, unmatched (review): ${s.lajpat.bankReceiptsUnmatched}\n` +
+        `Tabs read — Saket: ${s.saket.tabs.join(', ')} | Lajpat: ${s.lajpat.tabs.join(', ')}`;
+      await loadMembers();
+    } catch (e) {
+      summary.textContent = 'Sync failed: ' + e.message;
+    }
+    btn.disabled = false; btn.textContent = 'Sync Now';
+  });
+
+  /* ── Migration Review ── */
+  async function loadReview() {
+    const list = document.getElementById('review-list');
+    list.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const { items } = await api('/api/staff/migration-review');
+      if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review.</div>'; return; }
+      list.innerHTML = items.map(item => `
+        <div class="review-card" data-id="${item.id}">
+          <div class="review-type">${item.type} · ${item.sheet} · ${item.tab || ''}</div>
+          <div class="review-data">${JSON.stringify(item.rawData)}</div>
+          ${item.suggestedMatch ? `<div class="review-data">Suggested match: <strong>${item.suggestedMatch}</strong></div>` : ''}
+          <div class="review-actions">
+            <button class="btn btn-sm reject-btn" data-id="${item.id}">Reject</button>
+            <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">Mark Confirmed</button>
+          </div>
+        </div>`).join('');
+      list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject')));
+      list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm')));
+    } catch (e) {
+      list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  async function resolveReview(id, resolution) {
+    try {
+      await api('/api/staff/migration-review', { method: 'POST', body: JSON.stringify({ id, resolution }) });
+      loadReview();
+    } catch (e) {
+      alert('Failed: ' + e.message);
+    }
+  }
+
+  document.getElementById('refresh-review-btn').addEventListener('click', loadReview);
+
+  /* ── Audit Log ── */
+  async function loadAudit() {
+    const list = document.getElementById('audit-list');
+    list.innerHTML = '<div class="empty">Loading…</div>';
+    try {
+      const { entries } = await api('/api/staff/audit-log');
+      if (!entries.length) { list.innerHTML = '<div class="empty">No activity yet.</div>'; return; }
+      list.innerHTML = entries.map(e => `
+        <div class="audit-row">
+          <span class="audit-actor">${e.actorName || e.actorUid}</span> —
+          <span class="audit-action">${e.action}</span>
+          ${e.targetMemberId ? ' · member ' + e.targetMemberId : ''}
+          <div class="audit-time">${e.timestamp ? new Date(e.timestamp._seconds ? e.timestamp._seconds * 1000 : e.timestamp).toLocaleString() : ''}</div>
+        </div>`).join('');
+    } catch (e) {
+      list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
+    }
+  }
+</script>
+
+</body>
+</html>
