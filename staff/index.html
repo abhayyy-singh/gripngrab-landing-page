@@ -52,7 +52,7 @@
     .tab-content.active { display: block; }
 
     /* ── Due-status summary strip ── */
-    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; transition: opacity .15s; }
     .stat-tile {
       background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
       cursor: pointer; transition: border-color .15s; text-align: left;
@@ -200,6 +200,11 @@
     <!-- MIGRATION REVIEW -->
     <div class="tab-content" id="tab-review">
       <div class="toolbar">
+        <select id="review-center-filter">
+          <option value="all">All Centers</option>
+          <option value="saket">Saket</option>
+          <option value="lajpat">Lajpat Nagar</option>
+        </select>
         <button class="btn btn-ghost" id="refresh-review-btn">Refresh</button>
       </div>
       <div id="review-list"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
@@ -244,6 +249,10 @@
     <div class="field">
       <label>Paused Until <span style="text-transform:none;font-weight:400;">(leave blank if not paused)</span></label>
       <input type="date" id="f-paused">
+    </div>
+    <div class="field" id="payment-history-field" style="display:none;">
+      <label>Payment History</label>
+      <div id="payment-history-list" style="font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:5px;"></div>
     </div>
     <div class="modal-err" id="edit-err"></div>
     <div class="modal-actions">
@@ -319,6 +328,8 @@
 
   async function loadMembers() {
     document.getElementById('members-list').innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading members…</div>';
+    document.getElementById('stat-row').style.opacity = '0.35';
+    document.getElementById('center-label').innerHTML = '<span class="spinner sm" style="vertical-align:-2px;"></span> Loading…';
     try {
       const center = document.getElementById('center-filter').value;
       const { members, role } = await api(`/api/staff/members?center=${center}`);
@@ -342,6 +353,7 @@
   }
 
   function renderStats() {
+    document.getElementById('stat-row').style.opacity = '1';
     const counts = { overdue: 0, due: 0, active: 0, unknown: 0 };
     for (const m of allMembers) counts[dueStatus(m).cls]++;
     const tiles = [
@@ -369,13 +381,26 @@
     return `${d} ${SHORT_MONTHS[mo - 1]}`;
   }
 
-  function attendanceLine(m) {
+  function paymentLine(m) {
     if (!m.lastPaymentDate) {
       return `<div class="attend-line none">No fee payment on record in last 3 months</div>`;
     }
     const daysAgo = Math.floor((Date.now() - new Date(m.lastPaymentDate).getTime()) / 86400000);
     const cls = daysAgo <= 35 ? 'recent' : daysAgo <= 100 ? 'stale' : 'none';
     return `<div class="attend-line ${cls}">Last fee paid on ${formatShortDate(m.lastPaymentDate)}</div>`;
+  }
+
+  /* Separate from payment status — this is "are they even coming", which
+     matters most for members who show as due/overdue but haven't set foot
+     in the gym in a long time (no point nagging someone who's clearly
+     already left, vs. someone due but still training regularly). */
+  function attendanceBadge(m) {
+    if (m.memberType === 'personal-training') return '';
+    if (!m.lastAttendedDate) return `<span class="attend-line none" style="display:inline-block;">Not seen in tracked attendance</span>`;
+    const daysAgo = Math.floor((Date.now() - new Date(m.lastAttendedDate).getTime()) / 86400000);
+    if (daysAgo <= 7) return '';  // recently active, no need to call it out
+    const cls = daysAgo <= 20 ? 'stale' : 'none';
+    return `<span class="attend-line ${cls}" style="display:inline-block;">Not seen in ${daysAgo}d (attended ${m.presentCount || 0}× in last 3 months)</span>`;
   }
 
   function renderMembers() {
@@ -396,18 +421,20 @@
              <div class="contact-item"><span class="k">Phone</span><span>${m.phone || '—'}</span></div>
              <div class="contact-item"><span class="k">Email</span><span>${m.email || '—'}</span></div>
            </div>`;
-      const attendLine = attendanceLine(m);
-      const pauseNote = m.pausedUntil ? `<div class="attend-line" style="color:var(--blue);">Paused until ${m.pausedUntil}</div>` : '';
+      const payLine = paymentLine(m);
+      const attendBadge = attendanceBadge(m);
+      const pauseNote = m.pausedUntil ? `<div class="attend-line" style="color:var(--blue);">Paused until ${formatShortDate(m.pausedUntil)}</div>` : '';
       return `
         <div class="member-card" data-id="${m.id}">
           <div class="member-top">
             <div>
               <div class="member-name">${m.name || '—'}</div>
               <div class="member-meta">${(m.center||'—').toUpperCase()} · ${m.plan || 'no plan set'} · ${m.memberType === 'personal-training' ? 'Personal Training' : m.memberType === 'kids' ? 'Kids' : 'General'}</div>
-              ${attendLine}
+              ${payLine}
+              ${attendBadge}
               ${pauseNote}
             </div>
-            <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + m.dueDate : ''}</span>
+            <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + formatShortDate(m.dueDate) : ''}</span>
           </div>
           <div class="member-row2">
             ${contactBlock}
@@ -462,10 +489,29 @@
     document.getElementById('f-paused').value = m.pausedUntil || '';
     document.getElementById('edit-err').style.display = 'none';
     document.getElementById('edit-backdrop').classList.add('show');
+    loadPaymentHistory(id);
+  }
+
+  async function loadPaymentHistory(memberId) {
+    const field = document.getElementById('payment-history-field');
+    const list = document.getElementById('payment-history-list');
+    field.style.display = 'block';
+    list.innerHTML = '<span class="spinner sm"></span> Loading…';
+    try {
+      const { payments } = await api(`/api/staff/members?payments=${memberId}`);
+      if (!payments.length) { list.innerHTML = 'No payments on record.'; return; }
+      list.innerHTML = payments.map(p => {
+        const legs = (p.legs || []).map(l => `${l.channel} ₹${l.amount.toLocaleString('en-IN')}`).join(', ');
+        return `<div>${formatShortDate(p.date) || p.date || '—'} — <strong style="color:var(--text);">₹${(p.totalAmount||0).toLocaleString('en-IN')}</strong>${legs ? ' (' + legs + ')' : ''}</div>`;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = 'Failed to load: ' + e.message;
+    }
   }
 
   function openAddModal() {
     editingId = null;
+    document.getElementById('payment-history-field').style.display = 'none';
     document.getElementById('modal-title').textContent = 'Add Member';
     document.getElementById('f-center-field').style.display = 'block';
     document.getElementById('f-center').value = document.getElementById('center-filter').value === 'lajpat' ? 'lajpat' : 'saket';
@@ -605,30 +651,57 @@
     }
   }
 
+  const FIXABLE_TYPES = ['missing-plan', 'ambiguous-date', 'unclassified-row'];
+
   async function loadReview() {
     const list = document.getElementById('review-list');
+    const centerFilter = document.getElementById('review-center-filter').value;
     list.innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading…</div>';
     try {
-      const { items } = await api('/api/staff/migration-review');
-      document.getElementById('review-count').textContent = items.length || '';
-      if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review.</div>'; return; }
+      const { items: allItems } = await api('/api/staff/migration-review');
+      document.getElementById('review-count').textContent = allItems.length || '';
+      const items = centerFilter === 'all' ? allItems : allItems.filter(i => i.sheet === centerFilter);
+      if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review here.</div>'; return; }
       list.innerHTML = items.map(item => {
         const { title, detail } = describeReview(item);
+        const canFixNow = FIXABLE_TYPES.includes(item.type) && item.rawData && item.rawData.name;
         return `
         <div class="review-card" data-id="${item.id}">
           <div class="review-type">${title}</div>
           <div class="review-sub">${item.sheet === 'saket' ? 'Saket' : 'Lajpat Nagar'} · ${item.tab || ''}</div>
           <div class="review-data">${detail}</div>
           <div class="review-actions">
-            <button class="btn btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
+            ${canFixNow ? `<button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${item.rawData.name}">Fix Now</button>` : ''}
+            <button class="btn btn-ghost btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
             <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">I've Fixed This</button>
           </div>
         </div>`;
       }).join('');
       list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
       list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
+      list.querySelectorAll('.fix-now-btn').forEach(b => b.addEventListener('click', () => fixNow(b.dataset.name)));
     } catch (e) {
       list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  /* Jumps to Members tab, finds the member by name (fetching all-centers
+     first if needed), and opens the edit modal directly — so fixing a
+     flagged issue doesn't mean losing your place searching around. */
+  async function fixNow(name) {
+    document.querySelector('.tab-btn[data-tab="members"]').click();
+    let member = allMembers.find(m => m.name === name);
+    if (!member) {
+      document.getElementById('center-filter').value = 'all';
+      await loadMembers();
+      member = allMembers.find(m => m.name === name);
+    }
+    if (member) {
+      openEditModal(member.id);
+    } else {
+      document.getElementById('search-input').value = name;
+      renderMembers();
+      alert(`Couldn't find an exact match for "${name}" — search results are filtered to it, but you may need to add them as a new member instead.`);
     }
   }
 
@@ -646,6 +719,7 @@
   }
 
   document.getElementById('refresh-review-btn').addEventListener('click', loadReview);
+  document.getElementById('review-center-filter').addEventListener('change', loadReview);
 
   /* ── Audit Log ── */
   async function loadAudit() {

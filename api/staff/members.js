@@ -38,6 +38,17 @@ module.exports = async function handler(req, res) {
   } catch (e) { return sendError(res, e); }
 
   try {
+    if (req.method === 'GET' && req.query && req.query.payments) {
+      // Sorted client-side (not .orderBy() in the query) to avoid needing a
+      // composite Firestore index — per-member payment counts are small.
+      const memberId = req.query.payments;
+      const snap = await db.collection('payments').where('memberId', '==', memberId).get();
+      const payments = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return res.status(200).json({ ok: true, payments });
+    }
+
     if (req.method === 'GET') {
       const center = (req.query && req.query.center) || 'all';
       let q = db.collection('members');
