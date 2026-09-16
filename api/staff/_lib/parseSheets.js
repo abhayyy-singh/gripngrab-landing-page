@@ -127,6 +127,38 @@ function safeKey(...parts) {
   return parts.join('__').replace(/[^a-zA-Z0-9]+/g, '_').slice(0, 140);
 }
 
+/* ---------- attendance ("P" mark) columns ----------
+   Both sheets carry one column per calendar day (header e.g. "01/09/2026"
+   or "01-09-26") with "P" marked for a present day. This is the same
+   attendance data used to decide who's still actively coming — no
+   separate sheet needed, it just wasn't being read before. */
+const DATE_COL_RE = /^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/;
+
+function findAttendanceColumns(headerRow) {
+  const cols = [];
+  headerRow.forEach((c, i) => {
+    const m = DATE_COL_RE.exec((c || '').trim());
+    if (!m) return;
+    let [, d, mo, y] = m; d = +d; mo = +mo; y = +y; if (y < 100) y += 2000;
+    const iso = `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cols.push({ index: i, date: iso });
+  });
+  return cols;
+}
+
+/** Returns { presentCount, lastAttendedDate } for one member's row. */
+function parseAttendance(row, attendanceCols) {
+  let presentCount = 0, lastAttendedDate = null;
+  for (const { index, date } of attendanceCols) {
+    const v = get(row, index).toUpperCase();
+    if (v === 'P') {
+      presentCount++;
+      if (!lastAttendedDate || date > lastAttendedDate) lastAttendedDate = date;
+    }
+  }
+  return { presentCount, lastAttendedDate };
+}
+
 /* ============================================================================
    SAKET — "START DATE" cell mixes date + plan code, e.g. "13-06-26 Y"
    ============================================================================ */
@@ -137,6 +169,7 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
   }
 
   const H = buildHeaderMap(rows[headerIdx]);
+  const attendanceCols = findAttendanceColumns(rows[headerIdx]);
   const members = [];
   const review = [];
 
@@ -190,6 +223,8 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       review.push({ type: 'ambiguous-date', sheet, tab, dedupeKey: safeKey('ambiguous-date', sheet, name), rawData: { name, rawStart }, status: 'pending' });
     }
 
+    const { presentCount, lastAttendedDate } = parseAttendance(row, attendanceCols);
+
     members.push({
       ...base,
       memberType,
@@ -197,6 +232,8 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       startDate,
       firstJoinedDate: startDate,
       remarkRaw: remark,
+      __presentCount: presentCount,
+      lastAttendedDate,
     });
 
     // The CASH / BANK columns are themselves the channel signal for the cash
@@ -236,6 +273,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
   }
 
   const H = buildHeaderMap(rows[headerIdx]);
+  const attendanceCols = findAttendanceColumns(rows[headerIdx]);
   const members = [];
   const review = [];
 
@@ -280,6 +318,8 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       review.push({ type: 'ambiguous-date', sheet, tab, dedupeKey: safeKey('ambiguous-date', sheet, name), rawData: { name, rawJoin, rawDue, duration }, status: 'pending' });
     }
 
+    const { presentCount, lastAttendedDate } = parseAttendance(row, attendanceCols);
+
     members.push({
       ...base,
       memberType,
@@ -290,6 +330,8 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       firstJoinedDate: startDate,
       pauseDaysTotal: freeze ? (parseFloat(freeze) || 0) : 0,
       remarkRaw: remark,
+      __presentCount: presentCount,
+      lastAttendedDate,
     });
 
     if (amount) {
@@ -411,4 +453,5 @@ module.exports = {
   parseSaketTab, parseLajpatTab, matchBankReceipts,
   parseAnyDate, parseDdMmYy, xlSerialToDate, normalizeName,
   mapChannel, findHeaderRow, buildHeaderMap,
+  findAttendanceColumns, parseAttendance,
 };

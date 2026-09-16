@@ -42,7 +42,7 @@
     .role-badge.owner { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.3); }
     .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-    .tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; position: sticky; top: 54px; z-index: 19; }
     .tab-btn { background: none; border: none; color: var(--muted); padding: 13px 14px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
     .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
     .tab-count { background: var(--sur3); color: var(--muted); border-radius: 99px; padding: 1px 7px; font-size: 10.5px; margin-left: 6px; }
@@ -95,6 +95,10 @@
     .member-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .member-name { font-size: 14.5px; font-weight: 700; }
     .member-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+    .attend-line { font-size: 11px; color: var(--faint); margin-top: 4px; }
+    .attend-line.recent { color: var(--green); }
+    .attend-line.stale { color: var(--yellow); }
+    .attend-line.none { color: var(--red); }
     .pill { font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; flex-shrink: 0; }
     .pill.active  { background: rgba(74,222,128,0.15); color: var(--green); }
     .pill.due     { background: rgba(251,191,36,0.15); color: var(--yellow); }
@@ -165,6 +169,7 @@
     <!-- MEMBERS -->
     <div class="tab-content active" id="tab-members">
 
+      <div id="center-label" style="font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;"></div>
       <div class="stat-row" id="stat-row"></div>
 
       <div class="toolbar">
@@ -174,6 +179,7 @@
           <option value="lajpat">Lajpat Nagar</option>
         </select>
         <input type="text" id="search-input" placeholder="Search by name…">
+        <button class="btn btn-ghost" id="add-member-btn">+ Add Member</button>
         <button class="btn" id="sync-btn">Sync Now</button>
       </div>
 
@@ -210,8 +216,15 @@
 <!-- EDIT MODAL -->
 <div class="modal-backdrop" id="edit-backdrop">
   <div class="modal">
-    <h3>Edit Member</h3>
+    <h3 id="modal-title">Edit Member</h3>
     <div class="field"><label>Name</label><input type="text" id="f-name"></div>
+    <div class="field" id="f-center-field">
+      <label>Center</label>
+      <select id="f-center">
+        <option value="saket">Saket</option>
+        <option value="lajpat">Lajpat Nagar</option>
+      </select>
+    </div>
     <div class="field">
       <label>Plan</label>
       <select id="f-plan">
@@ -228,6 +241,10 @@
     <div class="field"><label>Default Fee (₹)</label><input type="number" id="f-fee"></div>
     <div class="field"><label>Phone</label><input type="text" id="f-phone"></div>
     <div class="field"><label>Email</label><input type="text" id="f-email"></div>
+    <div class="field">
+      <label>Paused Until <span style="text-transform:none;font-weight:400;">(leave blank if not paused)</span></label>
+      <input type="date" id="f-paused">
+    </div>
     <div class="modal-err" id="edit-err"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" id="edit-cancel">Cancel</button>
@@ -308,6 +325,8 @@
       allMembers = members;
       if (myRole !== role) { myRole = role; applyRoleUI(); }
       document.getElementById('members-count').textContent = members.length;
+      document.getElementById('center-label').textContent =
+        'Showing: ' + (center === 'all' ? 'All Centers' : center === 'saket' ? 'Saket' : 'Lajpat Nagar');
       renderStats();
       renderMembers();
     } catch (e) {
@@ -343,6 +362,18 @@
     }));
   }
 
+  function attendanceLine(m) {
+    if (m.memberType === 'personal-training') {
+      return `<div class="attend-line">Personal training — attendance not tracked in sheet</div>`;
+    }
+    if (!m.lastAttendedDate) {
+      return `<div class="attend-line none">No attendance recorded in last 3 months</div>`;
+    }
+    const daysAgo = Math.floor((Date.now() - new Date(m.lastAttendedDate).getTime()) / 86400000);
+    const cls = daysAgo <= 7 ? 'recent' : daysAgo <= 20 ? 'stale' : 'none';
+    return `<div class="attend-line ${cls}">Last attended ${m.lastAttendedDate} (${daysAgo}d ago) · ${m.presentCount || 0} days present in last 3 months</div>`;
+  }
+
   function renderMembers() {
     const search = document.getElementById('search-input').value.trim().toUpperCase();
     const list = document.getElementById('members-list');
@@ -361,12 +392,16 @@
              <div class="contact-item"><span class="k">Phone</span><span>${m.phone || '—'}</span></div>
              <div class="contact-item"><span class="k">Email</span><span>${m.email || '—'}</span></div>
            </div>`;
+      const attendLine = attendanceLine(m);
+      const pauseNote = m.pausedUntil ? `<div class="attend-line" style="color:var(--blue);">Paused until ${m.pausedUntil}</div>` : '';
       return `
         <div class="member-card" data-id="${m.id}">
           <div class="member-top">
             <div>
               <div class="member-name">${m.name || '—'}</div>
               <div class="member-meta">${(m.center||'—').toUpperCase()} · ${m.plan || 'no plan set'} · ${m.memberType === 'personal-training' ? 'Personal Training' : m.memberType === 'kids' ? 'Kids' : 'General'}</div>
+              ${attendLine}
+              ${pauseNote}
             </div>
             <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + m.dueDate : ''}</span>
           </div>
@@ -403,12 +438,14 @@
     }
   }
 
-  /* ── Edit modal ── */
+  /* ── Edit / Add modal ── */
   let editingId = null;
   function openEditModal(id) {
     const m = allMembers.find(x => x.id === id);
     if (!m) return;
     editingId = id;
+    document.getElementById('modal-title').textContent = 'Edit Member';
+    document.getElementById('f-center-field').style.display = 'none';
     document.getElementById('f-name').value = m.name || '';
     document.getElementById('f-plan').value = m.plan || '';
     document.getElementById('f-start').value = m.startDate || '';
@@ -418,26 +455,53 @@
     document.getElementById('f-email').value = m.contactHidden ? '' : (m.email || '');
     document.getElementById('f-phone').placeholder = m.contactHidden ? 'Hidden — Show Contact first to edit' : '';
     document.getElementById('f-email').placeholder = m.contactHidden ? 'Hidden — Show Contact first to edit' : '';
+    document.getElementById('f-paused').value = m.pausedUntil || '';
     document.getElementById('edit-err').style.display = 'none';
     document.getElementById('edit-backdrop').classList.add('show');
   }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Add Member';
+    document.getElementById('f-center-field').style.display = 'block';
+    document.getElementById('f-center').value = document.getElementById('center-filter').value === 'lajpat' ? 'lajpat' : 'saket';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-plan').value = '';
+    document.getElementById('f-start').value = '';
+    document.getElementById('f-due').value = '';
+    document.getElementById('f-fee').value = '';
+    document.getElementById('f-phone').value = '';
+    document.getElementById('f-email').value = '';
+    document.getElementById('f-phone').placeholder = '';
+    document.getElementById('f-email').placeholder = '';
+    document.getElementById('f-paused').value = '';
+    document.getElementById('edit-err').style.display = 'none';
+    document.getElementById('edit-backdrop').classList.add('show');
+  }
+  document.getElementById('add-member-btn').addEventListener('click', openAddModal);
+
   function closeEditModal() { document.getElementById('edit-backdrop').classList.remove('show'); editingId = null; }
   document.getElementById('edit-cancel').addEventListener('click', closeEditModal);
   document.getElementById('edit-backdrop').addEventListener('click', e => { if (e.target.id === 'edit-backdrop') closeEditModal(); });
 
   document.getElementById('edit-save').addEventListener('click', async () => {
-    if (!editingId) return;
     const btn = document.getElementById('edit-save');
     const errEl = document.getElementById('edit-err');
     errEl.style.display = 'none';
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = 'block'; return; }
+
     const payload = {
-      id: editingId,
-      name: document.getElementById('f-name').value.trim(),
+      name,
       plan: document.getElementById('f-plan').value || null,
       startDate: document.getElementById('f-start').value || null,
       dueDate: document.getElementById('f-due').value || null,
       defaultFeeAmount: document.getElementById('f-fee').value ? parseFloat(document.getElementById('f-fee').value) : null,
+      pausedUntil: document.getElementById('f-paused').value || null,
     };
+    if (editingId) payload.id = editingId;
+    else payload.center = document.getElementById('f-center').value;
+
     const phoneVal = document.getElementById('f-phone').value.trim();
     const emailVal = document.getElementById('f-email').value.trim();
     if (phoneVal) payload.phone = phoneVal;
@@ -514,6 +578,29 @@
   });
 
   /* ── Migration Review ── */
+  /* Turns each review item into a plain-language sentence a non-technical
+     coach can act on, instead of a raw JSON dump of rawData. */
+  function describeReview(item) {
+    const d = item.rawData || {};
+    const center = item.sheet === 'saket' ? 'Saket' : 'Lajpat Nagar';
+    switch (item.type) {
+      case 'missing-plan':
+        return { title: `${d.name} — no plan on file`, detail: `We don't know if ${d.name} (${center}) is on a monthly, quarterly, half-yearly or yearly plan. Check the sheet or ask them, then set it on their profile.` };
+      case 'ambiguous-date':
+        return { title: `${d.name} — couldn't read their start date`, detail: `The sheet has "${d.rawStart || d.rawJoin || '(blank)'}" in the date column, which we couldn't understand. Open their row in the sheet and set the correct start date on their profile.` };
+      case 'duplicate-name':
+        return { title: `${d.name} — appears more than once`, detail: `There are multiple people named "${d.name}" in ${center}. Check if they're the same person (merge by editing one and removing the duplicate row in the sheet) or two different people (rename one to tell them apart, e.g. add a last name).` };
+      case 'name-mismatch':
+        return { title: `Unrecognized name on a payment: "${d.name}"`, detail: `A payment of ₹${d.amt || '?'} on ${d.date || '?'} (mode: ${d.mode || '?'}) was recorded for someone named "${d.name}", but we couldn't find them in the member list.` + (item.suggestedMatch ? ` Did they mean "${item.suggestedMatch}"?` : ' No close match found — check the Bank Receipts sheet.') };
+      case 'unmapped-payment-channel':
+        return { title: `${d.name} — payment received, but not who it went to`, detail: `${d.name} paid ₹${d.amount || d.amt || '?'}, but the sheet doesn't say if it went to cash, Harish, Ankit, or the company account (remark: "${d.remark || d.pmode || '(blank)'}"). Check with whoever collected it.` };
+      case 'unclassified-row':
+        return { title: `${d.name || '(unnamed row)'} — needs a closer look`, detail: d.note === 'missing duration' ? `${d.name} has no plan duration recorded.` : (d.name && /TRAIL|TRIAL/i.test(d.name)) ? `"${d.name}" looks like a one-off trial visit, not a regular member — decide if this needs a real member profile.` : `This row in ${center} didn't fit any of the usual patterns — take a look at the raw sheet row below.` };
+      default:
+        return { title: d.name || item.type, detail: JSON.stringify(d) };
+    }
+  }
+
   async function loadReview() {
     const list = document.getElementById('review-list');
     list.innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading…</div>';
@@ -521,17 +608,19 @@
       const { items } = await api('/api/staff/migration-review');
       document.getElementById('review-count').textContent = items.length || '';
       if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review.</div>'; return; }
-      list.innerHTML = items.map(item => `
+      list.innerHTML = items.map(item => {
+        const { title, detail } = describeReview(item);
+        return `
         <div class="review-card" data-id="${item.id}">
-          <div class="review-type">${item.type.replace(/-/g, ' ')}</div>
-          <div class="review-sub">${item.sheet} · ${item.tab || ''}</div>
-          <div class="review-data">${Object.entries(item.rawData || {}).map(([k, v]) => `<strong>${k}:</strong> ${v}`).join('<br>')}</div>
-          ${item.suggestedMatch ? `<div class="review-data">Suggested match: <strong>${item.suggestedMatch}</strong></div>` : ''}
+          <div class="review-type">${title}</div>
+          <div class="review-sub">${item.sheet === 'saket' ? 'Saket' : 'Lajpat Nagar'} · ${item.tab || ''}</div>
+          <div class="review-data">${detail}</div>
           <div class="review-actions">
-            <button class="btn btn-sm reject-btn" data-id="${item.id}">Reject</button>
-            <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">Mark Confirmed</button>
+            <button class="btn btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
+            <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">I've Fixed This</button>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
       list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
       list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
     } catch (e) {

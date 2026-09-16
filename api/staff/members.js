@@ -13,6 +13,7 @@ const EDITABLE_FIELDS = [
   'name', 'phone', 'email', 'address', 'dob', 'center', 'memberType', 'plan',
   'customDurationMonths', 'defaultFeeAmount', 'startDate', 'dueDate',
   'firstJoinedDate', 'status', 'pauseDaysTotal', 'personalTrainingConfirmedActive',
+  'presentCount', 'lastAttendedDate', 'pausedUntil',
 ];
 
 // Contact info is masked in the list view for everyone, including the owner —

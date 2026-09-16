@@ -83,11 +83,14 @@ function mergeTabs(tabResults) {
   for (const { members, review: tabReview } of tabResults) {
     for (const r of tabReview) review.set(r.dedupeKey || JSON.stringify(r), r);
     for (const m of members) {
-      const { __pendingPayment, ...core } = m;
+      const { __pendingPayment, __presentCount, ...core } = m;
       if (!byName.has(m.name)) {
-        byName.set(m.name, { core: { ...core }, payments: [] });
+        byName.set(m.name, { core: { ...core, presentCount: __presentCount || 0 }, payments: [] });
       } else {
         const existing = byName.get(m.name).core;
+        // Attendance is cumulative across the 3-month window — sum it,
+        // don't let a later tab's value replace an earlier tab's count.
+        existing.presentCount = (existing.presentCount || 0) + (__presentCount || 0);
         for (const [k, v] of Object.entries(core)) {
           if (v !== null && v !== undefined && v !== '') existing[k] = v;
         }
