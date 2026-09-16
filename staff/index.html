@@ -65,6 +65,8 @@
     .stat-tile.due .num { color: var(--yellow); }
     .stat-tile.active .num { color: var(--green); }
     .stat-tile.unknown .num { color: var(--muted); }
+    .stat-tile.inactive .num { color: var(--faint); }
+    .stat-tile.verify .num { color: #c084fc; }
 
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; align-items: center; }
     .toolbar select, .toolbar input[type=text] {
@@ -100,10 +102,12 @@
     .attend-line.stale { color: var(--yellow); }
     .attend-line.none { color: var(--red); }
     .pill { font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; flex-shrink: 0; }
-    .pill.active  { background: rgba(74,222,128,0.15); color: var(--green); }
-    .pill.due     { background: rgba(251,191,36,0.15); color: var(--yellow); }
-    .pill.overdue { background: rgba(255,107,107,0.15); color: var(--red); }
-    .pill.unknown { background: rgba(255,255,255,0.08); color: var(--muted); }
+    .pill.active   { background: rgba(74,222,128,0.15); color: var(--green); }
+    .pill.due      { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .pill.overdue  { background: rgba(255,107,107,0.15); color: var(--red); }
+    .pill.unknown  { background: rgba(255,255,255,0.08); color: var(--muted); }
+    .pill.inactive { background: rgba(255,255,255,0.06); color: var(--faint); }
+    .pill.verify   { background: rgba(192,132,252,0.15); color: #c084fc; }
     .member-row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--border); }
     .contact-block { font-size: 12px; color: var(--text); display: flex; flex-direction: column; gap: 2px; }
     .contact-block .contact-item { display: flex; gap: 6px; }
@@ -317,8 +321,14 @@
   });
 
   /* ── Members ── */
+  /* activityStatus is computed server-side during sync (it needs attendance
+     history, which only the sync has) — separates people who are overdue
+     AND still training from people who've clearly stopped coming, so the
+     due-list isn't cluttered with members who effectively already left. */
   function dueStatus(m) {
     if (!m.dueDate) return { label: 'Unknown', cls: 'unknown' };
+    if (m.activityStatus === 'inactive') return { label: 'Inactive', cls: 'inactive' };
+    if (m.activityStatus === 'needs-verification') return { label: 'Verify Payment', cls: 'verify' };
     const today = new Date().toISOString().slice(0, 10);
     if (m.dueDate < today) return { label: 'Overdue', cls: 'overdue' };
     const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
@@ -354,14 +364,16 @@
 
   function renderStats() {
     document.getElementById('stat-row').style.opacity = '1';
-    const counts = { overdue: 0, due: 0, active: 0, unknown: 0 };
+    const counts = { overdue: 0, due: 0, active: 0, unknown: 0, inactive: 0, verify: 0 };
     for (const m of allMembers) counts[dueStatus(m).cls]++;
     const tiles = [
-      { key: 'all',     cls: '',        num: allMembers.length, lbl: 'All Members' },
-      { key: 'overdue', cls: 'overdue', num: counts.overdue,    lbl: 'Overdue' },
-      { key: 'due',     cls: 'due',     num: counts.due,        lbl: 'Due Soon' },
-      { key: 'active',  cls: 'active',  num: counts.active,     lbl: 'Active' },
-      { key: 'unknown', cls: 'unknown', num: counts.unknown,    lbl: 'No Due Date' },
+      { key: 'all',      cls: '',         num: allMembers.length, lbl: 'All Members' },
+      { key: 'overdue',  cls: 'overdue',  num: counts.overdue,    lbl: 'Overdue' },
+      { key: 'verify',   cls: 'verify',   num: counts.verify,     lbl: 'Verify Payment' },
+      { key: 'due',      cls: 'due',      num: counts.due,        lbl: 'Due Soon' },
+      { key: 'active',   cls: 'active',   num: counts.active,     lbl: 'Active' },
+      { key: 'inactive', cls: 'inactive', num: counts.inactive,   lbl: 'Inactive' },
+      { key: 'unknown',  cls: 'unknown',  num: counts.unknown,    lbl: 'No Due Date' },
     ];
     document.getElementById('stat-row').innerHTML = tiles.map(t => `
       <button class="stat-tile ${t.cls} ${activeDueFilter === t.key ? 'selected' : ''}" data-filter="${t.key}">
@@ -502,7 +514,10 @@
       if (!payments.length) { list.innerHTML = 'No payments on record.'; return; }
       list.innerHTML = payments.map(p => {
         const legs = (p.legs || []).map(l => `${l.channel} ₹${l.amount.toLocaleString('en-IN')}`).join(', ');
-        return `<div>${formatShortDate(p.date) || p.date || '—'} — <strong style="color:var(--text);">₹${(p.totalAmount||0).toLocaleString('en-IN')}</strong>${legs ? ' (' + legs + ')' : ''}</div>`;
+        // Saket's sheet has no per-payment date column at all — fall back
+        // to which month's tab it was recorded in, rather than a bare dash.
+        const whenLabel = formatShortDate(p.date) || (p.paymentTab ? `recorded in ${p.paymentTab}` : 'date unknown');
+        return `<div>${whenLabel} — <strong style="color:var(--text);">₹${(p.totalAmount||0).toLocaleString('en-IN')}</strong>${legs ? ' (' + legs + ')' : ''}</div>`;
       }).join('');
     } catch (e) {
       list.innerHTML = 'Failed to load: ' + e.message;
@@ -646,12 +661,14 @@
         return { title: `${d.name} — payment received, but not who it went to`, detail: `${d.name} paid ₹${d.amount || d.amt || '?'}, but the sheet doesn't say if it went to cash, Harish, Ankit, or the company account (remark: "${d.remark || d.pmode || '(blank)'}"). Check with whoever collected it.` };
       case 'unclassified-row':
         return { title: `${d.name || '(unnamed row)'} — needs a closer look`, detail: d.note === 'missing duration' ? `${d.name} has no plan duration recorded.` : (d.name && /TRAIL|TRIAL/i.test(d.name)) ? `"${d.name}" looks like a one-off trial visit, not a regular member — decide if this needs a real member profile.` : `This row in ${center} didn't fit any of the usual patterns — take a look at the raw sheet row below.` };
+      case 'payment-verification-needed':
+        return { title: `${d.name} — overdue a long time, but still training regularly`, detail: `${d.name} (${center}) has been overdue since ${formatShortDate(d.dueDate) || d.dueDate}, but attended as recently as ${formatShortDate(d.lastAttendedDate) || d.lastAttendedDate} (${d.presentCount} days in the last 3 months). This usually means they've actually paid and it just wasn't recorded — check with them or look for the missing payment, rather than treating this as a normal reminder case.` };
       default:
         return { title: d.name || item.type, detail: JSON.stringify(d) };
     }
   }
 
-  const FIXABLE_TYPES = ['missing-plan', 'ambiguous-date', 'unclassified-row'];
+  const FIXABLE_TYPES = ['missing-plan', 'ambiguous-date', 'unclassified-row', 'payment-verification-needed'];
 
   async function loadReview() {
     const list = document.getElementById('review-list');
@@ -664,14 +681,20 @@
       if (!items.length) { list.innerHTML = '<div class="empty">All clear — nothing pending review here.</div>'; return; }
       list.innerHTML = items.map(item => {
         const { title, detail } = describeReview(item);
-        const canFixNow = FIXABLE_TYPES.includes(item.type) && item.rawData && item.rawData.name;
+        const name = item.rawData && item.rawData.name;
+        const canFixNow = FIXABLE_TYPES.includes(item.type) && name;
+        // A trial visit that was never given a real member profile — Fix
+        // Now would fail to find them (they were never created), so offer
+        // to create one instead, prefilled with what little we know.
+        const isUnprofiledTrial = item.type === 'unclassified-row' && name && /TRAIL|TRIAL/i.test(name);
         return `
         <div class="review-card" data-id="${item.id}">
           <div class="review-type">${title}</div>
           <div class="review-sub">${item.sheet === 'saket' ? 'Saket' : 'Lajpat Nagar'} · ${item.tab || ''}</div>
           <div class="review-data">${detail}</div>
           <div class="review-actions">
-            ${canFixNow ? `<button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${item.rawData.name}">Fix Now</button>` : ''}
+            ${isUnprofiledTrial ? `<button class="btn btn-sm add-as-member-btn" data-id="${item.id}" data-name="${name}" data-center="${item.sheet}">Add as Member</button>`
+              : canFixNow ? `<button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${name}">Fix Now</button>` : ''}
             <button class="btn btn-ghost btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
             <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">I've Fixed This</button>
           </div>
@@ -680,6 +703,12 @@
       list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
       list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
       list.querySelectorAll('.fix-now-btn').forEach(b => b.addEventListener('click', () => fixNow(b.dataset.name)));
+      list.querySelectorAll('.add-as-member-btn').forEach(b => b.addEventListener('click', () => {
+        document.querySelector('.tab-btn[data-tab="members"]').click();
+        openAddModal();
+        document.getElementById('f-name').value = b.dataset.name.replace(/\s*\(?TRIAL\)?/i, '').trim();
+        document.getElementById('f-center').value = b.dataset.center;
+      }));
     } catch (e) {
       list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
     }

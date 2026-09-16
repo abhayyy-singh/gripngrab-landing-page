@@ -120,6 +120,39 @@ async function fetchExistingReviewIds() {
   return map;
 }
 
+/** memberId -> Map<roundedAmount, docId> of payments already on record —
+ *  used to stop the same real-world payment being counted twice when it
+ *  shows up both in a member's own tab row (Lajpat AMOUNT column / Saket
+ *  CASH+BANK) and again in the separate Bank Receipts ledger. Confirmed
+ *  with real data: a member's payment can legitimately appear in both
+ *  sources for the same transaction. Keyed by docId (not just a Set of
+ *  amounts) so re-writing the SAME payment's own doc on a re-sync is never
+ *  mistaken for a duplicate of itself. */
+async function fetchExistingPaymentAmounts() {
+  const snap = await db.collection('payments').get();
+  const map = new Map();
+  for (const doc of snap.docs) {
+    const { memberId, totalAmount } = doc.data();
+    if (!memberId || !totalAmount) continue;
+    if (!map.has(memberId)) map.set(memberId, new Map());
+    map.get(memberId).set(Math.round(totalAmount), doc.id);
+  }
+  return map;
+}
+
+/** Returns true and records the claim if this (memberId, amount) is new or
+ *  belongs to this exact docId already; returns false if a DIFFERENT doc
+ *  already claimed the same amount for this member (a real duplicate). */
+function claimPaymentSlot(recordedAmountsByMember, memberId, amount, docId) {
+  const rounded = Math.round(amount);
+  if (!recordedAmountsByMember.has(memberId)) recordedAmountsByMember.set(memberId, new Map());
+  const forMember = recordedAmountsByMember.get(memberId);
+  const existingDocId = forMember.get(rounded);
+  if (existingDocId && existingDocId !== docId) return false;
+  forMember.set(rounded, docId);
+  return true;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -142,6 +175,7 @@ module.exports = async function handler(req, res) {
     const combinedDirectory = []; // {name, id} across BOTH centers — Bank Receipts is a shared ledger
     const existingReviewIds = await fetchExistingReviewIds();
     const seenReviewIds = new Set(); // de-dupes review entries within this same run before touching Firestore
+    const recordedAmountsByMember = await fetchExistingPaymentAmounts(); // seeded from prior syncs, added to below as this run records new payments
 
     function queueReview(entry) {
       const id = stableId(entry.dedupeKey || `${entry.type}__${entry.sheet}__${entry.tab}__${JSON.stringify(entry.rawData).slice(0, 100)}`);
@@ -196,14 +230,19 @@ module.exports = async function handler(req, res) {
         // coalesced write can leave plan/startDate out entirely when this
         // round's tabs had nothing new to say about them.
         effectiveCoreByMemberId.set(ref.id, {
+          name, center,
           plan: core.plan ?? existingData?.plan ?? null,
           customDurationMonths: core.customDurationMonths ?? existingData?.customDurationMonths ?? null,
           startDate: core.startDate ?? existingData?.startDate ?? null,
           existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
+          presentCount: core.presentCount ?? existingData?.presentCount ?? 0,
+          lastAttendedDate: core.lastAttendedDate ?? existingData?.lastAttendedDate ?? null,
+          memberType: core.memberType ?? existingData?.memberType ?? null,
         });
 
         for (const p of payments) {
           const id = stableId(`${ref.id}__${p.sourceSheetRowRef}`);
+          if (!claimPaymentSlot(recordedAmountsByMember, ref.id, p.totalAmount, id)) continue; // same amount already claimed by a different payment doc — real duplicate, skip
           writeOps.push({ ref: db.collection('payments').doc(id), data: { memberId: ref.id, ...p, createdAt: admin.firestore.FieldValue.serverTimestamp() } });
           summary[key].paymentsWritten++;
         }
@@ -228,8 +267,19 @@ module.exports = async function handler(req, res) {
       for (const p of payments) {
         const memberId = byName.get(p.memberName);
         if (!memberId) continue;
+
         const { memberName, ...paymentData } = p;
         const id = stableId(`${memberId}__${p.sourceSheetRowRef}`);
+
+        // Same real transaction can show up both in the member's own tab
+        // row AND this separate Bank Receipts ledger — skip writing it here
+        // rather than double-count revenue when a DIFFERENT payment doc
+        // already claimed the same amount for this member.
+        if (!claimPaymentSlot(recordedAmountsByMember, memberId, p.totalAmount, id)) {
+          summary.lajpat.bankReceiptsMatched++; // still a real, matched payment — just not double-written
+          continue;
+        }
+
         writeOps.push({ ref: db.collection('payments').doc(id), data: { memberId, ...paymentData, createdAt: admin.firestore.FieldValue.serverTimestamp() } });
         summary.lajpat.bankReceiptsMatched++;
       }
@@ -251,6 +301,9 @@ module.exports = async function handler(req, res) {
       const prev = lastPaymentByMember.get(op.data.memberId);
       if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
     }
+    const today = new Date().toISOString().slice(0, 10);
+    const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+
     for (const [memberId, effective] of effectiveCoreByMemberId) {
       const newest = lastPaymentByMember.get(memberId);
       const existing = effective.existingLastPaymentDate;
@@ -259,11 +312,44 @@ module.exports = async function handler(req, res) {
       const anchor = lastPaymentDate || effective.startDate;
       const dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
 
-      const data = {};
+      /* activityStatus — separates "genuinely due, still training" from
+         "hasn't set foot in the gym in weeks" so the due-list isn't
+         cluttered with people who've clearly already left (Anshul Kishore,
+         Neha Kaul, Aakil Haider — all flagged in real testing: overdue for
+         a long time AND zero recent attendance). Personal-training members
+         are skipped — their attendance isn't tracked in this sheet at all. */
+      let activityStatus = 'active';
+      if (effective.memberType !== 'personal-training' && dueDate && dueDate < today) {
+        const daysSinceDue = daysBetween(dueDate, today);
+        const daysSinceAttended = effective.lastAttendedDate ? daysBetween(effective.lastAttendedDate, today) : Infinity;
+
+        if (daysSinceAttended <= 15) {
+          // still coming despite being overdue on paper
+          activityStatus = (daysSinceDue >= 20 && effective.presentCount >= 10)
+            ? 'needs-verification' // long overdue but clearly still training regularly — payment may be unrecorded, not missing
+            : 'overdue';           // normal, legitimate reminder case
+        } else {
+          activityStatus = 'inactive'; // stopped coming a while after going overdue — no point nagging them
+        }
+      } else if (dueDate && dueDate < today) {
+        activityStatus = 'inactive'; // personal-training, overdue — no attendance signal to check against
+      }
+
+      const data = { activityStatus };
       if (lastPaymentDate) data.lastPaymentDate = lastPaymentDate;
       if (dueDate) data.dueDate = dueDate;
-      if (Object.keys(data).length) {
-        writeOps.push({ ref: db.collection('members').doc(memberId), data });
+      writeOps.push({ ref: db.collection('members').doc(memberId), data });
+
+      if (activityStatus === 'needs-verification') {
+        const queued = queueReview({
+          type: 'payment-verification-needed',
+          sheet: effective.center,
+          tab: '',
+          dedupeKey: `needs-verification_${effective.center}_${effective.name}`,
+          rawData: { memberId, name: effective.name, dueDate, lastAttendedDate: effective.lastAttendedDate, presentCount: effective.presentCount },
+          status: 'pending',
+        });
+        if (queued) summary[effective.center].reviewQueued++;
       }
     }
 

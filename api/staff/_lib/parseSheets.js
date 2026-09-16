@@ -281,8 +281,11 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       }
     }
     if (legs.length) {
+      // Saket's sheet has no per-payment date column at all — the tab name
+      // (which month it was recorded in) is the closest we have.
       members[members.length - 1].__pendingPayment = {
         totalAmount: legs.reduce((s, l) => s + l.amount, 0), legs, remarkRaw: remark, source: 'migration',
+        date: null, paymentTab: tab,
       };
     }
   }
@@ -313,15 +316,16 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
     if (isFooterRow(rawName)) continue;
 
     const name = normalizeName(rawName);
-    const rawJoin  = get(row, H['JOINING DATE']);
-    const rawDue   = get(row, H['DUE DATE']);
-    const duration = get(row, H['DURATION']);
-    const freeze   = get(row, H['FREEZE']);
-    const amount   = get(row, H['AMOUNT']);
-    const pmode    = get(row, H['PAYMENT MODE']);
-    const remark   = get(row, H['REMARK']);
-    const email    = get(row, H['MAIL']) || get(row, H['EMAIL']);
-    const mobile   = get(row, H['MOBILE']) || get(row, H['MOB']);
+    const rawJoin   = get(row, H['JOINING DATE']);
+    const rawDue    = get(row, H['DUE DATE']);
+    const rawPayRec = get(row, H['PAY- REC -DATE']);
+    const duration  = get(row, H['DURATION']);
+    const freeze    = get(row, H['FREEZE']);
+    const amount    = get(row, H['AMOUNT']);
+    const pmode     = get(row, H['PAYMENT MODE']);
+    const remark    = get(row, H['REMARK']);
+    const email     = get(row, H['MAIL']) || get(row, H['EMAIL']);
+    const mobile    = get(row, H['MOBILE']) || get(row, H['MOB']);
 
     const rowRef = `${tab}!row${i + 1}`;
     const base = { center: 'lajpat', name, email, mobile, sourceSheetRowRef: rowRef };
@@ -375,6 +379,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       }
       members[members.length - 1].__pendingPayment = {
         totalAmount: leg.amount, legs: [leg], remarkRaw: remark, source: 'migration',
+        date: parseAnyDate(rawPayRec), paymentTab: tab,
       };
     }
   }
