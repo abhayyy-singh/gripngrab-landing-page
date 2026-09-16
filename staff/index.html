@@ -362,16 +362,20 @@
     }));
   }
 
+  const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function formatShortDate(iso) {
+    if (!iso) return null;
+    const [, mo, d] = iso.split('-').map(Number);
+    return `${d} ${SHORT_MONTHS[mo - 1]}`;
+  }
+
   function attendanceLine(m) {
-    if (m.memberType === 'personal-training') {
-      return `<div class="attend-line">Personal training — attendance not tracked in sheet</div>`;
+    if (!m.lastPaymentDate) {
+      return `<div class="attend-line none">No fee payment on record in last 3 months</div>`;
     }
-    if (!m.lastAttendedDate) {
-      return `<div class="attend-line none">No attendance recorded in last 3 months</div>`;
-    }
-    const daysAgo = Math.floor((Date.now() - new Date(m.lastAttendedDate).getTime()) / 86400000);
-    const cls = daysAgo <= 7 ? 'recent' : daysAgo <= 20 ? 'stale' : 'none';
-    return `<div class="attend-line ${cls}">Last attended ${m.lastAttendedDate} (${daysAgo}d ago) · ${m.presentCount || 0} days present in last 3 months</div>`;
+    const daysAgo = Math.floor((Date.now() - new Date(m.lastPaymentDate).getTime()) / 86400000);
+    const cls = daysAgo <= 35 ? 'recent' : daysAgo <= 100 ? 'stale' : 'none';
+    return `<div class="attend-line ${cls}">Last fee paid on ${formatShortDate(m.lastPaymentDate)}</div>`;
   }
 
   function renderMembers() {

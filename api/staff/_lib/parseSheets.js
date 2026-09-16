@@ -61,6 +61,21 @@ function parseAnyDate(str) {
   return parseDdMmYy(str) || xlSerialToDate(str);
 }
 
+const PLAN_MONTHS = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly: 12 };
+
+/** startDate + plan length -> due date. Used where the sheet has no
+ *  explicit due-date column of its own (Saket) — Lajpat's own Due Date
+ *  column is trusted as-is instead, since it may already reflect manual
+ *  freeze/pause adjustments the sheet-keeper made. */
+function computeDueDate(startDate, plan, customMonths) {
+  if (!startDate) return null;
+  const months = plan === 'custom' ? customMonths : PLAN_MONTHS[plan];
+  if (!months) return null;
+  const [y, mo, d] = startDate.split('-').map(Number);
+  const date = new Date(Date.UTC(y, mo - 1 + months, d));
+  return date.toISOString().slice(0, 10);
+}
+
 /* ---------- name normalization ---------- */
 
 function normalizeName(raw) {
@@ -230,6 +245,7 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       memberType,
       plan,
       startDate,
+      dueDate: computeDueDate(startDate, plan, null), // Saket's sheet has no due-date column of its own
       firstJoinedDate: startDate,
       remarkRaw: remark,
       __presentCount: presentCount,
@@ -453,5 +469,5 @@ module.exports = {
   parseSaketTab, parseLajpatTab, matchBankReceipts,
   parseAnyDate, parseDdMmYy, xlSerialToDate, normalizeName,
   mapChannel, findHeaderRow, buildHeaderMap,
-  findAttendanceColumns, parseAttendance,
+  findAttendanceColumns, parseAttendance, computeDueDate,
 };

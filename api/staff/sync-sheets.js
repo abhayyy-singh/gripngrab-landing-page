@@ -222,6 +222,19 @@ module.exports = async function handler(req, res) {
       for (const r of review) { if (queueReview(r)) summary.lajpat.bankReceiptsUnmatched++; }
     }
 
+    /* Compute each member's most recent payment date from every payment op
+       queued above (both tab payments and matched Bank Receipts), and fold
+       a lastPaymentDate update into the same batch. */
+    const lastPaymentByMember = new Map();
+    for (const op of writeOps) {
+      if (op.ref.parent.id !== 'payments' || !op.data.memberId || !op.data.date) continue;
+      const prev = lastPaymentByMember.get(op.data.memberId);
+      if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
+    }
+    for (const [memberId, lastPaymentDate] of lastPaymentByMember) {
+      writeOps.push({ ref: db.collection('members').doc(memberId), data: { lastPaymentDate } });
+    }
+
     await commitInBatches(writeOps);
 
     await writeAuditLog({
