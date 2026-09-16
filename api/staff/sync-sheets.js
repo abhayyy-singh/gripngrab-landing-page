@@ -23,27 +23,43 @@
 
 const { db, admin, requireStaff, writeAuditLog, sendError } = require('./_lib/firebaseAdmin');
 const { listTabs, readTab } = require('./_lib/sheetsClient');
-const { parseSaketTab, parseLajpatTab, matchBankReceipts, computeDueDate } = require('./_lib/parseSheets');
+const { parseSaketTab, parseLajpatTab, matchBankReceipts, computeDueDate, checkPaymentPresence } = require('./_lib/parseSheets');
 
 const SAKET_SHEET_ID  = '1itv1Iv641TCf_yin6ubPS7Ri0GcNhpNhzMdQuBEduSs';
 const LAJPAT_SHEET_ID = '1msODlD2bnfLkBHKR1SKOdSc9jb8U_Tad';
 
-const MONTH_RE = /(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)/i;
+// "FAB" is a recurring typo for "FEB" in the actual sheet tab names
+// (ATT- FAB25, FAB-26 in Saket) — without this alias every February in
+// the sheet's history is silently invisible to the sync.
+const MONTH_RE = /(JAN|FAB|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)/i;
 const MONTH_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const MONTH_ALIAS = { FAB: 'FEB' };
 
-function lastNMonthTabs(tabNames, n = 3) {
-  const candidates = tabNames
+// Defaults to the last 3 months for normal/fast syncs. Set
+// SYNC_MONTHS_WINDOW to a large number (e.g. 999) for a one-off deep
+// backfill that picks up every reliably-dated tab in the sheet's history
+// — only tabs with an explicit year in their name are ever included, so
+// this never risks guessing a wrong year for the earliest, year-less tabs.
+const MONTHS_WINDOW = parseInt(process.env.SYNC_MONTHS_WINDOW, 10) || 3;
+
+function sortedMonthTabCandidates(tabNames) {
+  return tabNames
     .map(name => {
       const m = MONTH_RE.exec(name);
       const yearMatch = /(\d{2,4})/.exec(name);
       if (!m || !yearMatch) return null;
       let year = parseInt(yearMatch[1], 10);
       if (year < 100) year += 2000;
-      const monthIdx = MONTH_NAMES.indexOf(m[1].toUpperCase());
+      const monthAbbr = MONTH_ALIAS[m[1].toUpperCase()] || m[1].toUpperCase();
+      const monthIdx = MONTH_NAMES.indexOf(monthAbbr);
       return { name, year, monthIdx, sortKey: year * 12 + monthIdx };
     })
     .filter(Boolean)
     .sort((a, b) => a.sortKey - b.sortKey);
+}
+
+function lastNMonthTabs(tabNames, n = MONTHS_WINDOW) {
+  const candidates = sortedMonthTabCandidates(tabNames);
   const picked = candidates.slice(-n);
   if (!picked.length) return { tabs: [], dateFrom: null, dateTo: null };
   const first = picked[0], last = picked[picked.length - 1];
@@ -51,6 +67,16 @@ function lastNMonthTabs(tabNames, n = 3) {
   const lastDay = new Date(Date.UTC(last.year, last.monthIdx + 1, 0)).getUTCDate();
   const dateTo = `${last.year}-${String(last.monthIdx + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   return { tabs: picked.map(c => c.name), dateFrom, dateTo };
+}
+
+/** Tabs OLDER than the normal sync window — e.g. skipRecent=3, count=9
+ *  returns the 9 months before the last 3, most-recent first, for the
+ *  long-cycle-plan payment lookback below. */
+function olderMonthTabs(tabNames, skipRecent, count) {
+  const candidates = sortedMonthTabCandidates(tabNames);
+  const upToRecentWindow = candidates.slice(0, candidates.length - skipRecent);
+  const older = upToRecentWindow.slice(-count);
+  return older.map(c => c.name).reverse(); // most recent first
 }
 
 function stableId(str) {
@@ -217,7 +243,11 @@ module.exports = async function handler(req, res) {
         if (matches.length === 1) {
           ref = matches[0].ref;
           existingData = matches[0].data();
-          writeOps.push({ ref, data: { ...core, updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
+          // Reappeared in the current 3-month window — if they'd been
+          // archived (only found in older history, not any recent tab),
+          // that no longer applies, they're clearly back.
+          const statusUpdate = existingData.status === 'archived' ? { status: 'active' } : {};
+          writeOps.push({ ref, data: { ...core, ...statusUpdate, updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
         } else {
           ref = db.collection('members').doc();
           writeOps.push({ ref, data: { ...core, status: 'active', createdAt: admin.firestore.FieldValue.serverTimestamp(), updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
@@ -254,6 +284,68 @@ module.exports = async function handler(req, res) {
 
     const saket3mo  = await processCenter(SAKET_SHEET_ID, 'saket', parseSaketTab, 'saket');
     const lajpat3mo = await processCenter(LAJPAT_SHEET_ID, 'lajpat', parseLajpatTab, 'lajpat');
+
+    /* ---------- LONG-CYCLE-PLAN PAYMENT LOOKBACK ----------
+       A quarterly plan's whole cycle already fits inside the normal
+       3-month window, but half-yearly (6mo) and yearly (12mo) members
+       often paid further back than that — their dueDate would otherwise
+       anchor on a stale startDate even though they've clearly renewed
+       since (confirmed with real data: Rashmi Dhandia's May payment was
+       invisible to a 3-month sync). Rather than a full-history backfill
+       (tried, tabled — it explodes the review queue with old, messier
+       data without fixing Saket at all, since Saket has no per-payment
+       date column regardless of how far back you look), this looks back
+       ONLY for members who already exist with a long-cycle plan, and
+       ONLY checks "was a payment recorded here" per tab — it never
+       creates new members or review items from the older tabs.
+       The exact day within a month is never in the sheet for these older
+       rows either way, so the day is taken from the member's own current
+       startDate (the pattern they've always paid on) and only the
+       month/year comes from wherever the payment was actually found. */
+    // All three get the same 9-month lookback: the yearly-plan tabs are
+    // already being fetched regardless, so letting quarterly/half-yearly
+    // members search the same already-fetched range is free — and useful,
+    // since someone overdue by more than one cycle (real example: Rashmi
+    // Dhandia, quarterly, whose last payment was several cycles back) needs
+    // more than their nominal plan length to find it.
+    const LOOKBACK_MONTHS = { quarterly: 9, 'half-yearly': 9, yearly: 9, custom: 9 };
+    const lookbackPaymentByMember = new Map(); // memberId -> inferred date string
+
+    async function applyLookback(sheetId, center, tabInfo) {
+      const maxExtra = Math.max(...Object.values(LOOKBACK_MONTHS));
+      const allTabNames = await listTabs(sheetId);
+      const candidateTabs = olderMonthTabs(allTabNames, tabInfo.tabs.length, maxExtra); // most-recent-first
+      if (!candidateTabs.length) return;
+
+      const rowsByTab = new Map();
+      for (const t of candidateTabs) rowsByTab.set(t, await readTab(sheetId, t));
+
+      for (const [memberId, effective] of effectiveCoreByMemberId) {
+        if (effective.center !== center) continue;
+        const extraMonths = LOOKBACK_MONTHS[effective.plan];
+        if (!extraMonths || !effective.startDate) continue;
+
+        const day = effective.startDate.split('-')[2];
+        const tabsToCheck = candidateTabs.slice(0, extraMonths);
+        for (const tabName of tabsToCheck) {
+          const found = checkPaymentPresence(rowsByTab.get(tabName), effective.name, center);
+          if (!found) continue;
+          const m = /([A-Z]{3})/i.exec(tabName);
+          const y = /(\d{2,4})/.exec(tabName);
+          if (!m || !y) break;
+          let year = parseInt(y[1], 10); if (year < 100) year += 2000;
+          const monthAbbr = MONTH_ALIAS[m[1].toUpperCase()] || m[1].toUpperCase();
+          const monthIdx = MONTH_NAMES.indexOf(monthAbbr);
+          if (monthIdx === -1) break;
+          const inferredDate = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${day}`;
+          lookbackPaymentByMember.set(memberId, inferredDate);
+          break; // most-recent match wins, stop scanning further back
+        }
+      }
+    }
+
+    await applyLookback(SAKET_SHEET_ID, 'saket', saket3mo);
+    await applyLookback(LAJPAT_SHEET_ID, 'lajpat', lajpat3mo);
 
     /* ---------- LAJPAT BANK RECEIPTS (shared ledger — match against BOTH centers) ---------- */
     const bankTabs = (await listTabs(LAJPAT_SHEET_ID)).filter(t => /BANK RECEIPTS/i.test(t));
@@ -305,9 +397,12 @@ module.exports = async function handler(req, res) {
     const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
 
     for (const [memberId, effective] of effectiveCoreByMemberId) {
-      const newest = lastPaymentByMember.get(memberId);
-      const existing = effective.existingLastPaymentDate;
-      const lastPaymentDate = (newest && (!existing || newest > existing)) ? newest : (existing || newest || null);
+      const candidates = [
+        lastPaymentByMember.get(memberId),      // this sync's own dated payments (Bank Receipts, Lajpat Pay-Rec-date)
+        lookbackPaymentByMember.get(memberId),   // long-cycle-plan lookback (day inferred from startDate)
+        effective.existingLastPaymentDate,       // whatever a prior sync already had
+      ].filter(Boolean);
+      const lastPaymentDate = candidates.length ? candidates.sort().pop() : null; // most recent wins
 
       const anchor = lastPaymentDate || effective.startDate;
       const dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);

@@ -487,9 +487,34 @@ function matchBankReceipts(rows, members, { sheet = 'lajpat', tab = 'BANK RECEIP
   return { payments, review };
 }
 
+/**
+ * Lightweight check used for the long-cycle-plan payment lookback: does
+ * this ONE member's row in this ONE tab show any payment amount? Doesn't
+ * parse the whole tab into members/review items — just answers "was a
+ * payment recorded here", so scanning many months of old tabs for a
+ * handful of long-cycle members stays cheap and never creates new member
+ * or review records from historical data.
+ */
+function checkPaymentPresence(rows, name, center) {
+  const headerIdx = findHeaderRow(rows);
+  if (headerIdx === -1) return false;
+  const H = buildHeaderMap(rows[headerIdx]);
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i] || [];
+    const rowName = normalizeName(get(row, H['NAME']));
+    if (rowName !== name) continue;
+    if (center === 'saket') {
+      return !!(get(row, H['CASH']) || get(row, H['BANK']));
+    }
+    return !!get(row, H['AMOUNT']);
+  }
+  return false;
+}
+
 module.exports = {
   parseSaketTab, parseLajpatTab, matchBankReceipts,
   parseAnyDate, parseDdMmYy, xlSerialToDate, normalizeName,
   mapChannel, findHeaderRow, buildHeaderMap,
   findAttendanceColumns, parseAttendance, computeDueDate, toNumber,
+  checkPaymentPresence,
 };

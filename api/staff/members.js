@@ -51,10 +51,16 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
       const center = (req.query && req.query.center) || 'all';
+      const includeArchived = req.query && req.query.includeArchived === '1';
       let q = db.collection('members');
       if (center === 'saket' || center === 'lajpat') q = q.where('center', '==', center);
       const snap = await q.get();
       let members = snap.docs.map(d => ({ id: d.id, ...d.data() })).map(redactContact);
+      // Archived = only ever appeared in older sheet history, not in the
+      // current 3-month roster at all — kept in Firestore for the record
+      // (total joins/history), but hidden from the day-to-day dashboard
+      // by default so it isn't cluttered with people who've long since left.
+      if (!includeArchived) members = members.filter(m => m.status !== 'archived');
 
       await writeAuditLog({
         actorUid: staff.uid, actorName: staff.name || staff.email,
