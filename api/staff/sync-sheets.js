@@ -402,8 +402,17 @@ module.exports = async function handler(req, res) {
         lastPaymentByMember.get(memberId),      // this sync's own dated payments (Bank Receipts, Lajpat Pay-Rec-date)
         lookbackPaymentByMember.get(memberId),   // long-cycle-plan lookback (day inferred from startDate)
         effective.existingLastPaymentDate,       // whatever a prior sync already had
+        effective.startDate,                     // the CURRENT sheet's own cycle-start for this member — can be
+                                                   // more recent than any dated payment we found (Saket has no
+                                                   // per-payment date column at all, so a fresh renewal often
+                                                   // only ever shows up as an updated START DATE cell, never as
+                                                   // a dated payment). Real bug this fixes: a 9-month lookback
+                                                   // finding an OLD payment (e.g. February) was overriding a
+                                                   // member's own August startDate just because "a payment date
+                                                   // exists" was treated as always more trustworthy than
+                                                   // startDate — producing a due date BEFORE their start date.
       ].filter(Boolean);
-      const lastPaymentDate = candidates.length ? candidates.sort().pop() : null; // most recent wins
+      const lastPaymentDate = candidates.length ? candidates.sort().pop() : null; // most recent of all of them wins
 
       const anchor = lastPaymentDate || effective.startDate;
       const dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
