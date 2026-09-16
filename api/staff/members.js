@@ -14,7 +14,7 @@ const EDITABLE_FIELDS = [
   'customDurationMonths', 'defaultFeeAmount', 'startDate', 'dueDate',
   'firstJoinedDate', 'status', 'pauseDaysTotal', 'personalTrainingConfirmedActive',
   'presentCount', 'lastAttendedDate', 'pausedUntil', 'lastPaymentDate',
-  'verificationDismissedAt',
+  'verificationDismissedAt', 'lastPaymentAmount',
 ];
 
 // Contact info is masked in the list view for everyone, including the owner —

@@ -115,6 +115,19 @@
     .contact-hidden-label { font-size: 12px; color: var(--faint); font-style: italic; }
     .card-actions { display: flex; gap: 6px; }
 
+    .guess-bulk-bar { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; font-size: 12.5px; position: sticky; top: 0; z-index: 2; }
+    .guess-select-all { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text); }
+    #guess-selected-count { color: var(--muted); flex: 1; }
+    .guess-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+    .guess-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .guess-amount { font-size: 12px; color: var(--text); }
+    .guess-plan-select { font-size: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; }
+    .guess-plan-line { display: flex; align-items: center; gap: 8px; }
+    .guess-confidence { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; padding: 2px 6px; border-radius: 99px; }
+    .guess-confidence.high { color: var(--green); background: rgba(74,222,128,0.12); }
+    .guess-confidence.low { color: var(--faint); background: rgba(255,255,255,0.06); }
+    .guess-confirm-btn { color: var(--green); border-color: rgba(74,222,128,0.3); }
+
     .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
     .review-type { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--yellow); letter-spacing: .04em; }
     .review-sub { font-size: 11px; color: var(--faint); margin-top: 2px; }
@@ -327,9 +340,15 @@
      AND still training from people who've clearly stopped coming, so the
      due-list isn't cluttered with members who effectively already left. */
   function dueStatus(m) {
-    if (!m.dueDate) return { label: 'Unknown', cls: 'unknown' };
+    // activityStatus checked BEFORE dueDate deliberately — it's the
+    // server's authoritative classification for this member as of the
+    // last sync; trusting a client-side dueDate comparison first risked
+    // showing a stale in-the-past dueDate as "Overdue" even once the
+    // server had already reclassified them (fixed server-side too, but
+    // this stays as a second layer rather than relying on that alone).
     if (m.activityStatus === 'inactive') return { label: 'Inactive', cls: 'inactive' };
     if (m.activityStatus === 'needs-verification') return { label: 'Verify Payment', cls: 'verify' };
+    if (!m.dueDate) return { label: 'Unknown', cls: 'unknown' };
     const today = new Date().toISOString().slice(0, 10);
     if (m.dueDate < today) return { label: 'Overdue', cls: 'overdue' };
     const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
@@ -392,7 +411,7 @@
       due:      'Due within the next 7 days — not overdue yet.',
       active:   "Not due yet, or overdue but genuinely on a pause.",
       inactive: "Overdue and hasn't attended in 15+ days — likely already left, no point sending reminders.",
-      unknown:  "We don't know their plan (monthly/quarterly/etc.), so a due date can't be calculated. Check Migration Review — these show up there as 'missing-plan'.",
+      unknown:  "We don't know their plan (monthly/quarterly/etc.), so a due date can't be calculated. Each row below shows a guessed plan based on their last payment amount — check it and hit Confirm, or select several and confirm together.",
     };
     document.getElementById('stat-caption').textContent = CAPTIONS[activeDueFilter] || '';
   }
@@ -400,9 +419,44 @@
   const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function formatShortDate(iso) {
     if (!iso) return null;
-    const [, mo, d] = iso.split('-').map(Number);
-    return `${d} ${SHORT_MONTHS[mo - 1]}`;
+    const [y, mo, d] = iso.split('-').map(Number);
+    const thisYear = new Date().getFullYear();
+    // Year suffix only when it differs from the current year — keeps most
+    // dates short, but disambiguates e.g. a yearly-plan due date that lands
+    // in next year (23 Mar 27) instead of reading like it's already past.
+    const yearSuffix = y !== thisYear ? ` ${String(y).slice(2)}` : '';
+    return `${d} ${SHORT_MONTHS[mo - 1]}${yearSuffix}`;
   }
+
+  /* ── Plan guessing (for "No Plan Set" members) ──
+     Two tiers:
+     1. High-confidence anchors — amounts that sit right on (or within a
+        small tolerance of) the actual GST-inclusive website prices you
+        confirmed (adult monthly ~5k-9.4k, adult quarterly ~21k ± 2k).
+        These are basically certain, so they're checked first.
+     2. Wide empirical bands — derived from Lajpat's real payment/duration
+        data (which has explicit amount+duration pairs, unlike Saket) —
+        fallback for amounts that don't land on a known anchor. Lower
+        confidence: real prices vary (discounts, old pricing, etc.).
+     Kids' pricing runs lower than adults' across the board throughout. */
+  function guessPlanFromAmount(amount, isKid) {
+    if (!amount) return { plan: null, confidence: null };
+    const near = (target, tolerance) => Math.abs(amount - target) <= tolerance;
+
+    if (isKid) {
+      if (amount >= 3000 && amount <= 6500) return { plan: 'monthly', confidence: 'high' };
+    } else {
+      if (amount >= 4500 && amount <= 9800) return { plan: 'monthly', confidence: 'high' };
+      if (near(21000, 2000)) return { plan: 'quarterly', confidence: 'high' };
+    }
+
+    const band = isKid
+      ? (amount <= 6000 ? 'monthly' : amount <= 13000 ? 'quarterly' : amount <= 25000 ? 'half-yearly' : 'yearly')
+      : (amount <= 15000 ? 'monthly' : amount <= 30000 ? 'quarterly' : amount <= 60000 ? 'half-yearly' : 'yearly');
+    return { plan: band, confidence: 'low' };
+  }
+  const PLAN_LABELS = { monthly: 'Monthly', quarterly: 'Quarterly', 'half-yearly': 'Half-Yearly', yearly: 'Yearly' };
+  let selectedGuessIds = new Set();
 
   function paymentLine(m) {
     if (!m.lastPaymentDate) {
@@ -434,9 +488,32 @@
     if (search) filtered = filtered.filter(m => (m.name || '').includes(search));
     filtered = [...filtered].sort((a, b) => (a.dueDate || '9999') < (b.dueDate || '9999') ? -1 : 1);
 
-    if (!filtered.length) { list.innerHTML = '<div class="empty">No members match this view.</div>'; return; }
+    const isGuessView = activeDueFilter === 'unknown';
+    // Selection only makes sense while looking at this exact filtered set —
+    // switching away/back or re-searching drops stale picks rather than
+    // risk bulk-confirming a member no longer even visible.
+    if (isGuessView) {
+      const visibleIds = new Set(filtered.map(m => m.id));
+      selectedGuessIds = new Set([...selectedGuessIds].filter(id => visibleIds.has(id)));
+    } else if (selectedGuessIds.size) {
+      selectedGuessIds = new Set();
+    }
 
-    list.innerHTML = filtered.map(m => {
+    const bulkBar = isGuessView ? `
+      <div class="guess-bulk-bar" id="guess-bulk-bar">
+        <label class="guess-select-all">
+          <input type="checkbox" id="guess-select-all-cb" ${filtered.length && selectedGuessIds.size === filtered.length ? 'checked' : ''}>
+          Select all
+        </label>
+        <span id="guess-selected-count">${selectedGuessIds.size} selected</span>
+        <button class="btn btn-primary btn-sm" id="guess-confirm-selected-btn" ${selectedGuessIds.size ? '' : 'disabled'}>
+          Confirm Selected Plans
+        </button>
+      </div>` : '';
+
+    if (!filtered.length) { list.innerHTML = bulkBar + '<div class="empty">No members match this view.</div>'; return; }
+
+    list.innerHTML = bulkBar + filtered.map(m => {
       const status = dueStatus(m);
       const contactBlock = m.contactHidden
         ? `<span class="contact-hidden-label">Contact hidden</span>`
@@ -447,6 +524,36 @@
       const payLine = paymentLine(m);
       const attendBadge = attendanceBadge(m);
       const pauseNote = m.pausedUntil ? `<div class="attend-line" style="color:var(--blue);">Paused until ${formatShortDate(m.pausedUntil)}</div>` : '';
+
+      let guessBlock = '';
+      if (isGuessView) {
+        const isKid = m.memberType === 'kids';
+        const guess = guessPlanFromAmount(m.lastPaymentAmount, isKid);
+        const amountLabel = m.lastPaymentAmount
+          ? `₹${m.lastPaymentAmount.toLocaleString('en-IN')}${m.lastPaymentDate ? ' on ' + formatShortDate(m.lastPaymentDate) : ''}`
+          : 'No payment on record — can’t guess';
+        const confidenceBadge = guess.confidence
+          ? `<span class="guess-confidence ${guess.confidence}">${guess.confidence === 'high' ? 'confident guess' : 'rough guess'}</span>`
+          : '';
+        const options = Object.keys(PLAN_LABELS).map(key =>
+          `<option value="${key}" ${key === guess.plan ? 'selected' : ''}>${PLAN_LABELS[key]}</option>`).join('');
+        guessBlock = `
+          <div class="guess-row" data-id="${m.id}">
+            <input type="checkbox" class="guess-select-cb" data-id="${m.id}" ${selectedGuessIds.has(m.id) ? 'checked' : ''} ${m.lastPaymentAmount ? '' : 'disabled'}>
+            <div class="guess-info">
+              <span class="guess-amount">${amountLabel}</span>
+              <div class="guess-plan-line">
+                <select class="guess-plan-select" data-id="${m.id}" ${m.lastPaymentAmount ? '' : 'disabled'}>
+                  <option value="">— guess plan —</option>
+                  ${options}
+                </select>
+                ${confidenceBadge}
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm guess-confirm-btn" data-id="${m.id}" title="Confirm this plan" ${m.lastPaymentAmount ? '' : 'disabled'}>&#10003; Confirm</button>
+          </div>`;
+      }
+
       return `
         <div class="member-card" data-id="${m.id}">
           <div class="member-top">
@@ -459,6 +566,7 @@
             </div>
             <span class="pill ${status.cls}">${status.label}${m.dueDate ? ' · ' + formatShortDate(m.dueDate) : ''}</span>
           </div>
+          ${guessBlock}
           <div class="member-row2">
             ${contactBlock}
             <div class="card-actions">
@@ -471,6 +579,37 @@
 
     list.querySelectorAll('.reveal-btn').forEach(btn => btn.addEventListener('click', () => revealContact(btn.dataset.id, btn)));
     list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+
+    if (isGuessView) {
+      list.querySelectorAll('.guess-select-cb').forEach(cb => cb.addEventListener('change', () => {
+        if (cb.checked) selectedGuessIds.add(cb.dataset.id); else selectedGuessIds.delete(cb.dataset.id);
+        renderMembers();
+      }));
+      const selectAllCb = document.getElementById('guess-select-all-cb');
+      if (selectAllCb) selectAllCb.addEventListener('change', () => {
+        if (selectAllCb.checked) filtered.forEach(m => { if (m.lastPaymentAmount) selectedGuessIds.add(m.id); });
+        else selectedGuessIds.clear();
+        renderMembers();
+      });
+      const confirmSelectedBtn = document.getElementById('guess-confirm-selected-btn');
+      if (confirmSelectedBtn) confirmSelectedBtn.addEventListener('click', () => confirmGuessedPlans([...selectedGuessIds]));
+      list.querySelectorAll('.guess-confirm-btn').forEach(btn => btn.addEventListener('click', () => confirmGuessedPlans([btn.dataset.id])));
+    }
+  }
+
+  async function confirmGuessedPlans(ids) {
+    if (!ids.length) return;
+    const results = await Promise.allSettled(ids.map(id => {
+      const row = document.querySelector(`.guess-row[data-id="${id}"]`);
+      const select = row ? row.querySelector('.guess-plan-select') : null;
+      const plan = select ? select.value : '';
+      if (!plan) return Promise.reject(new Error('no plan selected'));
+      return api('/api/staff/members', { method: 'POST', body: JSON.stringify({ id, plan }) });
+    }));
+    const failed = results.filter(r => r.status === 'rejected').length;
+    selectedGuessIds.clear();
+    await loadMembers();
+    if (failed) alert(`${failed} of ${ids.length} could not be confirmed (no plan guessed for them).`);
   }
 
   async function revealContact(id, btn) {

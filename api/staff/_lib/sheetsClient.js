@@ -18,6 +18,9 @@ const { getServiceAccount } = require('./firebaseAdmin');
 
 let cachedAuth = null;
 const workbookCache = new Map(); // fileId -> parsed XLSX.WorkBook (per warm invocation)
+const nativeCheckCache = new Map(); // fileId -> boolean — a file's type never changes mid-sync, so the
+                                     // Drive metadata lookup is only worth doing once per fileId, not
+                                     // once per tab read (a sync reads a dozen+ tabs per sheet).
 
 function getAuth() {
   if (cachedAuth) return cachedAuth;
@@ -40,9 +43,12 @@ async function getDriveClient() {
 }
 
 async function isNativeGoogleSheet(fileId) {
+  if (nativeCheckCache.has(fileId)) return nativeCheckCache.get(fileId);
   const drive = await getDriveClient();
   const meta = await drive.files.get({ fileId, fields: 'mimeType' });
-  return meta.data.mimeType === 'application/vnd.google-apps.spreadsheet';
+  const isNative = meta.data.mimeType === 'application/vnd.google-apps.spreadsheet';
+  nativeCheckCache.set(fileId, isNative);
+  return isNative;
 }
 
 async function getWorkbook(fileId) {

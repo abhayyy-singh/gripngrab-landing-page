@@ -223,11 +223,12 @@ module.exports = async function handler(req, res) {
       const tabInfo = lastNMonthTabs(await listTabs(sheetId));
       summary[key].tabs = tabInfo.tabs;
 
-      const tabResults = [];
-      for (const tabName of tabInfo.tabs) {
-        const rows = await readTab(sheetId, tabName);
-        tabResults.push(parseFn(rows, { sheet: key, tab: tabName }));
-      }
+      // Tab reads are independent network round trips (no shared state
+      // between them) — fired concurrently instead of one-at-a-time, since
+      // sequential awaits here were the main cost of a sync (a few dozen
+      // round trips end-to-end, each paying full request latency on its own).
+      const tabRows = await Promise.all(tabInfo.tabs.map(tabName => readTab(sheetId, tabName)));
+      const tabResults = tabInfo.tabs.map((tabName, i) => parseFn(tabRows[i], { sheet: key, tab: tabName }));
       const { byName, review } = mergeTabs(tabResults);
       const existing = await fetchExistingByName(center);
 
@@ -265,6 +266,7 @@ module.exports = async function handler(req, res) {
           customDurationMonths: core.customDurationMonths ?? existingData?.customDurationMonths ?? null,
           startDate: core.startDate ?? existingData?.startDate ?? null,
           existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
+          existingLastPaymentAmount: existingData?.lastPaymentAmount ?? null,
           presentCount: core.presentCount ?? existingData?.presentCount ?? 0,
           lastAttendedDate: core.lastAttendedDate ?? existingData?.lastAttendedDate ?? null,
           memberType: core.memberType ?? existingData?.memberType ?? null,
@@ -319,7 +321,8 @@ module.exports = async function handler(req, res) {
       if (!candidateTabs.length) return;
 
       const rowsByTab = new Map();
-      for (const t of candidateTabs) rowsByTab.set(t, await readTab(sheetId, t));
+      const allRows = await Promise.all(candidateTabs.map(t => readTab(sheetId, t)));
+      candidateTabs.forEach((t, i) => rowsByTab.set(t, allRows[i]));
 
       for (const [memberId, effective] of effectiveCoreByMemberId) {
         if (effective.center !== center) continue;
@@ -345,16 +348,22 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    await applyLookback(SAKET_SHEET_ID, 'saket', saket3mo);
-    await applyLookback(LAJPAT_SHEET_ID, 'lajpat', lajpat3mo);
+    // Independent per center (each only touches its own members via the
+    // `center` filter inside), so run concurrently rather than back-to-back.
+    await Promise.all([
+      applyLookback(SAKET_SHEET_ID, 'saket', saket3mo),
+      applyLookback(LAJPAT_SHEET_ID, 'lajpat', lajpat3mo),
+    ]);
 
     /* ---------- LAJPAT BANK RECEIPTS (shared ledger — match against BOTH centers) ---------- */
     const bankTabs = (await listTabs(LAJPAT_SHEET_ID)).filter(t => /BANK RECEIPTS/i.test(t));
     const dateFrom = saket3mo.dateFrom < lajpat3mo.dateFrom ? saket3mo.dateFrom : lajpat3mo.dateFrom;
     const dateTo   = saket3mo.dateTo   > lajpat3mo.dateTo   ? saket3mo.dateTo   : lajpat3mo.dateTo;
     const byName = new Map(combinedDirectory.map(d => [d.name, d.id]));
-    for (const tabName of bankTabs) {
-      const rows = await readTab(LAJPAT_SHEET_ID, tabName);
+    const bankTabRows = await Promise.all(bankTabs.map(tabName => readTab(LAJPAT_SHEET_ID, tabName)));
+    for (let bi = 0; bi < bankTabs.length; bi++) {
+      const tabName = bankTabs[bi];
+      const rows = bankTabRows[bi];
       const pseudoMembers = combinedDirectory.map(d => ({ name: d.name }));
       const { payments, review } = matchBankReceipts(rows, pseudoMembers, { sheet: 'lajpat', tab: tabName, dateFrom, dateTo });
       for (const p of payments) {
@@ -389,8 +398,16 @@ module.exports = async function handler(req, res) {
        (this was the root cause behind due dates sitting in the past even
        for members who had clearly just paid). */
     const lastPaymentByMember = new Map();
+    // Separate from the above: tracks amount from the LAST payment write
+    // per member regardless of whether it had a date at all (Saket has no
+    // per-payment date column, so most Saket payments never qualify for
+    // lastPaymentByMember above — but the amount is still useful on its
+    // own, e.g. for guessing an unrecognized plan from the price).
+    const lastPaymentAmountByMember = new Map();
     for (const op of writeOps) {
-      if (op.ref.parent.id !== 'payments' || !op.data.memberId || !op.data.date) continue;
+      if (op.ref.parent.id !== 'payments' || !op.data.memberId) continue;
+      if (op.data.totalAmount) lastPaymentAmountByMember.set(op.data.memberId, op.data.totalAmount);
+      if (!op.data.date) continue;
       const prev = lastPaymentByMember.get(op.data.memberId);
       if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
     }
@@ -446,9 +463,16 @@ module.exports = async function handler(req, res) {
         activityStatus = 'inactive'; // personal-training, overdue — no attendance signal to check against
       }
 
-      const data = { activityStatus };
-      if (lastPaymentDate) data.lastPaymentDate = lastPaymentDate;
-      if (dueDate) data.dueDate = dueDate;
+      // dueDate/lastPaymentDate are written even when null (not skipped) —
+      // real bug this fixes: Shreya Yadav's plan went from known to
+      // unrecognized between syncs, so this pass correctly computed no
+      // dueDate and activityStatus 'active' (can't classify overdue/
+      // inactive without one) — but the OLD dueDate from when her plan
+      // WAS known stayed in Firestore untouched (conditional write skipped
+      // it entirely), so the UI read a stale, in-the-past dueDate next to
+      // a fresh 'active' status and fell through to showing "Overdue".
+      const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
+      const data = { activityStatus, lastPaymentDate: lastPaymentDate || null, dueDate: dueDate || null, lastPaymentAmount };
       writeOps.push({ ref: db.collection('members').doc(memberId), data });
 
       if (activityStatus === 'needs-verification') {

@@ -98,6 +98,10 @@ function isPersonalTraining(name) {
   return /PERSONAL/i.test(name || '');
 }
 
+function isKid(name) {
+  return /\bKID\b/i.test(name || '');
+}
+
 function isLowConfidenceName(name) {
   // "TRAIL"/"TRIAL" rows, parenthetical notes, etc. — not enough to classify
   // automatically, route to review rather than guess.
@@ -219,7 +223,7 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       continue;
     }
 
-    const memberType = isPersonalTraining(name) ? 'personal-training' : 'general';
+    const memberType = isPersonalTraining(name) ? 'personal-training' : isKid(name) ? 'kids' : 'general';
 
     const m = /^(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})\s*([A-Za-z]*)\s*$/.exec(rawStart);
     let startDate = null, planCode = '';
@@ -335,7 +339,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       continue;
     }
 
-    const memberType = isPersonalTraining(name) ? 'personal-training' : 'general';
+    const memberType = isPersonalTraining(name) ? 'personal-training' : isKid(name) ? 'kids' : 'general';
     const startDate = parseAnyDate(rawJoin);
     const dueDate = parseAnyDate(rawDue);
 
