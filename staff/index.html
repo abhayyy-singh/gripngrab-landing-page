@@ -483,7 +483,9 @@
 
   /* ── Edit / Add modal ── */
   let editingId = null;
+  let pendingReviewIdToResolve = null; // set only when opened via "Fix Now" — auto-resolves that review item on Save
   function openEditModal(id) {
+    pendingReviewIdToResolve = null;
     const m = allMembers.find(x => x.id === id);
     if (!m) return;
     editingId = id;
@@ -526,6 +528,7 @@
 
   function openAddModal() {
     editingId = null;
+    pendingReviewIdToResolve = null;
     document.getElementById('payment-history-field').style.display = 'none';
     document.getElementById('modal-title').textContent = 'Add Member';
     document.getElementById('f-center-field').style.display = 'block';
@@ -575,8 +578,13 @@
     btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span> Saving…';
     try {
       await api('/api/staff/members', { method: 'POST', body: JSON.stringify(payload) });
+      const resolvingReviewId = pendingReviewIdToResolve;
       closeEditModal();
       await loadMembers();
+      if (resolvingReviewId) {
+        await api('/api/staff/migration-review', { method: 'POST', body: JSON.stringify({ id: resolvingReviewId, resolution: 'confirm' }) }).catch(() => {});
+        await loadReview(); // stays on the Review tab, same scroll position, item now gone
+      }
     } catch (e) {
       errEl.textContent = 'Save failed: ' + e.message;
       errEl.style.display = 'block';
@@ -702,12 +710,23 @@
       }).join('');
       list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
       list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
-      list.querySelectorAll('.fix-now-btn').forEach(b => b.addEventListener('click', () => fixNow(b.dataset.name)));
+      list.querySelectorAll('.fix-now-btn').forEach(b => b.addEventListener('click', () => fixNow(b.dataset.name, b.dataset.id)));
       list.querySelectorAll('.add-as-member-btn').forEach(b => b.addEventListener('click', () => {
-        document.querySelector('.tab-btn[data-tab="members"]').click();
+        const item = items.find(i => i.id === b.dataset.id);
         openAddModal();
+        pendingReviewIdToResolve = b.dataset.id;
         document.getElementById('f-name').value = b.dataset.name.replace(/\s*\(?TRIAL\)?/i, '').trim();
         document.getElementById('f-center').value = b.dataset.center;
+        // Best-effort prefill from whatever the raw sheet row happened to
+        // contain — the row's column positions aren't preserved here, so
+        // this pattern-matches rather than reading a named field.
+        const row = item && item.rawData && item.rawData.row;
+        if (Array.isArray(row)) {
+          const emailCell = row.find(c => typeof c === 'string' && /@/.test(c));
+          const phoneCell = row.find(c => typeof c === 'string' && /^[6-9]\d{9}$/.test(c.trim()));
+          if (emailCell) document.getElementById('f-email').value = emailCell.trim();
+          if (phoneCell) document.getElementById('f-phone').value = phoneCell.trim();
+        }
       }));
     } catch (e) {
       list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
@@ -717,20 +736,25 @@
   /* Jumps to Members tab, finds the member by name (fetching all-centers
      first if needed), and opens the edit modal directly — so fixing a
      flagged issue doesn't mean losing your place searching around. */
-  async function fixNow(name) {
-    document.querySelector('.tab-btn[data-tab="members"]').click();
+  /* Deliberately does NOT switch to the Members tab — the modal is a fixed
+     overlay, so opening it here keeps you on the Review list at the same
+     scroll position. Saving auto-resolves the review item too (see
+     edit-save handler), so working through a long queue is: Fix Now ->
+     edit -> Save -> next item, no tab-hopping in between. */
+  async function fixNow(name, reviewItemId) {
     let member = allMembers.find(m => m.name === name);
     if (!member) {
+      const prevCenter = document.getElementById('center-filter').value;
       document.getElementById('center-filter').value = 'all';
       await loadMembers();
+      document.getElementById('center-filter').value = prevCenter; // restore, don't disturb their Members-tab filter
       member = allMembers.find(m => m.name === name);
     }
     if (member) {
       openEditModal(member.id);
+      pendingReviewIdToResolve = reviewItemId;
     } else {
-      document.getElementById('search-input').value = name;
-      renderMembers();
-      alert(`Couldn't find an exact match for "${name}" — search results are filtered to it, but you may need to add them as a new member instead.`);
+      alert(`Couldn't find an exact match for "${name}" — try "Add as Member" instead if one is available on this item.`);
     }
   }
 
