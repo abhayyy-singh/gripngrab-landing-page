@@ -268,6 +268,7 @@ module.exports = async function handler(req, res) {
           presentCount: core.presentCount ?? existingData?.presentCount ?? 0,
           lastAttendedDate: core.lastAttendedDate ?? existingData?.lastAttendedDate ?? null,
           memberType: core.memberType ?? existingData?.memberType ?? null,
+          verificationDismissedAt: existingData?.verificationDismissedAt ?? null,
         });
 
         for (const p of payments) {
@@ -418,9 +419,15 @@ module.exports = async function handler(req, res) {
         const daysSinceDue = daysBetween(dueDate, today);
         const daysSinceAttended = effective.lastAttendedDate ? daysBetween(effective.lastAttendedDate, today) : Infinity;
 
+        // "No, Genuinely Due" on a prior review sets this — don't ask
+        // again for 14 days while it's being followed up on, even though
+        // the underlying pattern (long overdue + still attending) hasn't
+        // changed and would otherwise re-flag on every sync.
+        const recentlyDismissed = effective.verificationDismissedAt && daysBetween(effective.verificationDismissedAt, today) < 14;
+
         if (daysSinceAttended <= 15) {
           // still coming despite being overdue on paper
-          activityStatus = (daysSinceDue >= 20 && effective.presentCount >= 10)
+          activityStatus = (daysSinceDue >= 20 && effective.presentCount >= 10 && !recentlyDismissed)
             ? 'needs-verification' // long overdue but clearly still training regularly — payment may be unrecorded, not missing
             : 'overdue';           // normal, legitimate reminder case
         } else {

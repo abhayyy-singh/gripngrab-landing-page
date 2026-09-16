@@ -175,6 +175,7 @@
 
       <div id="center-label" style="font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;"></div>
       <div class="stat-row" id="stat-row"></div>
+      <div id="stat-caption" style="font-size:11.5px;color:var(--faint);margin:-6px 0 14px;"></div>
 
       <div class="toolbar">
         <select id="center-filter">
@@ -373,7 +374,7 @@
       { key: 'due',      cls: 'due',      num: counts.due,        lbl: 'Due Soon' },
       { key: 'active',   cls: 'active',   num: counts.active,     lbl: 'Active' },
       { key: 'inactive', cls: 'inactive', num: counts.inactive,   lbl: 'Inactive' },
-      { key: 'unknown',  cls: 'unknown',  num: counts.unknown,    lbl: 'No Due Date' },
+      { key: 'unknown',  cls: 'unknown',  num: counts.unknown,    lbl: 'No Plan Set' },
     ];
     document.getElementById('stat-row').innerHTML = tiles.map(t => `
       <button class="stat-tile ${t.cls} ${activeDueFilter === t.key ? 'selected' : ''}" data-filter="${t.key}">
@@ -384,6 +385,16 @@
       activeDueFilter = el.dataset.filter;
       renderStats(); renderMembers();
     }));
+
+    const CAPTIONS = {
+      overdue:  "Due date has passed and they're still training regularly — a normal reminder case.",
+      verify:   "Due for 3+ weeks but still attending regularly — usually means they paid and it wasn't recorded. Check Migration Review to resolve these.",
+      due:      'Due within the next 7 days — not overdue yet.',
+      active:   "Not due yet, or overdue but genuinely on a pause.",
+      inactive: "Overdue and hasn't attended in 15+ days — likely already left, no point sending reminders.",
+      unknown:  "We don't know their plan (monthly/quarterly/etc.), so a due date can't be calculated. Check Migration Review — these show up there as 'missing-plan'.",
+    };
+    document.getElementById('stat-caption').textContent = CAPTIONS[activeDueFilter] || '';
   }
 
   const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -695,22 +706,36 @@
         // Now would fail to find them (they were never created), so offer
         // to create one instead, prefilled with what little we know.
         const isUnprofiledTrial = item.type === 'unclassified-row' && name && /TRAIL|TRIAL/i.test(name);
+        const isVerification = item.type === 'payment-verification-needed';
+        let actions;
+        if (isVerification) {
+          // Generic Dismiss/Confirm don't say what they mean here — two
+          // explicit outcomes instead: either you found the real payment
+          // (opens their profile to enter it), or you checked and they
+          // genuinely haven't paid (stops re-flagging them for 2 weeks so
+          // this doesn't just reappear on every sync while you follow up).
+          actions = `
+            <button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${name}">They've Paid — Let Me Fix It</button>
+            <button class="btn btn-ghost btn-sm dismiss-verify-btn" data-id="${item.id}" data-member-id="${item.rawData.memberId}">No, Genuinely Due</button>`;
+        } else {
+          actions = `
+            ${isUnprofiledTrial ? `<button class="btn btn-sm add-as-member-btn" data-id="${item.id}" data-name="${name}" data-center="${item.sheet}">Add as Member</button>`
+              : canFixNow ? `<button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${name}">Fix Now</button>` : ''}
+            <button class="btn btn-ghost btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
+            <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">I've Fixed This</button>`;
+        }
         return `
         <div class="review-card" data-id="${item.id}">
           <div class="review-type">${title}</div>
           <div class="review-sub">${item.sheet === 'saket' ? 'Saket' : 'Lajpat Nagar'} · ${item.tab || ''}</div>
           <div class="review-data">${detail}</div>
-          <div class="review-actions">
-            ${isUnprofiledTrial ? `<button class="btn btn-sm add-as-member-btn" data-id="${item.id}" data-name="${name}" data-center="${item.sheet}">Add as Member</button>`
-              : canFixNow ? `<button class="btn btn-sm fix-now-btn" data-id="${item.id}" data-name="${name}">Fix Now</button>` : ''}
-            <button class="btn btn-ghost btn-sm reject-btn" data-id="${item.id}">Not Relevant / Dismiss</button>
-            <button class="btn btn-ghost btn-sm confirm-btn" data-id="${item.id}">I've Fixed This</button>
-          </div>
+          <div class="review-actions">${actions}</div>
         </div>`;
       }).join('');
       list.querySelectorAll('.reject-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'reject', b)));
       list.querySelectorAll('.confirm-btn').forEach(b => b.addEventListener('click', () => resolveReview(b.dataset.id, 'confirm', b)));
       list.querySelectorAll('.fix-now-btn').forEach(b => b.addEventListener('click', () => fixNow(b.dataset.name, b.dataset.id)));
+      list.querySelectorAll('.dismiss-verify-btn').forEach(b => b.addEventListener('click', () => dismissVerification(b.dataset.id, b.dataset.memberId, b)));
       list.querySelectorAll('.add-as-member-btn').forEach(b => b.addEventListener('click', () => {
         const item = items.find(i => i.id === b.dataset.id);
         openAddModal();
@@ -764,6 +789,25 @@
     btn.innerHTML = '<span class="spinner sm"></span>';
     try {
       await api('/api/staff/migration-review', { method: 'POST', body: JSON.stringify({ id, resolution }) });
+      loadReview();
+    } catch (e) {
+      alert('Failed: ' + e.message);
+      card.querySelectorAll('button').forEach(b => b.disabled = false);
+    }
+  }
+
+  /* "No, Genuinely Due" — resolves the review item AND tells the next sync
+     to stop re-flagging this member as needs-verification for 14 days
+     (the underlying pattern — long overdue + still attending — doesn't
+     go away on its own, so without this the same item would just
+     reappear on the very next sync). */
+  async function dismissVerification(reviewId, memberId, btn) {
+    const card = btn.closest('.review-card');
+    card.querySelectorAll('button').forEach(b => b.disabled = true);
+    btn.innerHTML = '<span class="spinner sm"></span>';
+    try {
+      await api('/api/staff/members', { method: 'POST', body: JSON.stringify({ id: memberId, verificationDismissedAt: new Date().toISOString().slice(0, 10) }) });
+      await api('/api/staff/migration-review', { method: 'POST', body: JSON.stringify({ id: reviewId, resolution: 'reject' }) });
       loadReview();
     } catch (e) {
       alert('Failed: ' + e.message);
