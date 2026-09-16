@@ -23,7 +23,7 @@
 
 const { db, admin, requireStaff, writeAuditLog, sendError } = require('./_lib/firebaseAdmin');
 const { listTabs, readTab } = require('./_lib/sheetsClient');
-const { parseSaketTab, parseLajpatTab, matchBankReceipts } = require('./_lib/parseSheets');
+const { parseSaketTab, parseLajpatTab, matchBankReceipts, computeDueDate } = require('./_lib/parseSheets');
 
 const SAKET_SHEET_ID  = '1itv1Iv641TCf_yin6ubPS7Ri0GcNhpNhzMdQuBEduSs';
 const LAJPAT_SHEET_ID = '1msODlD2bnfLkBHKR1SKOdSc9jb8U_Tad';
@@ -157,6 +157,8 @@ module.exports = async function handler(req, res) {
       return true;
     }
 
+    const effectiveCoreByMemberId = new Map(); // memberId -> best-known-so-far {plan, customDurationMonths, startDate}
+
     async function processCenter(sheetId, center, parseFn, key) {
       const tabInfo = lastNMonthTabs(await listTabs(sheetId));
       summary[key].tabs = tabInfo.tabs;
@@ -177,9 +179,10 @@ module.exports = async function handler(req, res) {
           continue;
         }
 
-        let ref;
+        let ref, existingData = null;
         if (matches.length === 1) {
           ref = matches[0].ref;
+          existingData = matches[0].data();
           writeOps.push({ ref, data: { ...core, updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
         } else {
           ref = db.collection('members').doc();
@@ -187,6 +190,17 @@ module.exports = async function handler(req, res) {
         }
         summary[key].membersUpserted++;
         combinedDirectory.push({ name, id: ref.id });
+
+        // For the final due-date pass: this sync's new value if it set one,
+        // else whatever was already on the existing Firestore doc — a
+        // coalesced write can leave plan/startDate out entirely when this
+        // round's tabs had nothing new to say about them.
+        effectiveCoreByMemberId.set(ref.id, {
+          plan: core.plan ?? existingData?.plan ?? null,
+          customDurationMonths: core.customDurationMonths ?? existingData?.customDurationMonths ?? null,
+          startDate: core.startDate ?? existingData?.startDate ?? null,
+          existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
+        });
 
         for (const p of payments) {
           const id = stableId(`${ref.id}__${p.sourceSheetRowRef}`);
@@ -223,16 +237,34 @@ module.exports = async function handler(req, res) {
     }
 
     /* Compute each member's most recent payment date from every payment op
-       queued above (both tab payments and matched Bank Receipts), and fold
-       a lastPaymentDate update into the same batch. */
+       queued above (both tab payments and matched Bank Receipts) — falling
+       back to whatever lastPaymentDate a prior sync already found, if this
+       run didn't see a newer one. Then compute dueDate ONCE, here, from the
+       fully-resolved (plan, startDate, lastPaymentDate) — never per-tab —
+       anchored on the most recent payment when one is on record, since a
+       sheet's startDate can be stale relative to an actual recent renewal
+       (this was the root cause behind due dates sitting in the past even
+       for members who had clearly just paid). */
     const lastPaymentByMember = new Map();
     for (const op of writeOps) {
       if (op.ref.parent.id !== 'payments' || !op.data.memberId || !op.data.date) continue;
       const prev = lastPaymentByMember.get(op.data.memberId);
       if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
     }
-    for (const [memberId, lastPaymentDate] of lastPaymentByMember) {
-      writeOps.push({ ref: db.collection('members').doc(memberId), data: { lastPaymentDate } });
+    for (const [memberId, effective] of effectiveCoreByMemberId) {
+      const newest = lastPaymentByMember.get(memberId);
+      const existing = effective.existingLastPaymentDate;
+      const lastPaymentDate = (newest && (!existing || newest > existing)) ? newest : (existing || newest || null);
+
+      const anchor = lastPaymentDate || effective.startDate;
+      const dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
+
+      const data = {};
+      if (lastPaymentDate) data.lastPaymentDate = lastPaymentDate;
+      if (dueDate) data.dueDate = dueDate;
+      if (Object.keys(data).length) {
+        writeOps.push({ ref: db.collection('members').doc(memberId), data });
+      }
     }
 
     await commitInBatches(writeOps);

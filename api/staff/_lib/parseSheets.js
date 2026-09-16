@@ -128,6 +128,14 @@ function get(row, idx) {
   return (row[idx] || '').toString().trim();
 }
 
+/** parseFloat("8,000.00") silently stops at the comma and returns 8 — every
+ *  amount cell in these sheets uses thousands separators, so this bug
+ *  quietly truncated real payments (8000 -> 8) until amounts are parsed
+ *  through here instead of raw parseFloat(). */
+function toNumber(str) {
+  return parseFloat(String(str ?? '').replace(/,/g, '')) || 0;
+}
+
 const DAY_NAMES = /^(MON|TUE|WED|THU|THUR|FRI|SAT|SUN|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$/i;
 
 function isDecorativeRow(row, H) {
@@ -245,7 +253,12 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       memberType,
       plan,
       startDate,
-      dueDate: computeDueDate(startDate, plan, null), // Saket's sheet has no due-date column of its own
+      // dueDate is NOT computed here — it's computed once, at the very end
+      // of sync-sheets.js, from the fully-merged startDate/plan/lastPaymentDate.
+      // Computing it per-tab here caused a real bug: a later tab with a blank
+      // plan code would fail to recompute, and the coalesce-merge would keep
+      // whatever stale dueDate an earlier tab had set — even after startDate
+      // itself had since changed (e.g. on a rejoin).
       firstJoinedDate: startDate,
       remarkRaw: remark,
       __presentCount: presentCount,
@@ -258,11 +271,11 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
     // once (a split cash+bank payment) — both legs are kept, not just one.
     const legs = [];
     if (cash) {
-      legs.push({ channel: 'cash', amount: parseFloat(cash) || 0, centerCredit: 'saket' });
+      legs.push({ channel: 'cash', amount: toNumber(cash), centerCredit: 'saket' });
     }
     if (bank) {
       const channel = mapChannel(remark);
-      legs.push({ channel: channel || 'unknown', amount: parseFloat(bank) || 0, centerCredit: 'saket' });
+      legs.push({ channel: channel || 'unknown', amount: toNumber(bank), centerCredit: 'saket' });
       if (!channel) {
         review.push({ type: 'unmapped-payment-channel', sheet, tab, dedupeKey: safeKey('unmapped-channel', sheet, rowRef), rawData: { name, remark, bank }, status: 'pending' });
       }
@@ -326,7 +339,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
     if (!duration) {
       review.push({ type: 'missing-plan', sheet, tab, dedupeKey: safeKey('missing-plan', sheet, name), rawData: { name, note: 'missing duration' }, status: 'pending' });
     } else {
-      const durKey = String(parseFloat(duration));
+      const durKey = String(toNumber(duration));
       plan = DURATION_TO_PLAN[durKey] || 'custom'; // any non-standard duration (2, 4, 1.5 months...) is a legitimate custom plan, not an error
     }
 
@@ -340,9 +353,13 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       ...base,
       memberType,
       plan,
-      customDurationMonths: plan === 'custom' ? parseFloat(duration) : null,
+      customDurationMonths: plan === 'custom' ? toNumber(duration) : null,
       startDate,
-      dueDate,
+      // sheetDueDate is kept for reference only — the live dueDate used for
+      // status is computed once at the end of sync (same formula as Saket),
+      // since the sheet's own Due Date can go stale the same way a
+      // per-tab-computed one did (see the note in parseSaketTab above).
+      sheetDueDate: dueDate,
       firstJoinedDate: startDate,
       pauseDaysTotal: freeze ? (parseFloat(freeze) || 0) : 0,
       remarkRaw: remark,
@@ -352,7 +369,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
 
     if (amount) {
       const channel = mapChannel(pmode) || mapChannel(remark);
-      const leg = { channel: channel || 'unknown', amount: parseFloat(amount) || 0, centerCredit: 'lajpat' };
+      const leg = { channel: channel || 'unknown', amount: toNumber(amount), centerCredit: 'lajpat' };
       if (!channel) {
         review.push({ type: 'unmapped-payment-channel', sheet, tab, dedupeKey: safeKey('unmapped-channel', sheet, rowRef), rawData: { name, pmode, remark, amount }, status: 'pending' });
       }
@@ -443,13 +460,13 @@ function matchBankReceipts(rows, members, { sheet = 'lajpat', tab = 'BANK RECEIP
     }
 
     const legs = [];
-    if (parseFloat(ln))    legs.push({ channel: mapChannel(mode) || 'unknown', amount: parseFloat(ln), centerCredit: 'lajpat' });
-    if (parseFloat(saket)) legs.push({ channel: mapChannel(mode) || 'unknown', amount: parseFloat(saket), centerCredit: 'saket' });
-    if (!legs.length) legs.push({ channel: mapChannel(mode) || 'unknown', amount: parseFloat(amt) || 0, centerCredit: 'lajpat' });
+    if (toNumber(ln))    legs.push({ channel: mapChannel(mode) || 'unknown', amount: toNumber(ln), centerCredit: 'lajpat' });
+    if (toNumber(saket)) legs.push({ channel: mapChannel(mode) || 'unknown', amount: toNumber(saket), centerCredit: 'saket' });
+    if (!legs.length) legs.push({ channel: mapChannel(mode) || 'unknown', amount: toNumber(amt), centerCredit: 'lajpat' });
 
     payments.push({
       memberName: name,
-      totalAmount: parseFloat(amt) || 0,
+      totalAmount: toNumber(amt),
       date: parsedDate,
       legs,
       remarkRaw: mode,
@@ -469,5 +486,5 @@ module.exports = {
   parseSaketTab, parseLajpatTab, matchBankReceipts,
   parseAnyDate, parseDdMmYy, xlSerialToDate, normalizeName,
   mapChannel, findHeaderRow, buildHeaderMap,
-  findAttendanceColumns, parseAttendance, computeDueDate,
+  findAttendanceColumns, parseAttendance, computeDueDate, toNumber,
 };
