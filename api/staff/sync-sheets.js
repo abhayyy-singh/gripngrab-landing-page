@@ -155,7 +155,22 @@ async function fetchExistingReviewIds() {
  *  amounts) so re-writing the SAME payment's own doc on a re-sync is never
  *  mistaken for a duplicate of itself. */
 async function fetchExistingPaymentAmounts() {
-  const snap = await db.collection('payments').get();
+  // Bounded to the last 13 months (the sync's own farthest reach: 3-month
+  // window + 9-month long-cycle lookback + 1 month buffer) instead of the
+  // whole collection. A payment older than that can never collide with
+  // anything the current sync's tabs could find, so it doesn't need to be
+  // in this dedupe seed — without this cap, this read grows by however many
+  // payments get written every single sync, forever, since payments are
+  // never deleted. Undated payments (Saket has no per-payment date column)
+  // are excluded by the date filter, but never needed this protection in
+  // the first place: Saket has no second source (like Lajpat's Bank
+  // Receipts ledger) a transaction could double-count against, and its own
+  // payment doc IDs are already deterministic per sheet row, so re-syncing
+  // the same row can't create a duplicate regardless of this map.
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - 13);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const snap = await db.collection('payments').where('date', '>=', cutoffStr).get();
   const map = new Map();
   for (const doc of snap.docs) {
     const { memberId, totalAmount } = doc.data();

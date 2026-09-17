@@ -55,13 +55,18 @@ module.exports = async function handler(req, res) {
       const includeArchived = req.query && req.query.includeArchived === '1';
       let q = db.collection('members');
       if (center === 'saket' || center === 'lajpat') q = q.where('center', '==', center);
-      const snap = await q.get();
-      let members = snap.docs.map(d => ({ id: d.id, ...d.data() })).map(redactContact);
       // Archived = only ever appeared in older sheet history, not in the
       // current 3-month roster at all — kept in Firestore for the record
-      // (total joins/history), but hidden from the day-to-day dashboard
-      // by default so it isn't cluttered with people who've long since left.
-      if (!includeArchived) members = members.filter(m => m.status !== 'archived');
+      // (total joins/history), but hidden from the day-to-day dashboard by
+      // default. Filtered at the QUERY level, not after fetching: archived
+      // members outnumber active ones 2:1 (1098 vs 454), and every doc read
+      // counts against the daily Firestore quota whether or not it's kept —
+      // reading and then discarding 1098 docs on every dashboard load was
+      // most of that quota's real usage. Safe because `status` is only ever
+      // 'active' or 'archived' on every existing doc (verified directly).
+      if (!includeArchived) q = q.where('status', '==', 'active');
+      const snap = await q.get();
+      const members = snap.docs.map(d => ({ id: d.id, ...d.data() })).map(redactContact);
 
       await writeAuditLog({
         actorUid: staff.uid, actorName: staff.name || staff.email,
