@@ -499,20 +499,27 @@ function matchBankReceipts(rows, members, { sheet = 'lajpat', tab = 'BANK RECEIP
  * handful of long-cycle members stays cheap and never creates new member
  * or review records from historical data.
  */
+/** Returns the payment amount found for this member in this tab (0 if
+ *  none) — used by the long-cycle lookback both to check presence (amount
+ *  truthy) and, since the lookback tabs are already being read anyway, to
+ *  recover a lastPaymentAmount for members whose only known payment lives
+ *  outside the current sync's 3-month window (real case: a member found
+ *  only via lookback never gets a payment doc rewritten in the current
+ *  run, so without this the amount would never surface for plan-guessing). */
 function checkPaymentPresence(rows, name, center) {
   const headerIdx = findHeaderRow(rows);
-  if (headerIdx === -1) return false;
+  if (headerIdx === -1) return 0;
   const H = buildHeaderMap(rows[headerIdx]);
   for (let i = headerIdx + 1; i < rows.length; i++) {
     const row = rows[i] || [];
     const rowName = normalizeName(get(row, H['NAME']));
     if (rowName !== name) continue;
     if (center === 'saket') {
-      return !!(get(row, H['CASH']) || get(row, H['BANK']));
+      return toNumber(get(row, H['CASH'])) + toNumber(get(row, H['BANK']));
     }
-    return !!get(row, H['AMOUNT']);
+    return toNumber(get(row, H['AMOUNT']));
   }
-  return false;
+  return 0;
 }
 
 module.exports = {

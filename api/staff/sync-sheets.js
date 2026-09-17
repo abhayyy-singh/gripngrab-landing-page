@@ -42,6 +42,29 @@ const MONTH_ALIAS = { FAB: 'FEB' };
 // this never risks guessing a wrong year for the earliest, year-less tabs.
 const MONTHS_WINDOW = parseInt(process.env.SYNC_MONTHS_WINDOW, 10) || 3;
 
+// Minimum gap between syncs, enforced server-side regardless of who or what
+// triggers it — a real day of staff usage never needs this button more
+// often than every few minutes, and this is what would have stopped today's
+// Firestore free-tier quota from being burned by rapid repeated syncs.
+// Stored in Firestore (not in-memory) since serverless invocations don't
+// share memory between requests.
+const SYNC_COOLDOWN_MS = parseInt(process.env.SYNC_COOLDOWN_MS, 10) || 5 * 60 * 1000;
+
+async function checkAndSetSyncRateLimit() {
+  const ref = db.collection('sync-meta').doc('rate-limit');
+  const now = Date.now();
+  return db.runTransaction(async (tx) => {
+    const doc = await tx.get(ref);
+    const lastRunAt = doc.exists ? doc.data().lastRunAt : 0;
+    const elapsed = now - lastRunAt;
+    if (elapsed < SYNC_COOLDOWN_MS) {
+      return { allowed: false, waitSeconds: Math.ceil((SYNC_COOLDOWN_MS - elapsed) / 1000) };
+    }
+    tx.set(ref, { lastRunAt: now }, { merge: true });
+    return { allowed: true };
+  });
+}
+
 function sortedMonthTabCandidates(tabNames) {
   return tabNames
     .map(name => {
@@ -206,6 +229,11 @@ module.exports = async function handler(req, res) {
     staff = await requireStaff(req);
   } catch (e) { return sendError(res, e); }
 
+  const rateLimit = await checkAndSetSyncRateLimit();
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: `Sync ran recently — please wait ${rateLimit.waitSeconds}s before running it again.` });
+  }
+
   const summary = {
     saket:  { tabs: [], membersUpserted: 0, membersDuplicateSkipped: 0, paymentsWritten: 0, reviewQueued: 0 },
     lajpat: { tabs: [], membersUpserted: 0, membersDuplicateSkipped: 0, paymentsWritten: 0, reviewQueued: 0, bankReceiptsMatched: 0, bankReceiptsUnmatched: 0 },
@@ -327,10 +355,15 @@ module.exports = async function handler(req, res) {
     // Dhandia, quarterly, whose last payment was several cycles back) needs
     // more than their nominal plan length to find it.
     const LOOKBACK_MONTHS = { quarterly: 9, 'half-yearly': 9, yearly: 9, custom: 9 };
+    const NO_PLAN_LOOKBACK_MONTHS = 9; // same window, but purely to recover a
+      // lastPaymentAmount for plan-guessing — a member with no recognized
+      // plan has no cycle to anchor a dueDate to, so no date gets inferred
+      // for them here, only the amount.
     const lookbackPaymentByMember = new Map(); // memberId -> inferred date string
+    const lookbackAmountByMember = new Map(); // memberId -> amount found in a lookback tab
 
     async function applyLookback(sheetId, center, tabInfo) {
-      const maxExtra = Math.max(...Object.values(LOOKBACK_MONTHS));
+      const maxExtra = Math.max(NO_PLAN_LOOKBACK_MONTHS, ...Object.values(LOOKBACK_MONTHS));
       const allTabNames = await listTabs(sheetId);
       const candidateTabs = olderMonthTabs(allTabNames, tabInfo.tabs.length, maxExtra); // most-recent-first
       if (!candidateTabs.length) return;
@@ -341,14 +374,16 @@ module.exports = async function handler(req, res) {
 
       for (const [memberId, effective] of effectiveCoreByMemberId) {
         if (effective.center !== center) continue;
-        const extraMonths = LOOKBACK_MONTHS[effective.plan];
+        const extraMonths = effective.plan ? LOOKBACK_MONTHS[effective.plan] : NO_PLAN_LOOKBACK_MONTHS;
         if (!extraMonths || !effective.startDate) continue;
 
         const day = effective.startDate.split('-')[2];
         const tabsToCheck = candidateTabs.slice(0, extraMonths);
         for (const tabName of tabsToCheck) {
-          const found = checkPaymentPresence(rowsByTab.get(tabName), effective.name, center);
-          if (!found) continue;
+          const amount = checkPaymentPresence(rowsByTab.get(tabName), effective.name, center);
+          if (!amount) continue;
+          if (!lookbackAmountByMember.has(memberId)) lookbackAmountByMember.set(memberId, amount); // most-recent tab wins, same scan order
+          if (!effective.plan) break; // no plan -> no cycle to anchor a date to, amount above is all we needed
           const m = /([A-Z]{3})/i.exec(tabName);
           const y = /(\d{2,4})/.exec(tabName);
           if (!m || !y) break;
@@ -498,7 +533,7 @@ module.exports = async function handler(req, res) {
       // in Firestore untouched (conditional write skipped
       // it entirely), so the UI read a stale, in-the-past dueDate next to
       // a fresh 'active' status and fell through to showing "Overdue".
-      const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
+      const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? lookbackAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
       const data = { activityStatus, lastPaymentDate: lastPaymentDate || null, dueDate: dueDate || null, lastPaymentAmount };
       writeOps.push({ ref: db.collection('members').doc(memberId), data });
 
