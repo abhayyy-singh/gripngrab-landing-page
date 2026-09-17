@@ -8,6 +8,7 @@
    ============================================================================ */
 
 const { db, admin, requireStaff, writeAuditLog, sendError } = require('./_lib/firebaseAdmin');
+const { computeDueDate } = require('./_lib/parseSheets');
 
 const EDITABLE_FIELDS = [
   'name', 'phone', 'email', 'address', 'dob', 'center', 'memberType', 'plan',
@@ -87,9 +88,32 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'No editable fields provided' });
       }
 
-      let docRef, action;
+      let docRef, action, existingData = null;
       if (id) {
         docRef = db.collection('members').doc(id);
+        const existingSnap = await docRef.get();
+        existingData = existingSnap.exists ? existingSnap.data() : null;
+      }
+
+      // A manual edit only normally runs sync's own dueDate computation is
+      // never re-run, so setting plan alone (e.g. confirming a guessed plan
+      // from "No Plan Set") left dueDate untouched — the member never
+      // actually left "No Plan Set" even though the edit succeeded, since
+      // that view is keyed off dueDate being null. Recompute it here
+      // whenever an edit touches one of its inputs, using the edited value
+      // where given and falling back to whatever's already on the doc.
+      const touchesDueDateInputs = ['plan', 'startDate', 'customDurationMonths', 'lastPaymentDate']
+        .some(k => k in update);
+      if (touchesDueDateInputs && !('dueDate' in update)) {
+        const plan = update.plan ?? existingData?.plan ?? null;
+        const startDate = update.startDate ?? existingData?.startDate ?? null;
+        const customDurationMonths = update.customDurationMonths ?? existingData?.customDurationMonths ?? null;
+        const lastPaymentDate = update.lastPaymentDate ?? existingData?.lastPaymentDate ?? null;
+        const anchor = lastPaymentDate || startDate;
+        update.dueDate = computeDueDate(anchor, plan, customDurationMonths);
+      }
+
+      if (id) {
         await docRef.set({ ...update, updatedAt: admin.firestore.FieldValue.serverTimestamp(), updatedBy: staff.uid }, { merge: true });
         action = 'edit-member';
       } else {

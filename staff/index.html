@@ -592,13 +592,20 @@
         renderMembers();
       });
       const confirmSelectedBtn = document.getElementById('guess-confirm-selected-btn');
-      if (confirmSelectedBtn) confirmSelectedBtn.addEventListener('click', () => confirmGuessedPlans([...selectedGuessIds]));
-      list.querySelectorAll('.guess-confirm-btn').forEach(btn => btn.addEventListener('click', () => confirmGuessedPlans([btn.dataset.id])));
+      if (confirmSelectedBtn) confirmSelectedBtn.addEventListener('click', () => confirmGuessedPlans([...selectedGuessIds], [confirmSelectedBtn]));
+      list.querySelectorAll('.guess-confirm-btn').forEach(btn => btn.addEventListener('click', () => confirmGuessedPlans([btn.dataset.id], [btn])));
     }
   }
 
-  async function confirmGuessedPlans(ids) {
+  async function confirmGuessedPlans(ids, triggerBtns) {
     if (!ids.length) return;
+    // Immediate feedback — the round trip (auth check, Firestore read+write,
+    // then a full member reload) can take several seconds, and with nothing
+    // changing on screen in that window it reads as "the click did nothing".
+    // Not restored on failure: renderMembers() always replaces this button
+    // right after (success or error), so there's nothing to restore to.
+    triggerBtns.forEach(btn => { btn.disabled = true; btn.innerHTML = '<span class="spinner sm"></span> Confirming…'; });
+
     const results = await Promise.allSettled(ids.map(id => {
       const row = document.querySelector(`.guess-row[data-id="${id}"]`);
       const select = row ? row.querySelector('.guess-plan-select') : null;
@@ -653,17 +660,30 @@
     document.getElementById('f-paused').value = m.pausedUntil || '';
     document.getElementById('edit-err').style.display = 'none';
     document.getElementById('edit-backdrop').classList.add('show');
-    loadPaymentHistory(id);
+    loadPaymentHistory(id, m);
   }
 
-  async function loadPaymentHistory(memberId) {
+  async function loadPaymentHistory(memberId, member) {
     const field = document.getElementById('payment-history-field');
     const list = document.getElementById('payment-history-list');
     field.style.display = 'block';
     list.innerHTML = '<span class="spinner sm"></span> Loading…';
     try {
       const { payments } = await api(`/api/staff/members?payments=${memberId}`);
-      if (!payments.length) { list.innerHTML = 'No payments on record.'; return; }
+      if (!payments.length) {
+        // A member's lastPaymentDate/Amount can come from the sync's
+        // long-cycle lookback, which only detects that a payment happened
+        // in some older month's tab — it never creates a payment document
+        // for it (that'd mean fabricating legs/channel data that was never
+        // actually in the sheet). So "no payment docs" and "we know they
+        // paid" can both be true at once — show what's known instead of a
+        // flat "no payments", which read as contradicting the member card's
+        // own "Last fee paid on ..." line right above this same modal.
+        list.innerHTML = member && member.lastPaymentDate
+          ? `<div style="color:var(--muted);">No detailed payment record — but last known payment was <strong style="color:var(--text);">${member.lastPaymentAmount ? '₹' + member.lastPaymentAmount.toLocaleString('en-IN') + ' ' : ''}on ${formatShortDate(member.lastPaymentDate)}</strong> (found from older sheet history, not a logged transaction).</div>`
+          : 'No payments on record.';
+        return;
+      }
       list.innerHTML = payments.map(p => {
         const legs = (p.legs || []).map(l => `${l.channel} ₹${l.amount.toLocaleString('en-IN')}`).join(', ');
         // Saket's sheet has no per-payment date column at all — fall back
