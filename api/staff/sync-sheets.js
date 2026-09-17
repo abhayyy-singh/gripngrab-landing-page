@@ -476,14 +476,26 @@ module.exports = async function handler(req, res) {
         }
       } else if (dueDate && dueDate < today) {
         activityStatus = 'inactive'; // personal-training, overdue — no attendance signal to check against
+      } else if (!effective.plan && effective.memberType !== 'personal-training') {
+        // No known plan at all -> no dueDate -> the overdue-based checks
+        // above can never fire, even for someone who's clearly gone. Real
+        // case this fixes: Shreya Yadav — plan unrecognized, last attended
+        // 50+ days ago — was defaulting to 'active' simply because there
+        // was nothing to compare a dueDate against, despite having
+        // obviously stopped coming. Same 15-day threshold as the overdue
+        // case, since "no plan + no attendance" is the same "clearly left"
+        // signal — just without a dueDate to anchor it to. A no-plan member
+        // who's still attending regularly (e.g. Shaurya) stays 'active' and
+        // shows up in "No Plan Set" for a manual plan guess/confirm instead.
+        const daysSinceAttended = effective.lastAttendedDate ? daysBetween(effective.lastAttendedDate, today) : Infinity;
+        if (daysSinceAttended > 15) activityStatus = 'inactive';
       }
 
       // dueDate/lastPaymentDate are written even when null (not skipped) —
       // real bug this fixes: Shreya Yadav's plan went from known to
       // unrecognized between syncs, so this pass correctly computed no
-      // dueDate and activityStatus 'active' (can't classify overdue/
-      // inactive without one) — but the OLD dueDate from when her plan
-      // WAS known stayed in Firestore untouched (conditional write skipped
+      // dueDate — but the OLD dueDate from when her plan WAS known stayed
+      // in Firestore untouched (conditional write skipped
       // it entirely), so the UI read a stale, in-the-past dueDate next to
       // a fresh 'active' status and fell through to showing "Overdue".
       const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
