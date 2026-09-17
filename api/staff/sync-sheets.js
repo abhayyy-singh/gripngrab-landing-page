@@ -50,14 +50,20 @@ const MONTHS_WINDOW = parseInt(process.env.SYNC_MONTHS_WINDOW, 10) || 3;
 // share memory between requests.
 const SYNC_COOLDOWN_MS = parseInt(process.env.SYNC_COOLDOWN_MS, 10) || 5 * 60 * 1000;
 
-async function checkAndSetSyncRateLimit() {
+// Owner is exempt from the cooldown (trusted not to hammer it) — everyone
+// else (coaches, or anything scripted) is still capped, since the point is
+// protecting the shared Firestore quota from accidental rapid-fire use.
+const RATE_LIMIT_EXEMPT_EMAILS = new Set(['itsabhaypvt@gmail.com']);
+
+async function checkAndSetSyncRateLimit(staff) {
   const ref = db.collection('sync-meta').doc('rate-limit');
   const now = Date.now();
+  const exempt = RATE_LIMIT_EXEMPT_EMAILS.has(staff.email);
   return db.runTransaction(async (tx) => {
     const doc = await tx.get(ref);
     const lastRunAt = doc.exists ? doc.data().lastRunAt : 0;
     const elapsed = now - lastRunAt;
-    if (elapsed < SYNC_COOLDOWN_MS) {
+    if (!exempt && elapsed < SYNC_COOLDOWN_MS) {
       return { allowed: false, waitSeconds: Math.ceil((SYNC_COOLDOWN_MS - elapsed) / 1000) };
     }
     tx.set(ref, { lastRunAt: now }, { merge: true });
@@ -229,7 +235,7 @@ module.exports = async function handler(req, res) {
     staff = await requireStaff(req);
   } catch (e) { return sendError(res, e); }
 
-  const rateLimit = await checkAndSetSyncRateLimit();
+  const rateLimit = await checkAndSetSyncRateLimit(staff);
   if (!rateLimit.allowed) {
     return res.status(429).json({ error: `Sync ran recently — please wait ${rateLimit.waitSeconds}s before running it again.` });
   }
