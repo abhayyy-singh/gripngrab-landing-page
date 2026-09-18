@@ -490,60 +490,82 @@ module.exports = async function handler(req, res) {
        sheet's startDate can be stale relative to an actual recent renewal
        (this was the root cause behind due dates sitting in the past even
        for members who had clearly just paid). */
-    const lastPaymentByMember = new Map();
-    // Separate from the above: tracks amount from the member's MOST RECENT
-    // payment write regardless of whether it had a date at all (Saket has
-    // no per-payment date column, so most Saket payments never qualify for
-    // lastPaymentByMember above — but the amount is still useful on its
-    // own, e.g. for guessing an unrecognized plan from the price).
+    // Tracks the member's single MOST RECENT payment write this run — dated
+    // or not — as one comparable sortKey ("2026-09-14" or, when undated,
+    // the month it was recorded in as "2026-09"). Real bug this fixes:
+    // Rashmi Dhandia had an exact-but-OLD date from the long-cycle lookback
+    // (inferred June 4th from an earlier tab) and a genuinely newer
+    // September payment that just happened to have no exact date (Saket
+    // has no per-payment date column) — the old code only ever compared
+    // DATED candidates against each other, so the undated-but-newer
+    // September payment could never even enter the race and the stale June
+    // date won by default. Comparing sortKeys as plain strings works
+    // whether either side is a full date or just a month, since "2026-09"
+    // already outranks "2026-06-04" on the month digit alone.
+    const bestSortKeyByMember = new Map();
+    const bestIsExactByMember = new Map();
     const lastPaymentAmountByMember = new Map();
-    // Which tab (month) the member's most recent payment came from, even
-    // when it has no exact date — lets the card's "Last fee paid" line
-    // agree with what Payment History shows as most recent, instead of the
-    // two being computed independently and disagreeing (real case: a card
-    // said "no payment on record" while History showed Aug/Jul/Jun entries,
-    // because the card only ever looked at exact dates).
     const lastPaymentTabByMember = new Map();
-    const bestSortKeyByMember = new Map(); // memberId -> the sortKey that won lastPaymentAmount/TabByMember, so a later date always overrides an earlier one instead of "last op in the array wins"
     for (const op of writeOps) {
       if (op.ref.parent.id !== 'payments' || !op.data.memberId) continue;
-      // Falls back to '' (lowest priority) when neither a date nor a
-      // parseable tab exists, so the very first payment seen for a member
-      // still sets something, and any op with real recency info overrides it.
+      const isExact = !!op.data.date;
       const sortKey = op.data.date || (op.data.paymentTab ? monthKeyFromTabName(op.data.paymentTab) : null) || '';
       if (op.data.totalAmount) {
         const prevKey = bestSortKeyByMember.get(op.data.memberId) ?? '';
         if (sortKey >= prevKey) {
           bestSortKeyByMember.set(op.data.memberId, sortKey);
+          bestIsExactByMember.set(op.data.memberId, isExact);
           lastPaymentAmountByMember.set(op.data.memberId, op.data.totalAmount);
-          if (op.data.paymentTab) lastPaymentTabByMember.set(op.data.memberId, op.data.paymentTab);
+          lastPaymentTabByMember.set(op.data.memberId, op.data.paymentTab || null);
         }
       }
-      if (!op.data.date) continue;
-      const prev = lastPaymentByMember.get(op.data.memberId);
-      if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
     }
     const today = new Date().toISOString().slice(0, 10);
     const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
 
     for (const [memberId, effective] of effectiveCoreByMemberId) {
-      const candidates = [
-        lastPaymentByMember.get(memberId),      // this sync's own dated payments (Bank Receipts, Lajpat Pay-Rec-date)
-        lookbackPaymentByMember.get(memberId),   // long-cycle-plan lookback (day inferred from startDate)
-        effective.existingLastPaymentDate,       // whatever a prior sync already had
-        effective.startDate,                     // the CURRENT sheet's own cycle-start for this member — can be
-                                                   // more recent than any dated payment we found (Saket has no
-                                                   // per-payment date column at all, so a fresh renewal often
-                                                   // only ever shows up as an updated START DATE cell, never as
-                                                   // a dated payment). Real bug this fixes: a 9-month lookback
-                                                   // finding an OLD payment (e.g. February) was overriding a
-                                                   // member's own August startDate just because "a payment date
-                                                   // exists" was treated as always more trustworthy than
-                                                   // startDate — producing a due date BEFORE their start date.
-      ].filter(Boolean);
-      const lastPaymentDate = candidates.length ? candidates.sort().pop() : null; // most recent of all of them wins
+      // Every "when did they last plausibly pay" signal, tagged with
+      // whether it's an exact date or only a month, so whichever is
+      // actually most recent wins regardless of precision — then the
+      // winner's own precision decides whether lastPaymentDate (exact) or
+      // lastPaymentTab (approximate) gets set below.
+      const candidates = [];
+      if (bestSortKeyByMember.has(memberId)) {
+        candidates.push({ key: bestSortKeyByMember.get(memberId), exact: bestIsExactByMember.get(memberId), tab: lastPaymentTabByMember.get(memberId) });
+      }
+      if (lookbackPaymentByMember.has(memberId)) {
+        candidates.push({ key: lookbackPaymentByMember.get(memberId), exact: true, tab: null }); // long-cycle-plan lookback (day inferred from startDate)
+      }
+      if (effective.existingLastPaymentDate) {
+        candidates.push({ key: effective.existingLastPaymentDate, exact: true, tab: null }); // whatever a prior sync already had
+      }
+      if (effective.existingLastPaymentTab) {
+        const mk = monthKeyFromTabName(effective.existingLastPaymentTab);
+        if (mk) candidates.push({ key: mk, exact: false, tab: effective.existingLastPaymentTab });
+      }
+      if (effective.startDate) {
+        // The CURRENT sheet's own cycle-start for this member — can be more
+        // recent than any payment info found (Saket has no per-payment date
+        // column at all, so a fresh renewal often only ever shows up as an
+        // updated START DATE cell, never as a dated payment). Real bug this
+        // fixes: an old lookback-found payment was overriding a member's
+        // own newer startDate just because "a payment date exists" was
+        // treated as always more trustworthy than startDate — producing a
+        // due date BEFORE their start date.
+        candidates.push({ key: effective.startDate, exact: true, tab: null });
+      }
+      let winner = null;
+      for (const c of candidates) { if (!winner || c.key > winner.key) winner = c; }
+      const lastPaymentDate = winner && winner.exact ? winner.key : null;
+      const winnerTab = winner && !winner.exact ? winner.tab : null;
 
-      const anchor = lastPaymentDate || effective.startDate;
+      // Month-only winner still anchors a due date — using the member's own
+      // payment-day pattern (same day-of-month their startDate already
+      // shows), same technique the lookback uses for older tabs. Falls back
+      // to the 1st only when there's truly no day-of-month pattern on file.
+      const anchor = winner
+        ? (winner.exact ? winner.key : `${winner.key}-${effective.startDate ? effective.startDate.split('-')[2] : '01'}`)
+        : effective.startDate;
       let dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
       let dueDateSource = 'computed';
 
@@ -554,7 +576,7 @@ module.exports = async function handler(req, res) {
       // override and discard it, the same bug class as plans getting wiped.
       // Once real new evidence arrives, the override is superseded (goes
       // back to being sync-managed) rather than staying stuck forever.
-      const foundNewPaymentThisRun = lastPaymentByMember.has(memberId) || lookbackPaymentByMember.has(memberId);
+      const foundNewPaymentThisRun = bestSortKeyByMember.has(memberId) || lookbackPaymentByMember.has(memberId);
       if (effective.dueDateSource === 'manual' && !foundNewPaymentThisRun) {
         dueDate = effective.existingDueDate;
         dueDateSource = 'manual';
@@ -610,10 +632,12 @@ module.exports = async function handler(req, res) {
       // it entirely), so the UI read a stale, in-the-past dueDate next to
       // a fresh 'active' status and fell through to showing "Overdue".
       const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? lookbackAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
-      // null out once an actual dated payment is known — dated always beats
-      // an approximate month label, so there's no stale "recorded in AUG-26"
-      // hanging around once a real date exists for the same or later period.
-      const lastPaymentTab = lastPaymentDate ? null : (lastPaymentTabByMember.get(memberId) ?? effective.existingLastPaymentTab ?? null);
+      // Already resolved by the same winner-takes-all comparison above —
+      // null whenever the winning candidate was an exact date (dated always
+      // beats an approximate month label for display), otherwise whichever
+      // tab that winner came from, already accounting for the existing
+      // stored value as a fallback candidate.
+      const lastPaymentTab = winnerTab;
 
       // Two attendance summary stats, computed once here from this sync's
       // own attendance data and stored as plain numbers — not recomputed
