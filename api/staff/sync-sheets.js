@@ -299,7 +299,21 @@ module.exports = async function handler(req, res) {
           // archived (only found in older history, not any recent tab),
           // that no longer applies, they're clearly back.
           const statusUpdate = existingData.status === 'archived' ? { status: 'active' } : {};
-          writeOps.push({ ref, data: { ...core, ...statusUpdate, updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
+          // Coalesce, don't clobber: a blank cell in THIS sync's row just
+          // means the sheet has nothing new to say about that field this
+          // month — it does NOT mean the field should be erased. Real bug
+          // this fixes: Kanika Parwal's manually-confirmed plan (set via
+          // the "No Plan Set" guess UI) got silently wiped back to null by
+          // the very next sync, because her sheet row's plan cell has
+          // always been blank and this write was overwriting unconditionally
+          // with whatever `core` parsed this time, even null/empty values.
+          const coalescedCore = { ...core };
+          for (const [k, v] of Object.entries(core)) {
+            if ((v === null || v === undefined || v === '') && existingData[k] != null) {
+              coalescedCore[k] = existingData[k];
+            }
+          }
+          writeOps.push({ ref, data: { ...coalescedCore, ...statusUpdate, updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
         } else {
           ref = db.collection('members').doc();
           writeOps.push({ ref, data: { ...core, status: 'active', createdAt: admin.firestore.FieldValue.serverTimestamp(), updatedAt: admin.firestore.FieldValue.serverTimestamp() } });
