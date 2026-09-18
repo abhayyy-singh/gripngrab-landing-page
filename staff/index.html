@@ -917,18 +917,28 @@
     }, 200);
 
     try {
-      const { summary: s } = await api('/api/staff/sync-sheets', { method: 'POST' });
+      // Scope the sync to whatever center is currently selected in the
+      // dashboard filter — "All Centers" syncs both, but picking one center
+      // means only that sheet gets read/written, not both every time.
+      const centerFilter = document.getElementById('center-filter').value;
+      const { summary: s } = await api('/api/staff/sync-sheets', { method: 'POST', body: JSON.stringify({ center: centerFilter }) });
       clearInterval(progressTimer);
       timers.forEach(clearTimeout);
       fill.style.width = '100%';
       spinner.style.display = 'none';
       const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
       statusText.textContent = `Done in ${elapsed}s`;
+      const saketLine = centerFilter === 'lajpat'
+        ? `<div><strong>Saket</strong> — skipped (filter set to Lajpat Nagar)</div>`
+        : `<div><strong>Saket</strong> — ${s.saket.membersUpserted} members, ${s.saket.paymentsWritten} payments, ${s.saket.reviewQueued} flagged for review${s.saket.membersDuplicateSkipped ? `, ${s.saket.membersDuplicateSkipped} duplicate names skipped` : ''}</div>`;
+      const lajpatLine = centerFilter === 'saket'
+        ? `<div><strong>Lajpat Nagar</strong> — skipped (filter set to Saket)</div>`
+        : `<div><strong>Lajpat Nagar</strong> — ${s.lajpat.membersUpserted} members, ${s.lajpat.paymentsWritten} payments, ${s.lajpat.reviewQueued} flagged for review${s.lajpat.membersDuplicateSkipped ? `, ${s.lajpat.membersDuplicateSkipped} duplicate names skipped` : ''}</div>`;
       resultEl.innerHTML = `
-        <div><strong>Saket</strong> — ${s.saket.membersUpserted} members, ${s.saket.paymentsWritten} payments, ${s.saket.reviewQueued} flagged for review${s.saket.membersDuplicateSkipped ? `, ${s.saket.membersDuplicateSkipped} duplicate names skipped` : ''}</div>
-        <div><strong>Lajpat Nagar</strong> — ${s.lajpat.membersUpserted} members, ${s.lajpat.paymentsWritten} payments, ${s.lajpat.reviewQueued} flagged for review${s.lajpat.membersDuplicateSkipped ? `, ${s.lajpat.membersDuplicateSkipped} duplicate names skipped` : ''}</div>
-        <div><strong>Bank Receipts</strong> — ${s.lajpat.bankReceiptsMatched} matched, ${s.lajpat.bankReceiptsUnmatched} unmatched (added to review)</div>
-        <div style="margin-top:6px;color:var(--faint);">Tabs read — Saket: ${s.saket.tabs.join(', ')} · Lajpat: ${s.lajpat.tabs.join(', ')}</div>
+        ${saketLine}
+        ${lajpatLine}
+        ${centerFilter !== 'saket' ? `<div><strong>Bank Receipts</strong> — ${s.lajpat.bankReceiptsMatched} matched, ${s.lajpat.bankReceiptsUnmatched} unmatched (added to review)</div>` : ''}
+        <div style="margin-top:6px;color:var(--faint);">Tabs read — ${centerFilter !== 'lajpat' ? 'Saket: ' + (s.saket.tabs.join(', ') || '—') : ''}${centerFilter === 'all' ? ' · ' : ''}${centerFilter !== 'saket' ? 'Lajpat: ' + (s.lajpat.tabs.join(', ') || '—') : ''}</div>
       `;
       await loadMembers();
     } catch (e) {

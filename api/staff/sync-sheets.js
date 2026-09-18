@@ -242,6 +242,17 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: `Sync ran recently — please wait ${rateLimit.waitSeconds}s before running it again.` });
   }
 
+  // Scopes the sync to one center when the dashboard's center filter isn't
+  // "All Centers" — reads/writes for the other center are skipped entirely
+  // instead of always doing a full sync regardless of what's selected.
+  // Bank Receipts (a Lajpat-file tab, but a shared ledger that can carry
+  // Saket payments too) is only read when Lajpat is in scope — a Saket-only
+  // sync trades away catching those cross-center entries for actually
+  // staying scoped to Saket; run "All Centers" periodically to catch them.
+  const requestedCenter = (req.body && req.body.center) || 'all';
+  const wantsSaket = requestedCenter === 'saket' || requestedCenter === 'all';
+  const wantsLajpat = requestedCenter === 'lajpat' || requestedCenter === 'all';
+
   const summary = {
     saket:  { tabs: [], membersUpserted: 0, membersDuplicateSkipped: 0, paymentsWritten: 0, reviewQueued: 0 },
     lajpat: { tabs: [], membersUpserted: 0, membersDuplicateSkipped: 0, paymentsWritten: 0, reviewQueued: 0, bankReceiptsMatched: 0, bankReceiptsUnmatched: 0 },
@@ -354,8 +365,9 @@ module.exports = async function handler(req, res) {
       return tabInfo;
     }
 
-    const saket3mo  = await processCenter(SAKET_SHEET_ID, 'saket', parseSaketTab, 'saket');
-    const lajpat3mo = await processCenter(LAJPAT_SHEET_ID, 'lajpat', parseLajpatTab, 'lajpat');
+    const EMPTY_TAB_INFO = { tabs: [], dateFrom: null, dateTo: null };
+    const saket3mo  = wantsSaket  ? await processCenter(SAKET_SHEET_ID, 'saket', parseSaketTab, 'saket') : EMPTY_TAB_INFO;
+    const lajpat3mo = wantsLajpat ? await processCenter(LAJPAT_SHEET_ID, 'lajpat', parseLajpatTab, 'lajpat') : EMPTY_TAB_INFO;
 
     /* ---------- LONG-CYCLE-PLAN PAYMENT LOOKBACK ----------
        A quarterly plan's whole cycle already fits inside the normal
@@ -425,16 +437,21 @@ module.exports = async function handler(req, res) {
     }
 
     // Independent per center (each only touches its own members via the
-    // `center` filter inside), so run concurrently rather than back-to-back.
+    // `center` filter inside), so run concurrently rather than back-to-back
+    // — and only for whichever center(s) are actually in scope this run.
     await Promise.all([
-      applyLookback(SAKET_SHEET_ID, 'saket', saket3mo),
-      applyLookback(LAJPAT_SHEET_ID, 'lajpat', lajpat3mo),
+      wantsSaket  ? applyLookback(SAKET_SHEET_ID, 'saket', saket3mo)   : Promise.resolve(),
+      wantsLajpat ? applyLookback(LAJPAT_SHEET_ID, 'lajpat', lajpat3mo) : Promise.resolve(),
     ]);
 
     /* ---------- LAJPAT BANK RECEIPTS (shared ledger — match against BOTH centers) ---------- */
-    const bankTabs = (await listTabs(LAJPAT_SHEET_ID)).filter(t => /BANK RECEIPTS/i.test(t));
-    const dateFrom = saket3mo.dateFrom < lajpat3mo.dateFrom ? saket3mo.dateFrom : lajpat3mo.dateFrom;
-    const dateTo   = saket3mo.dateTo   > lajpat3mo.dateTo   ? saket3mo.dateTo   : lajpat3mo.dateTo;
+    const bankTabs = wantsLajpat ? (await listTabs(LAJPAT_SHEET_ID)).filter(t => /BANK RECEIPTS/i.test(t)) : [];
+    const dateFrom = (wantsSaket && wantsLajpat)
+      ? (saket3mo.dateFrom < lajpat3mo.dateFrom ? saket3mo.dateFrom : lajpat3mo.dateFrom)
+      : (wantsLajpat ? lajpat3mo.dateFrom : saket3mo.dateFrom);
+    const dateTo = (wantsSaket && wantsLajpat)
+      ? (saket3mo.dateTo > lajpat3mo.dateTo ? saket3mo.dateTo : lajpat3mo.dateTo)
+      : (wantsLajpat ? lajpat3mo.dateTo : saket3mo.dateTo);
     const byName = new Map(combinedDirectory.map(d => [d.name, d.id]));
     const bankTabRows = await Promise.all(bankTabs.map(tabName => readTab(LAJPAT_SHEET_ID, tabName)));
     for (let bi = 0; bi < bankTabs.length; bi++) {
