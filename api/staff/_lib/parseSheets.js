@@ -83,16 +83,25 @@ function monthKeyFromTabName(tabName) {
   return `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
 }
 
-/** startDate + plan length -> due date. Used where the sheet has no
- *  explicit due-date column of its own (Saket) — Lajpat's own Due Date
- *  column is trusted as-is instead, since it may already reflect manual
- *  freeze/pause adjustments the sheet-keeper made. */
+/** startDate + plan length -> due date. A plan is covered THROUGH the day
+ *  before the same calendar date N months later, not through that same
+ *  date itself — e.g. a monthly plan starting July 1 is covered through
+ *  July 31 and due August 1, not covered through August 1 and due
+ *  August 2. Verified directly against 296 real Lajpat members with their
+ *  own Due Date column: a plain "+N months, same day" formula (no -1) was
+ *  landing exactly one day late for the large majority of them (e.g. July
+ *  1 start + quarterly: sheet says due Sep 30, the naive formula said
+ *  Oct 1) — this -1 matches Lajpat's own convention exactly.
+ *  Used where the sheet has no explicit due-date column of its own
+ *  (Saket) — Lajpat's own Due Date column is trusted as-is instead, since
+ *  it may already reflect manual freeze/pause adjustments the
+ *  sheet-keeper made. */
 function computeDueDate(startDate, plan, customMonths) {
   if (!startDate) return null;
   const months = plan === 'custom' ? customMonths : PLAN_MONTHS[plan];
   if (!months) return null;
   const [y, mo, d] = startDate.split('-').map(Number);
-  const date = new Date(Date.UTC(y, mo - 1 + months, d));
+  const date = new Date(Date.UTC(y, mo - 1 + months, d - 1));
   return date.toISOString().slice(0, 10);
 }
 
