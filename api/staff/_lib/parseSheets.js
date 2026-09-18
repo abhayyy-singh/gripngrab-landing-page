@@ -83,25 +83,33 @@ function monthKeyFromTabName(tabName) {
   return `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
 }
 
-/** startDate + plan length -> due date. A plan is covered THROUGH the day
- *  before the same calendar date N months later, not through that same
- *  date itself — e.g. a monthly plan starting July 1 is covered through
- *  July 31 and due August 1, not covered through August 1 and due
- *  August 2. Verified directly against 296 real Lajpat members with their
- *  own Due Date column: a plain "+N months, same day" formula (no -1) was
- *  landing exactly one day late for the large majority of them (e.g. July
- *  1 start + quarterly: sheet says due Sep 30, the naive formula said
- *  Oct 1) — this -1 matches Lajpat's own convention exactly.
+/** startDate + plan length -> due date. Verified directly against 296 real
+ *  Lajpat members with their own Due Date column, broken down by plan type
+ *  (a single blanket adjustment doesn't hold across all of them):
+ *   - monthly/quarterly: covered THROUGH the day before the same calendar
+ *     date N months later (July 1 start, monthly -> due Aug 1, not Aug 2)
+ *     — minus-one-day matched ~76-86% of real members, the best signal by far.
+ *   - yearly: matched with NO adjustment at all (~95% of real members) —
+ *     an earlier version applied the same -1 everywhere, which actually
+ *     broke previously-correct yearly due dates. Kept separate on purpose.
+ *   - half-yearly: no single clean rule found yet (minus-one matched only
+ *     ~30%, minus-two ~47%, and a remaining chunk looks like a different
+ *     pattern again) — using minus-one as the closest current
+ *     approximation until this is investigated further, not a confirmed
+ *     answer the way monthly/quarterly/yearly are.
  *  Used where the sheet has no explicit due-date column of its own
  *  (Saket) — Lajpat's own Due Date column is trusted as-is instead, since
  *  it may already reflect manual freeze/pause adjustments the
  *  sheet-keeper made. */
+const DUE_DATE_DAY_OFFSET = { monthly: -1, quarterly: -1, 'half-yearly': -1, yearly: 0, custom: -1 };
+
 function computeDueDate(startDate, plan, customMonths) {
   if (!startDate) return null;
   const months = plan === 'custom' ? customMonths : PLAN_MONTHS[plan];
   if (!months) return null;
+  const dayOffset = DUE_DATE_DAY_OFFSET[plan] ?? -1;
   const [y, mo, d] = startDate.split('-').map(Number);
-  const date = new Date(Date.UTC(y, mo - 1 + months, d - 1));
+  const date = new Date(Date.UTC(y, mo - 1 + months, d + dayOffset));
   return date.toISOString().slice(0, 10);
 }
 
