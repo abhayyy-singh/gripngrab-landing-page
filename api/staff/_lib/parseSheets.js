@@ -108,8 +108,16 @@ function computeDueDate(startDate, plan, customMonths) {
   const months = plan === 'custom' ? customMonths : PLAN_MONTHS[plan];
   if (!months) return null;
   const dayOffset = DUE_DATE_DAY_OFFSET[plan] ?? -1;
+  // Custom durations can be fractional (e.g. 1.5 months) — the whole-month
+  // part goes through the normal month arithmetic below, and the leftover
+  // fraction is added as days (half a month = 15 days). Confirmed against
+  // real members (Akansha Tirhani, Krisha): without this, "1.5 months" was
+  // silently landing on the same date as a plain 1-month plan, shortchanging
+  // them by the ~15 days they'd actually paid for.
+  const wholeMonths = Math.trunc(months);
+  const fractionalDays = Math.round((months - wholeMonths) * 30);
   const [y, mo, d] = startDate.split('-').map(Number);
-  const date = new Date(Date.UTC(y, mo - 1 + months, d + dayOffset));
+  const date = new Date(Date.UTC(y, mo - 1 + wholeMonths, d + dayOffset + fractionalDays));
   return date.toISOString().slice(0, 10);
 }
 
