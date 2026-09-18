@@ -333,6 +333,8 @@ module.exports = async function handler(req, res) {
           existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
           existingLastPaymentAmount: existingData?.lastPaymentAmount ?? null,
           existingLastPaymentTab: existingData?.lastPaymentTab ?? null,
+          existingDueDate: existingData?.dueDate ?? null,
+          dueDateSource: existingData?.dueDateSource ?? null,
           presentCount: core.presentCount ?? existingData?.presentCount ?? 0,
           lastAttendedDate: core.lastAttendedDate ?? existingData?.lastAttendedDate ?? null,
           memberType: core.memberType ?? existingData?.memberType ?? null,
@@ -525,7 +527,21 @@ module.exports = async function handler(req, res) {
       const lastPaymentDate = candidates.length ? candidates.sort().pop() : null; // most recent of all of them wins
 
       const anchor = lastPaymentDate || effective.startDate;
-      const dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
+      let dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
+      let dueDateSource = 'computed';
+
+      // A manually-set due date (the override field for anchor-less
+      // members, or any staff edit to Due Date) stays in place unless this
+      // run actually found new payment evidence for this member — without
+      // this, the very next sync would silently recompute over a manual
+      // override and discard it, the same bug class as plans getting wiped.
+      // Once real new evidence arrives, the override is superseded (goes
+      // back to being sync-managed) rather than staying stuck forever.
+      const foundNewPaymentThisRun = lastPaymentByMember.has(memberId) || lookbackPaymentByMember.has(memberId);
+      if (effective.dueDateSource === 'manual' && !foundNewPaymentThisRun) {
+        dueDate = effective.existingDueDate;
+        dueDateSource = 'manual';
+      }
 
       /* activityStatus — separates "genuinely due, still training" from
          "hasn't set foot in the gym in weeks" so the due-list isn't
@@ -595,7 +611,7 @@ module.exports = async function handler(req, res) {
 
       const data = {
         activityStatus, lastPaymentDate: lastPaymentDate || null, dueDate: dueDate || null, lastPaymentAmount, lastPaymentTab,
-        daysAttendedThisMonth, daysAttendedAfterDue,
+        daysAttendedThisMonth, daysAttendedAfterDue, dueDateSource,
       };
       writeOps.push({ ref: db.collection('members').doc(memberId), data });
 

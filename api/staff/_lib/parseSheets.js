@@ -240,10 +240,14 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
     const cash     = get(row, H['CASH']);
     const bank     = get(row, H['BANK']);
     const email    = get(row, H['EMAIL']) || get(row, H['MAIL']);
-    const mobile   = get(row, H['MOB']) || get(row, H['MOBILE']);
+    const phone    = get(row, H['MOB']) || get(row, H['MOBILE']);
 
     const rowRef = `${tab}!row${i + 1}`;
-    const base = { center: 'saket', name, email, mobile, sourceSheetRowRef: rowRef };
+    // Field is `phone`, matching what the dashboard/EDITABLE_FIELDS/
+    // redactContact actually read — this used to be written as `mobile`,
+    // a different field name nothing else in the app ever looked at, so
+    // every synced phone number was silently invisible in the UI.
+    const base = { center: 'saket', name, email, phone, sourceSheetRowRef: rowRef };
 
     if (isLowConfidenceName(name)) {
       review.push({ type: 'unclassified-row', sheet, tab, dedupeKey: safeKey('low-confidence', sheet, name), rawData: { name, row }, status: 'pending' });
@@ -357,10 +361,11 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
     const pmode     = get(row, H['PAYMENT MODE']);
     const remark    = get(row, H['REMARK']);
     const email     = get(row, H['MAIL']) || get(row, H['EMAIL']);
-    const mobile    = get(row, H['MOBILE']) || get(row, H['MOB']);
+    const phone     = get(row, H['MOBILE']) || get(row, H['MOB']);
 
     const rowRef = `${tab}!row${i + 1}`;
-    const base = { center: 'lajpat', name, email, mobile, sourceSheetRowRef: rowRef };
+    // See the matching note in parseSaketTab above — `phone`, not `mobile`.
+    const base = { center: 'lajpat', name, email, phone, sourceSheetRowRef: rowRef };
 
     if (isLowConfidenceName(name)) {
       review.push({ type: 'unclassified-row', sheet, tab, dedupeKey: safeKey('low-confidence', sheet, name), rawData: { name, row }, status: 'pending' });

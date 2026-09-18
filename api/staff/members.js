@@ -112,7 +112,15 @@ module.exports = async function handler(req, res) {
       // where given and falling back to whatever's already on the doc.
       const touchesDueDateInputs = ['plan', 'startDate', 'customDurationMonths', 'lastPaymentDate']
         .some(k => k in update);
-      if (touchesDueDateInputs && !('dueDate' in update)) {
+      if ('dueDate' in update) {
+        // Caller (e.g. the manual Due Date override for anchor-less
+        // members) set this explicitly — tag it so sync knows not to
+        // silently recompute over it later. Same class of bug as the
+        // plan-getting-wiped one: without this tag, the very next sync
+        // would overwrite a manual due date back to whatever the formula
+        // says, discarding the override with no signal anything happened.
+        update.dueDateSource = 'manual';
+      } else if (touchesDueDateInputs) {
         const plan = update.plan ?? existingData?.plan ?? null;
         let startDate = update.startDate ?? existingData?.startDate ?? null;
         const customDurationMonths = update.customDurationMonths ?? existingData?.customDurationMonths ?? null;
@@ -133,6 +141,7 @@ module.exports = async function handler(req, res) {
           if (!startDate) update.startDate = anchor;
         }
         update.dueDate = computeDueDate(anchor, plan, customDurationMonths);
+        update.dueDateSource = 'computed';
       }
 
       if (id) {
