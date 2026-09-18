@@ -129,6 +129,7 @@
     .guess-confidence { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; padding: 2px 6px; border-radius: 99px; }
     .guess-confidence.high { color: var(--green); background: rgba(74,222,128,0.12); }
     .guess-confidence.low { color: var(--faint); background: rgba(255,255,255,0.06); }
+    .change-field-hl { color: var(--yellow); font-weight: 600; }
     .guess-confirm-btn { color: var(--green); border-color: rgba(74,222,128,0.3); }
 
     .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; }
@@ -233,6 +234,7 @@
 
     <!-- AUDIT LOG -->
     <div class="tab-content" id="tab-audit">
+      <input type="text" id="audit-search" placeholder="Filter by member or staff name…" style="margin-bottom:10px;">
       <div id="audit-list"><div class="loading-row"><span class="spinner"></span> Loading…</div></div>
     </div>
 
@@ -278,6 +280,10 @@
     <div class="field" id="payment-history-field" style="display:none;">
       <label>Payment History</label>
       <div id="payment-history-list" style="font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:5px;"></div>
+    </div>
+    <div class="field" id="change-history-field" style="display:none;">
+      <label>Recent Changes <span style="text-transform:none;font-weight:400;">(owner only)</span></label>
+      <div id="change-history-list" style="font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:5px;"></div>
     </div>
     <div class="modal-err" id="edit-err"></div>
     <div class="modal-actions">
@@ -721,6 +727,44 @@
     document.getElementById('edit-backdrop').classList.add('show');
     renderAttendanceSummary(m);
     loadPaymentHistory(id, m);
+    if (myRole === 'owner') loadChangeHistory(id);
+    else document.getElementById('change-history-field').style.display = 'none';
+  }
+
+  // Field-name -> friendly label, and which ones matter enough to
+  // highlight — plan/dueDate are exactly the two fields the coalesce bug
+  // silently wiped, so those are the ones worth being able to spot fast.
+  const CHANGE_FIELD_LABELS = {
+    plan: 'Plan', dueDate: 'Due Date', startDate: 'Start Date', status: 'Status',
+    lastPaymentAmount: 'Last Payment Amount', lastPaymentDate: 'Last Payment Date',
+    verificationDismissedAt: 'Verification Dismissed', pausedUntil: 'Paused Until',
+  };
+  const CHANGE_FIELD_HIGHLIGHT = new Set(['plan', 'dueDate']);
+
+  function describeChangeDetail(detail) {
+    if (!detail || typeof detail !== 'object') return '';
+    const parts = Object.keys(detail)
+      .filter(k => k in CHANGE_FIELD_LABELS)
+      .map(k => `<span class="${CHANGE_FIELD_HIGHLIGHT.has(k) ? 'change-field-hl' : ''}">${CHANGE_FIELD_LABELS[k]}: ${detail[k] === null ? '—' : detail[k]}</span>`);
+    return parts.join(', ');
+  }
+
+  async function loadChangeHistory(memberId) {
+    const field = document.getElementById('change-history-field');
+    const list = document.getElementById('change-history-list');
+    field.style.display = 'block';
+    list.innerHTML = '<span class="spinner sm"></span> Loading…';
+    try {
+      const { entries } = await api(`/api/staff/audit-log?memberId=${memberId}&limit=15`);
+      if (!entries.length) { list.innerHTML = 'No changes on record.'; return; }
+      list.innerHTML = entries.map(e => {
+        const when = e.timestamp ? new Date(e.timestamp._seconds ? e.timestamp._seconds * 1000 : e.timestamp).toLocaleString() : 'unknown time';
+        const changeDesc = describeChangeDetail(e.detail);
+        return `<div>${when} — <strong style="color:var(--text);">${e.actorName || 'unknown'}</strong>${changeDesc ? ': ' + changeDesc : ' (' + e.action + ')'}</div>`;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = 'Failed to load: ' + e.message;
+    }
   }
 
   // Both numbers are precomputed at sync time (see sync-sheets.js) — this
@@ -776,6 +820,7 @@
     pendingReviewIdToResolve = null;
     document.getElementById('payment-history-field').style.display = 'none';
     document.getElementById('attendance-summary-field').style.display = 'none';
+    document.getElementById('change-history-field').style.display = 'none';
     document.getElementById('modal-title').textContent = 'Add Member';
     document.getElementById('f-center-field').style.display = 'block';
     document.getElementById('f-center').value = document.getElementById('center-filter').value === 'lajpat' ? 'lajpat' : 'saket';
@@ -1054,23 +1099,50 @@
   document.getElementById('review-center-filter').addEventListener('change', loadReview);
 
   /* ── Audit Log ── */
+  let auditEntries = [];
   async function loadAudit() {
     const list = document.getElementById('audit-list');
     list.innerHTML = '<div class="loading-row"><span class="spinner"></span> Loading…</div>';
     try {
       const { entries } = await api('/api/staff/audit-log');
-      if (!entries.length) { list.innerHTML = '<div class="empty">No activity yet.</div>'; return; }
-      list.innerHTML = entries.map(e => `
-        <div class="audit-row">
-          <span class="audit-actor">${e.actorName || e.actorUid}</span> —
-          <span class="audit-action">${e.action}</span>
-          ${e.targetMemberId ? ' · member ' + e.targetMemberId : ''}
-          <div class="audit-time">${e.timestamp ? new Date(e.timestamp._seconds ? e.timestamp._seconds * 1000 : e.timestamp).toLocaleString() : ''}</div>
-        </div>`).join('');
+      auditEntries = entries;
+      renderAudit();
     } catch (e) {
       list.innerHTML = `<div class="empty">Failed to load: ${e.message}</div>`;
     }
   }
+
+  function renderAudit() {
+    const list = document.getElementById('audit-list');
+    const search = document.getElementById('audit-search').value.trim().toUpperCase();
+    // Resolves member IDs to names using whatever's already loaded in the
+    // Members tab (no extra API call) — falls back to the raw ID for a
+    // member outside the currently-selected center filter, which is rare
+    // enough not to be worth a dedicated lookup call just for this.
+    const nameById = new Map(allMembers.map(m => [m.id, m.name]));
+    let entries = auditEntries;
+    if (search) {
+      entries = entries.filter(e => {
+        const memberName = (e.targetMemberId && nameById.get(e.targetMemberId)) || '';
+        return memberName.toUpperCase().includes(search) || (e.actorName || '').toUpperCase().includes(search);
+      });
+    }
+    if (!entries.length) { list.innerHTML = '<div class="empty">No activity matches.</div>'; return; }
+    list.innerHTML = entries.map(e => {
+      const memberName = e.targetMemberId ? (nameById.get(e.targetMemberId) || `member ${e.targetMemberId}`) : null;
+      const changeDesc = describeChangeDetail(e.detail);
+      const when = e.timestamp ? new Date(e.timestamp._seconds ? e.timestamp._seconds * 1000 : e.timestamp).toLocaleString() : '';
+      return `
+        <div class="audit-row">
+          <span class="audit-actor">${e.actorName || e.actorUid}</span> —
+          <span class="audit-action">${e.action}</span>
+          ${memberName ? ' · ' + memberName : ''}
+          ${changeDesc ? `<div style="margin-top:2px;">${changeDesc}</div>` : ''}
+          <div class="audit-time">${when}</div>
+        </div>`;
+    }).join('');
+  }
+  document.getElementById('audit-search').addEventListener('input', renderAudit);
 </script>
 
 </body>
