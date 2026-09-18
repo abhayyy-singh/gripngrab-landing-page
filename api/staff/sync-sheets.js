@@ -341,6 +341,7 @@ module.exports = async function handler(req, res) {
           plan: core.plan ?? existingData?.plan ?? null,
           customDurationMonths: core.customDurationMonths ?? existingData?.customDurationMonths ?? null,
           startDate: core.startDate ?? existingData?.startDate ?? null,
+          pauseDaysTotal: core.pauseDaysTotal ?? existingData?.pauseDaysTotal ?? 0,
           existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
           existingLastPaymentAmount: existingData?.lastPaymentAmount ?? null,
           existingLastPaymentTab: existingData?.lastPaymentTab ?? null,
@@ -559,14 +560,37 @@ module.exports = async function handler(req, res) {
       const lastPaymentDate = winner && winner.exact ? winner.key : null;
       const winnerTab = winner && !winner.exact ? winner.tab : null;
 
-      // Month-only winner still anchors a due date — using the member's own
-      // payment-day pattern (same day-of-month their startDate already
-      // shows), same technique the lookback uses for older tabs. Falls back
-      // to the 1st only when there's truly no day-of-month pattern on file.
-      const anchor = winner
-        ? (winner.exact ? winner.key : `${winner.key}-${effective.startDate ? effective.startDate.split('-')[2] : '01'}`)
-        : effective.startDate;
-      let dueDate = computeDueDate(anchor, effective.plan, effective.customDurationMonths);
+      // The due-date ANCHOR is separate from lastPaymentDate/lastPaymentTab
+      // above (those stay winner-based, for the card's "last paid" display,
+      // regardless of center). For Lajpat specifically, use the sheet's own
+      // current Joining Date directly — confirmed against real examples
+      // (Mitesh Sadh, Rayan Sharma) that Lajpat's sheet-keeper already
+      // updates this correctly on every renewal, and letting the payment
+      // search override it was landing on a completely different, wrong
+      // month (found a payment in a DIFFERENT month than the sheet's own
+      // due-date reflects, and trusted that over the correct Joining Date).
+      // Saket has no such reliable field, so it still needs the search —
+      // month-only winners anchor using the member's own payment-day
+      // pattern (same day-of-month their startDate shows), same technique
+      // the lookback uses for older tabs; falls back to the 1st only when
+      // there's truly no day-of-month pattern on file.
+      const dueDateAnchor = effective.center === 'lajpat'
+        ? effective.startDate
+        : (winner ? (winner.exact ? winner.key : `${winner.key}-${effective.startDate ? effective.startDate.split('-')[2] : '01'}`) : effective.startDate);
+      let dueDate = computeDueDate(dueDateAnchor, effective.plan, effective.customDurationMonths);
+      // Freeze/pause days extend the due date by however many days the
+      // membership was paused — confirmed against real examples (Garima
+      // Bhardwaj: 30 freeze days exactly explained her due date being 30
+      // days later than the plain start+duration formula; Shashi Bhardwaj:
+      // same, 10 days). The FREEZE cell is a running total re-shown in
+      // every month's row (not scattered across different months), so
+      // reading it from whichever tab is already being read is sufficient
+      // — no extra lookback search needed for this one.
+      if (dueDate && effective.pauseDaysTotal) {
+        const d = new Date(dueDate + 'T00:00:00Z');
+        d.setUTCDate(d.getUTCDate() + effective.pauseDaysTotal);
+        dueDate = d.toISOString().slice(0, 10);
+      }
       let dueDateSource = 'computed';
 
       // A manually-set due date (the override field for anchor-less
