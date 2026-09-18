@@ -93,7 +93,7 @@
     .sync-result strong { color: var(--text); }
 
     .card-list { display: flex; flex-direction: column; gap: 8px; }
-    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .member-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; }
     .member-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .member-name { font-size: 14.5px; font-weight: 700; }
     .member-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
@@ -123,6 +123,9 @@
     .guess-amount { font-size: 12px; color: var(--text); }
     .guess-plan-select { font-size: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; }
     .guess-plan-line { display: flex; align-items: center; gap: 8px; }
+    .guess-anchor-fields { display: flex; gap: 14px; margin-top: 6px; flex-wrap: wrap; }
+    .guess-anchor-fields label { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+    .guess-anchor-fields input[type="date"] { font-size: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; }
     .guess-confidence { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; padding: 2px 6px; border-radius: 99px; }
     .guess-confidence.high { color: var(--green); background: rgba(74,222,128,0.12); }
     .guess-confidence.low { color: var(--faint); background: rgba(255,255,255,0.06); }
@@ -267,6 +270,10 @@
     <div class="field">
       <label>Paused Until <span style="text-transform:none;font-weight:400;">(leave blank if not paused)</span></label>
       <input type="date" id="f-paused">
+    </div>
+    <div class="field" id="attendance-summary-field" style="display:none;">
+      <label>Attendance Summary <span style="text-transform:none;font-weight:400;">(last 3 months)</span></label>
+      <div id="attendance-summary" style="font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px;"></div>
     </div>
     <div class="field" id="payment-history-field" style="display:none;">
       <label>Payment History</label>
@@ -458,13 +465,40 @@
   const PLAN_LABELS = { monthly: 'Monthly', quarterly: 'Quarterly', 'half-yearly': 'Half-Yearly', yearly: 'Yearly' };
   let selectedGuessIds = new Set();
 
+  // "AUG-26" / "AUG 26" -> {year, monthIdx} — mirrors the server's own tab
+  // parsing (parseSheets.js monthKeyFromTabName) so a card's fallback label
+  // means the same thing Payment History means by the same tab reference.
+  function monthTabParts(tab) {
+    const m = /([A-Z]{3})/i.exec(tab || '');
+    const y = /(\d{2,4})/.exec(tab || '');
+    if (!m || !y) return null;
+    let year = parseInt(y[1], 10); if (year < 100) year += 2000;
+    const abbr = m[1].toUpperCase() === 'FAB' ? 'FEB' : m[1].toUpperCase();
+    const monthIdx = SHORT_MONTHS.findIndex(s => s.toUpperCase() === abbr);
+    return monthIdx === -1 ? null : { year, monthIdx };
+  }
+
   function paymentLine(m) {
-    if (!m.lastPaymentDate) {
-      return `<div class="attend-line none">No fee payment on record in last 3 months</div>`;
+    if (m.lastPaymentDate) {
+      const daysAgo = Math.floor((Date.now() - new Date(m.lastPaymentDate).getTime()) / 86400000);
+      const cls = daysAgo <= 35 ? 'recent' : daysAgo <= 100 ? 'stale' : 'none';
+      return `<div class="attend-line ${cls}">Last fee paid on ${formatShortDate(m.lastPaymentDate)}</div>`;
     }
-    const daysAgo = Math.floor((Date.now() - new Date(m.lastPaymentDate).getTime()) / 86400000);
-    const cls = daysAgo <= 35 ? 'recent' : daysAgo <= 100 ? 'stale' : 'none';
-    return `<div class="attend-line ${cls}">Last fee paid on ${formatShortDate(m.lastPaymentDate)}</div>`;
+    // No exact date, but we know which month's tab the payment was
+    // recorded in (Saket has no per-payment date column at all) — show
+    // that instead of a flat "no payment", which would otherwise disagree
+    // with what Payment History shows as the most recent entry.
+    if (m.lastPaymentTab) {
+      const parts = monthTabParts(m.lastPaymentTab);
+      const label = parts ? `${SHORT_MONTHS[parts.monthIdx]} ${parts.year}` : m.lastPaymentTab;
+      // Days-ago is only approximate here (day-of-month is unknown) —
+      // measured from the 1st of that month, so it reads as "at least this
+      // stale", never fresher than reality.
+      const daysAgo = parts ? Math.floor((Date.now() - Date.UTC(parts.year, parts.monthIdx, 1)) / 86400000) : null;
+      const cls = daysAgo === null ? 'stale' : daysAgo <= 35 ? 'recent' : daysAgo <= 100 ? 'stale' : 'none';
+      return `<div class="attend-line ${cls}">Last fee paid in ${label}</div>`;
+    }
+    return `<div class="attend-line none">No fee payment on record in last 3 months</div>`;
   }
 
   /* Separate from payment status — this is "are they even coming", which
@@ -537,20 +571,34 @@
           : '';
         const options = Object.keys(PLAN_LABELS).map(key =>
           `<option value="${key}" ${key === guess.plan ? 'selected' : ''}>${PLAN_LABELS[key]}</option>`).join('');
+        // True exception case: nothing at all to anchor a due date to (no
+        // start date, no payment date — e.g. Kanika Parwal) — a plan alone
+        // can never get a due date for these without manual input, so they
+        // get extra fields instead of just being silently stuck. Deliberately
+        // scoped to only this small group (~15 people), not every no-plan
+        // member, per your instruction not to add fields nobody else needs.
+        const isAnchorless = !m.startDate && !m.lastPaymentDate;
+        const canAct = m.lastPaymentAmount || isAnchorless;
+        const anchorFields = isAnchorless ? `
+              <div class="guess-anchor-fields">
+                <label>Start date <input type="date" class="guess-startdate-input" data-id="${m.id}"></label>
+                <label>Due date <input type="date" class="guess-duedate-input" data-id="${m.id}"></label>
+              </div>` : '';
         guessBlock = `
           <div class="guess-row" data-id="${m.id}">
-            <input type="checkbox" class="guess-select-cb" data-id="${m.id}" ${selectedGuessIds.has(m.id) ? 'checked' : ''} ${m.lastPaymentAmount ? '' : 'disabled'}>
+            <input type="checkbox" class="guess-select-cb" data-id="${m.id}" ${selectedGuessIds.has(m.id) ? 'checked' : ''} ${canAct ? '' : 'disabled'}>
             <div class="guess-info">
               <span class="guess-amount">${amountLabel}</span>
               <div class="guess-plan-line">
-                <select class="guess-plan-select" data-id="${m.id}" ${m.lastPaymentAmount ? '' : 'disabled'}>
+                <select class="guess-plan-select" data-id="${m.id}" ${canAct ? '' : 'disabled'}>
                   <option value="">— guess plan —</option>
                   ${options}
                 </select>
                 ${confidenceBadge}
               </div>
+              ${anchorFields}
             </div>
-            <button class="btn btn-ghost btn-sm guess-confirm-btn" data-id="${m.id}" title="Confirm this plan" ${m.lastPaymentAmount ? '' : 'disabled'}>&#10003; Confirm</button>
+            <button class="btn btn-ghost btn-sm guess-confirm-btn" data-id="${m.id}" title="Confirm this plan" ${canAct ? '' : 'disabled'}>&#10003; Confirm</button>
           </div>`;
       }
 
@@ -579,6 +627,12 @@
 
     list.querySelectorAll('.reveal-btn').forEach(btn => btn.addEventListener('click', () => revealContact(btn.dataset.id, btn)));
     list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+    // Tapping anywhere on the card opens Edit — except on an actual control
+    // (button/select/input/checkbox), which should do its own thing instead.
+    list.querySelectorAll('.member-card').forEach(card => card.addEventListener('click', (e) => {
+      if (e.target.closest('button, select, input, a, label')) return;
+      openEditModal(card.dataset.id);
+    }));
 
     if (isGuessView) {
       list.querySelectorAll('.guess-select-cb').forEach(cb => cb.addEventListener('change', () => {
@@ -611,7 +665,12 @@
       const select = row ? row.querySelector('.guess-plan-select') : null;
       const plan = select ? select.value : '';
       if (!plan) return Promise.reject(new Error('no plan selected'));
-      return api('/api/staff/members', { method: 'POST', body: JSON.stringify({ id, plan }) });
+      const body = { id, plan };
+      const startDateInput = row ? row.querySelector('.guess-startdate-input') : null;
+      const dueDateInput = row ? row.querySelector('.guess-duedate-input') : null;
+      if (startDateInput && startDateInput.value) body.startDate = startDateInput.value;
+      if (dueDateInput && dueDateInput.value) body.dueDate = dueDateInput.value;
+      return api('/api/staff/members', { method: 'POST', body: JSON.stringify(body) });
     }));
     const failed = results.filter(r => r.status === 'rejected').length;
     selectedGuessIds.clear();
@@ -660,7 +719,23 @@
     document.getElementById('f-paused').value = m.pausedUntil || '';
     document.getElementById('edit-err').style.display = 'none';
     document.getElementById('edit-backdrop').classList.add('show');
+    renderAttendanceSummary(m);
     loadPaymentHistory(id, m);
+  }
+
+  // Both numbers are precomputed at sync time (see sync-sheets.js) — this
+  // is a plain read of already-stored fields, no extra API call or live
+  // recomputation when opening the modal.
+  function renderAttendanceSummary(m) {
+    const field = document.getElementById('attendance-summary-field');
+    const box = document.getElementById('attendance-summary');
+    if (m.memberType === 'personal-training') { field.style.display = 'none'; return; }
+    field.style.display = 'block';
+    const afterDueLine = m.dueDate
+      ? `${m.daysAttendedAfterDue ?? 0} day${(m.daysAttendedAfterDue ?? 0) === 1 ? '' : 's'} attended since their due date (${formatShortDate(m.dueDate)})`
+      : `No due date on record — can't measure "attended after due"`;
+    const thisMonthLine = `${m.daysAttendedThisMonth ?? 0} day${(m.daysAttendedThisMonth ?? 0) === 1 ? '' : 's'} attended this month`;
+    box.innerHTML = `<div>${afterDueLine}</div><div>${thisMonthLine}</div>`;
   }
 
   async function loadPaymentHistory(memberId, member) {
@@ -700,6 +775,7 @@
     editingId = null;
     pendingReviewIdToResolve = null;
     document.getElementById('payment-history-field').style.display = 'none';
+    document.getElementById('attendance-summary-field').style.display = 'none';
     document.getElementById('modal-title').textContent = 'Add Member';
     document.getElementById('f-center-field').style.display = 'block';
     document.getElementById('f-center').value = document.getElementById('center-filter').value === 'lajpat' ? 'lajpat' : 'saket';

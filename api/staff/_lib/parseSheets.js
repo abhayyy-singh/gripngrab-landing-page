@@ -63,6 +63,26 @@ function parseAnyDate(str) {
 
 const PLAN_MONTHS = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly: 12 };
 
+const TAB_MONTH_RE = /(JAN|FAB|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)/i;
+const TAB_MONTH_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const TAB_MONTH_ALIAS = { FAB: 'FEB' };
+
+/** Tab name (e.g. "AUG-26", "AUG 26") -> "2026-08". Shared between
+ *  sync-sheets.js (inferring a lookback payment's date) and members.js
+ *  (sorting/labeling undated payments by the month they were recorded in,
+ *  since Saket has no per-payment date column at all) so both places agree
+ *  on what "which month is this payment from" means. */
+function monthKeyFromTabName(tabName) {
+  const m = TAB_MONTH_RE.exec(tabName || '');
+  const y = /(\d{2,4})/.exec(tabName || '');
+  if (!m || !y) return null;
+  let year = parseInt(y[1], 10); if (year < 100) year += 2000;
+  const monthAbbr = TAB_MONTH_ALIAS[m[1].toUpperCase()] || m[1].toUpperCase();
+  const monthIdx = TAB_MONTH_NAMES.indexOf(monthAbbr);
+  if (monthIdx === -1) return null;
+  return `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+}
+
 /** startDate + plan length -> due date. Used where the sheet has no
  *  explicit due-date column of its own (Saket) — Lajpat's own Due Date
  *  column is trusted as-is instead, since it may already reflect manual
@@ -173,17 +193,24 @@ function findAttendanceColumns(headerRow) {
   return cols;
 }
 
-/** Returns { presentCount, lastAttendedDate } for one member's row. */
+/** Returns { presentCount, lastAttendedDate, attendedDates } for one
+ *  member's row. attendedDates is kept only long enough (in-memory, during
+ *  sync) to derive a couple of summary stats from — never written to
+ *  Firestore itself, so it doesn't bloat member docs or need re-reading
+ *  the sheet later to answer "how many days after their due date did they
+ *  come in" type questions. */
 function parseAttendance(row, attendanceCols) {
   let presentCount = 0, lastAttendedDate = null;
+  const attendedDates = [];
   for (const { index, date } of attendanceCols) {
     const v = get(row, index).toUpperCase();
     if (v === 'P') {
       presentCount++;
+      attendedDates.push(date);
       if (!lastAttendedDate || date > lastAttendedDate) lastAttendedDate = date;
     }
   }
-  return { presentCount, lastAttendedDate };
+  return { presentCount, lastAttendedDate, attendedDates };
 }
 
 /* ============================================================================
@@ -250,7 +277,7 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       review.push({ type: 'ambiguous-date', sheet, tab, dedupeKey: safeKey('ambiguous-date', sheet, name), rawData: { name, rawStart }, status: 'pending' });
     }
 
-    const { presentCount, lastAttendedDate } = parseAttendance(row, attendanceCols);
+    const { presentCount, lastAttendedDate, attendedDates } = parseAttendance(row, attendanceCols);
 
     members.push({
       ...base,
@@ -266,6 +293,7 @@ function parseSaketTab(rows, { sheet = 'saket', tab = '' } = {}) {
       firstJoinedDate: startDate,
       remarkRaw: remark,
       __presentCount: presentCount,
+      __attendedDates: attendedDates,
       lastAttendedDate,
     });
 
@@ -355,7 +383,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       review.push({ type: 'ambiguous-date', sheet, tab, dedupeKey: safeKey('ambiguous-date', sheet, name), rawData: { name, rawJoin, rawDue, duration }, status: 'pending' });
     }
 
-    const { presentCount, lastAttendedDate } = parseAttendance(row, attendanceCols);
+    const { presentCount, lastAttendedDate, attendedDates } = parseAttendance(row, attendanceCols);
 
     members.push({
       ...base,
@@ -372,6 +400,7 @@ function parseLajpatTab(rows, { sheet = 'lajpat', tab = '' } = {}) {
       pauseDaysTotal: freeze ? (parseFloat(freeze) || 0) : 0,
       remarkRaw: remark,
       __presentCount: presentCount,
+      __attendedDates: attendedDates,
       lastAttendedDate,
     });
 
@@ -527,5 +556,5 @@ module.exports = {
   parseAnyDate, parseDdMmYy, xlSerialToDate, normalizeName,
   mapChannel, findHeaderRow, buildHeaderMap,
   findAttendanceColumns, parseAttendance, computeDueDate, toNumber,
-  checkPaymentPresence,
+  checkPaymentPresence, monthKeyFromTabName,
 };

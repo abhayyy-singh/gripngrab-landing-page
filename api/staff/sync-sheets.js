@@ -23,7 +23,7 @@
 
 const { db, admin, requireStaff, writeAuditLog, sendError } = require('./_lib/firebaseAdmin');
 const { listTabs, readTab } = require('./_lib/sheetsClient');
-const { parseSaketTab, parseLajpatTab, matchBankReceipts, computeDueDate, checkPaymentPresence } = require('./_lib/parseSheets');
+const { parseSaketTab, parseLajpatTab, matchBankReceipts, computeDueDate, checkPaymentPresence, monthKeyFromTabName } = require('./_lib/parseSheets');
 
 const SAKET_SHEET_ID  = '1itv1Iv641TCf_yin6ubPS7Ri0GcNhpNhzMdQuBEduSs';
 const LAJPAT_SHEET_ID = '1msODlD2bnfLkBHKR1SKOdSc9jb8U_Tad';
@@ -132,20 +132,22 @@ async function commitInBatches(ops) {
  * (not just the latest).
  */
 function mergeTabs(tabResults) {
-  const byName = new Map(); // name -> { core, payments: [] }
+  const byName = new Map(); // name -> { core, payments: [], attendedDates: [] }
   const review = new Map(); // dedupeKey -> entry (last write wins, same as Firestore .set)
 
   for (const { members, review: tabReview } of tabResults) {
     for (const r of tabReview) review.set(r.dedupeKey || JSON.stringify(r), r);
     for (const m of members) {
-      const { __pendingPayment, __presentCount, ...core } = m;
+      const { __pendingPayment, __presentCount, __attendedDates, ...core } = m;
       if (!byName.has(m.name)) {
-        byName.set(m.name, { core: { ...core, presentCount: __presentCount || 0 }, payments: [] });
+        byName.set(m.name, { core: { ...core, presentCount: __presentCount || 0 }, payments: [], attendedDates: [...(__attendedDates || [])] });
       } else {
-        const existing = byName.get(m.name).core;
+        const entry = byName.get(m.name);
+        const existing = entry.core;
         // Attendance is cumulative across the 3-month window — sum it,
         // don't let a later tab's value replace an earlier tab's count.
         existing.presentCount = (existing.presentCount || 0) + (__presentCount || 0);
+        entry.attendedDates.push(...(__attendedDates || []));
         for (const [k, v] of Object.entries(core)) {
           if (v !== null && v !== undefined && v !== '') existing[k] = v;
         }
@@ -281,7 +283,7 @@ module.exports = async function handler(req, res) {
       const { byName, review } = mergeTabs(tabResults);
       const existing = await fetchExistingByName(center);
 
-      for (const [name, { core, payments }] of byName) {
+      for (const [name, { core, payments, attendedDates }] of byName) {
         const matches = existing.get(name) || [];
         if (matches.length > 1) {
           queueReview({ type: 'duplicate-name', sheet: key, tab: tabInfo.tabs[tabInfo.tabs.length - 1], dedupeKey: `duplicate_${key}_${name}`, rawData: { name }, status: 'pending' });
@@ -316,10 +318,12 @@ module.exports = async function handler(req, res) {
           startDate: core.startDate ?? existingData?.startDate ?? null,
           existingLastPaymentDate: existingData?.lastPaymentDate ?? null,
           existingLastPaymentAmount: existingData?.lastPaymentAmount ?? null,
+          existingLastPaymentTab: existingData?.lastPaymentTab ?? null,
           presentCount: core.presentCount ?? existingData?.presentCount ?? 0,
           lastAttendedDate: core.lastAttendedDate ?? existingData?.lastAttendedDate ?? null,
           memberType: core.memberType ?? existingData?.memberType ?? null,
           verificationDismissedAt: existingData?.verificationDismissedAt ?? null,
+          attendedDates: attendedDates || [], // this sync's window only (kept in-memory, never persisted directly)
         });
 
         for (const p of payments) {
@@ -454,15 +458,34 @@ module.exports = async function handler(req, res) {
        (this was the root cause behind due dates sitting in the past even
        for members who had clearly just paid). */
     const lastPaymentByMember = new Map();
-    // Separate from the above: tracks amount from the LAST payment write
-    // per member regardless of whether it had a date at all (Saket has no
-    // per-payment date column, so most Saket payments never qualify for
+    // Separate from the above: tracks amount from the member's MOST RECENT
+    // payment write regardless of whether it had a date at all (Saket has
+    // no per-payment date column, so most Saket payments never qualify for
     // lastPaymentByMember above — but the amount is still useful on its
     // own, e.g. for guessing an unrecognized plan from the price).
     const lastPaymentAmountByMember = new Map();
+    // Which tab (month) the member's most recent payment came from, even
+    // when it has no exact date — lets the card's "Last fee paid" line
+    // agree with what Payment History shows as most recent, instead of the
+    // two being computed independently and disagreeing (real case: a card
+    // said "no payment on record" while History showed Aug/Jul/Jun entries,
+    // because the card only ever looked at exact dates).
+    const lastPaymentTabByMember = new Map();
+    const bestSortKeyByMember = new Map(); // memberId -> the sortKey that won lastPaymentAmount/TabByMember, so a later date always overrides an earlier one instead of "last op in the array wins"
     for (const op of writeOps) {
       if (op.ref.parent.id !== 'payments' || !op.data.memberId) continue;
-      if (op.data.totalAmount) lastPaymentAmountByMember.set(op.data.memberId, op.data.totalAmount);
+      // Falls back to '' (lowest priority) when neither a date nor a
+      // parseable tab exists, so the very first payment seen for a member
+      // still sets something, and any op with real recency info overrides it.
+      const sortKey = op.data.date || (op.data.paymentTab ? monthKeyFromTabName(op.data.paymentTab) : null) || '';
+      if (op.data.totalAmount) {
+        const prevKey = bestSortKeyByMember.get(op.data.memberId) ?? '';
+        if (sortKey >= prevKey) {
+          bestSortKeyByMember.set(op.data.memberId, sortKey);
+          lastPaymentAmountByMember.set(op.data.memberId, op.data.totalAmount);
+          if (op.data.paymentTab) lastPaymentTabByMember.set(op.data.memberId, op.data.paymentTab);
+        }
+      }
       if (!op.data.date) continue;
       const prev = lastPaymentByMember.get(op.data.memberId);
       if (!prev || op.data.date > prev) lastPaymentByMember.set(op.data.memberId, op.data.date);
@@ -540,7 +563,26 @@ module.exports = async function handler(req, res) {
       // it entirely), so the UI read a stale, in-the-past dueDate next to
       // a fresh 'active' status and fell through to showing "Overdue".
       const lastPaymentAmount = lastPaymentAmountByMember.get(memberId) ?? lookbackAmountByMember.get(memberId) ?? effective.existingLastPaymentAmount ?? null;
-      const data = { activityStatus, lastPaymentDate: lastPaymentDate || null, dueDate: dueDate || null, lastPaymentAmount };
+      // null out once an actual dated payment is known — dated always beats
+      // an approximate month label, so there's no stale "recorded in AUG-26"
+      // hanging around once a real date exists for the same or later period.
+      const lastPaymentTab = lastPaymentDate ? null : (lastPaymentTabByMember.get(memberId) ?? effective.existingLastPaymentTab ?? null);
+
+      // Two attendance summary stats, computed once here from this sync's
+      // own attendance data and stored as plain numbers — not recomputed
+      // live per dashboard view, which would mean re-reading the sheet (or
+      // re-scanning stored per-day data) on every single card open.
+      // Scoped to the current 3-month window only (same as everything else
+      // attendance-related) — a dueDate further back than that wouldn't have
+      // its post-due attendance fully captured anyway.
+      const currentYearMonth = today.slice(0, 7);
+      const daysAttendedThisMonth = effective.attendedDates.filter(d => d.slice(0, 7) === currentYearMonth).length;
+      const daysAttendedAfterDue = dueDate ? effective.attendedDates.filter(d => d >= dueDate).length : null;
+
+      const data = {
+        activityStatus, lastPaymentDate: lastPaymentDate || null, dueDate: dueDate || null, lastPaymentAmount, lastPaymentTab,
+        daysAttendedThisMonth, daysAttendedAfterDue,
+      };
       writeOps.push({ ref: db.collection('members').doc(memberId), data });
 
       if (activityStatus === 'needs-verification') {

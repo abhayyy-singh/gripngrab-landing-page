@@ -8,14 +8,14 @@
    ============================================================================ */
 
 const { db, admin, requireStaff, writeAuditLog, sendError } = require('./_lib/firebaseAdmin');
-const { computeDueDate } = require('./_lib/parseSheets');
+const { computeDueDate, monthKeyFromTabName } = require('./_lib/parseSheets');
 
 const EDITABLE_FIELDS = [
   'name', 'phone', 'email', 'address', 'dob', 'center', 'memberType', 'plan',
   'customDurationMonths', 'defaultFeeAmount', 'startDate', 'dueDate',
   'firstJoinedDate', 'status', 'pauseDaysTotal', 'personalTrainingConfirmedActive',
   'presentCount', 'lastAttendedDate', 'pausedUntil', 'lastPaymentDate',
-  'verificationDismissedAt', 'lastPaymentAmount',
+  'verificationDismissedAt', 'lastPaymentAmount', 'lastPaymentTab',
 ];
 
 // Contact info is masked in the list view for everyone, including the owner —
@@ -45,9 +45,17 @@ module.exports = async function handler(req, res) {
       // composite Firestore index — per-member payment counts are small.
       const memberId = req.query.payments;
       const snap = await db.collection('payments').where('memberId', '==', memberId).get();
+      // Saket payments have no exact date at all (no per-payment date
+      // column in that sheet) — sorting on `date` alone left them in
+      // whatever order Firestore happened to return them, not chronological
+      // order. Falling back to the month the payment was recorded in
+      // (paymentTab) fixes that: a dated entry always sorts above an
+      // undated one from the same month, since e.g. "2026-08-15" > "2026-08"
+      // as plain strings, and different months still compare correctly.
+      const sortKey = p => p.date || (p.paymentTab ? monthKeyFromTabName(p.paymentTab) : null) || '';
       const payments = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        .sort((a, b) => sortKey(b).localeCompare(sortKey(a)));
       return res.status(200).json({ ok: true, payments });
     }
 
@@ -106,10 +114,24 @@ module.exports = async function handler(req, res) {
         .some(k => k in update);
       if (touchesDueDateInputs && !('dueDate' in update)) {
         const plan = update.plan ?? existingData?.plan ?? null;
-        const startDate = update.startDate ?? existingData?.startDate ?? null;
+        let startDate = update.startDate ?? existingData?.startDate ?? null;
         const customDurationMonths = update.customDurationMonths ?? existingData?.customDurationMonths ?? null;
         const lastPaymentDate = update.lastPaymentDate ?? existingData?.lastPaymentDate ?? null;
-        const anchor = lastPaymentDate || startDate;
+        let anchor = lastPaymentDate || startDate;
+        if (!anchor && plan) {
+          // Genuinely nothing to anchor a cycle to — no start date, no
+          // payment date on record at all (real case: Kanika Parwal). Without
+          // this, plan saves fine but dueDate stays null forever, which is
+          // exactly the same "confirmed but never leaves the list" trap as
+          // the original bug, just from a different cause. The guess UI
+          // offers manual start/due date fields for exactly this group; this
+          // is the backstop for when those are left blank — today is the
+          // most honest fallback anchor, since that's the moment being
+          // confirmed. Written into startDate too so the record stays
+          // traceable instead of having an invisible assumed date.
+          anchor = new Date().toISOString().slice(0, 10);
+          if (!startDate) update.startDate = anchor;
+        }
         update.dueDate = computeDueDate(anchor, plan, customDurationMonths);
       }
 
