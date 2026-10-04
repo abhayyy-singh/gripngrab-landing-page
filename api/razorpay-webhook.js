@@ -5,10 +5,11 @@
    browser closes immediately after payment.
 
    Vercel env vars required:
-     RAZORPAY_WEBHOOK_SECRET  — copy from Razorpay Dashboard → Webhooks
+     RAZORPAY_WEBHOOK_SECRET              — main site account (daypass, workshop, trial, main classes)
+     RAZORPAY_WEBHOOK_SECRET_SUNDAY_HIIT  — Sunday HIIT account (separate Razorpay org)
      RESEND_API_KEY
-     NOTIFY_EMAIL             (optional, defaults to haristhenics06@gmail.com)
-     FIREBASE_API_KEY         (web API key, for Firestore REST write)
+     NOTIFY_EMAIL                         (optional, defaults to haristhenics06@gmail.com)
+     FIREBASE_API_KEY                     (web API key, for Firestore REST write)
 
    Razorpay Dashboard setup:
      Webhooks → Add Webhook
@@ -32,33 +33,37 @@ module.exports = async function handler(req, res) {
     req.on('error', reject);
   });
 
-  /* ── Verify Razorpay signature ── */
-  const secret    = process.env.RAZORPAY_WEBHOOK_SECRET;
+  /* ── Parse event (needed to determine which secret to use) ── */
+  let event;
+  try { event = JSON.parse(rawBody); } catch(e) { return res.status(400).json({ error: 'Bad JSON' }); }
+
+  /* ── Verify Razorpay signature (two accounts: old + new Sunday HIIT) ── */
   const signature = req.headers['x-razorpay-signature'];
+  const notes = event?.payload?.payment?.entity?.notes ?? {};
+  const isSundayHiit = notes.class === 'sunday-hiit';
+
+  const secretOld = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const secretNew = process.env.RAZORPAY_WEBHOOK_SECRET_SUNDAY_HIIT;
+  const secret = isSundayHiit ? secretNew : secretOld;
 
   if (secret && signature) {
     const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
     if (expected !== signature) {
-      console.error('[webhook] Invalid signature');
+      console.error('[webhook] Invalid signature', { isSundayHiit, secretPresent: !!secret });
       return res.status(400).json({ error: 'Invalid signature' });
     }
   } else {
-    console.warn('[webhook] No webhook secret configured — skipping signature check');
+    console.warn('[webhook] No webhook secret configured', { isSundayHiit, secretOld: !!secretOld, secretNew: !!secretNew });
   }
-
-  /* ── Parse event ── */
-  let event;
-  try { event = JSON.parse(rawBody); } catch(e) { return res.status(400).json({ error: 'Bad JSON' }); }
 
   if (event.event !== 'payment.captured') {
     return res.status(200).json({ ok: true, skipped: event.event });
   }
 
-  const payment   = event?.payload?.payment?.entity ?? {};
-  const notes     = payment.notes ?? {};
+  const payment = event?.payload?.payment?.entity ?? {};
 
   /* ── Sunday HIIT class registrations — separate flow, separate collection ── */
-  if (notes.class === 'sunday-hiit') {
+  if (isSundayHiit) {
     return handleSundayHiit(payment, notes, res);
   }
 
