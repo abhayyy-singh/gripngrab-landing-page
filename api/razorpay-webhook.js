@@ -44,12 +44,17 @@ module.exports = async function handler(req, res) {
 
   const secretOld = process.env.RAZORPAY_WEBHOOK_SECRET;
   const secretNew = process.env.RAZORPAY_WEBHOOK_SECRET_SUNDAY_HIIT;
-  const secret = isSundayHiit ? secretNew : secretOld;
+  const secrets = [secretOld, secretNew].filter(Boolean);
 
-  if (secret && signature) {
-    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-    if (expected !== signature) {
-      console.error('[webhook] Invalid signature', { isSundayHiit, secretPresent: !!secret });
+  /* Razorpay signs each webhook entry with ONE secret, and a single account's webhook
+     receives every payment of that account (Sunday HIIT + the rest) — so a valid
+     signature under either secret is accepted. Rejecting by `notes.class` alone made
+     non-HIIT payments fail with 400, which gets the webhook auto-disabled by Razorpay. */
+  if (secrets.length && signature) {
+    const valid = secrets.some(secret =>
+      crypto.createHmac('sha256', secret).update(rawBody).digest('hex') === signature);
+    if (!valid) {
+      console.error('[webhook] Invalid signature', { isSundayHiit, secretsPresent: secrets.length });
       return res.status(400).json({ error: 'Invalid signature' });
     }
   } else {
