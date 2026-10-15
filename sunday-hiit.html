@@ -518,14 +518,28 @@
 
       if (typeof Razorpay === 'undefined') throw new Error('Payment gateway not loaded');
 
+      /* Order is created server-side (haristhenics-backend): amount can't be edited in the
+         browser, and Razorpay's auto-capture setting only applies to payments with an order. */
+      const orderRes = await fetch('https://haristhenics-backend.vercel.app/api/create-website-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serviceKey: 'sundayHiit', name: name, phone: phone, email: email }),
+      });
+      const orderData = await orderRes.json().catch(() => ({}));
+      if (!orderRes.ok || !orderData.orderId) {
+        alert(orderData.error || 'Could not start payment. Please try again.');
+        resetBtn();
+        return;
+      }
+
       const options = {
-        key: 'rzp_live_SwjC4BfDWgdJ2o', // Sunday HIIT class payments only — separate Razorpay account from the rest of the site
-        amount: 50000,
-        currency: 'INR',
+        key: orderData.keyId,
+        order_id: orderData.orderId,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
         name: 'Grip&Grab',
         description: 'Sunday HIIT Class',
         prefill: { name: name, contact: phone, email: email },
-        notes: { name: name, phone: phone, email: email, class: 'sunday-hiit' },
         theme: { color: '#ff6b6b' },
         handler: () => {
           /* Payment captured — Razorpay webhook (server-to-server) handles
