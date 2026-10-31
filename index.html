@@ -202,7 +202,7 @@
       <a href="#timeline" onclick="scrollToSection('timeline')">Why Us?</a>
       <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
       <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
-      <!-- <a href="https://www.haristhenics.com/?open=sundayClass#pricing-section">Weekend Class</a> -->
+      <a href="#sunday-class" onclick="scrollToSection('sunday-class')">Sunday Class</a>
 
     </div>
     <div class="nav-right">
@@ -222,6 +222,7 @@
     <a href="#timeline" onclick="scrollToSection('timeline')">Our Process</a>
     <a href="#testimonials" onclick="scrollToSection('testimonials')">Testimonials</a>
     <a href="#pricing" onclick="scrollToSection('pricing')">Membership</a>
+    <a href="#sunday-class" onclick="scrollToSection('sunday-class')">Sunday Class</a>
     <a href="#" data-membership-trigger>Join Now</a>
     <!-- <a href="https://www.haristhenics.com/?open=sundayClass#pricing-section" onclick="toggleMobileMenu()">Weekend Class</a> -->
 
@@ -614,6 +615,9 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
           <button class="daypass-btn" data-daypass-trigger aria-label="Get your day pass" type="button">
             Get Your Day Pass (Self Training)
           </button>
+          <a class="daypass-btn" href="/sunday-hiit.html" aria-label="Book your Sunday HIIT class" style="text-decoration:none">
+            Book Your Sunday HIIT Class
+          </a>
         </div>
 
       </div>
@@ -691,8 +695,38 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
 
 
 
+<!-- ==================== SUNDAY HIIT CLASS SECTION ==================== -->
+<style>
+.sunday-section{padding:48px 20px;background:#0a0a0a;text-align:center}
+.sunday-card{max-width:600px;margin:0 auto;background:linear-gradient(135deg,rgba(255,107,107,.08),rgba(247,215,148,.06));border:1.5px solid rgba(255,107,107,.3);border-radius:20px;padding:28px 22px;position:relative}
+.sunday-card__badge{display:inline-block;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:13px;font-weight:800;padding:7px 20px;border-radius:99px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px;box-shadow:0 4px 16px rgba(255,107,107,.35)}
+.sunday-card__title{font-size:clamp(1.6rem,6vw,2.1rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px}
+.sunday-card__title span{background:linear-gradient(135deg,#ff6b6b,#f7d794);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sunday-card__desc{font-size:15px;color:rgba(255,255,255,.65);margin:0 auto 18px;max-width:440px}
+.sunday-card__facts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:22px;list-style:none;padding:0}
+.sunday-card__facts li{font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:8px 16px}
+.sunday-card__facts li b{color:#f7d794}
+.sunday-card__btn{display:block;width:100%;padding:15px 24px;background:linear-gradient(135deg,#ff6b6b,#f7d794);color:#000;font-size:16px;font-weight:800;font-family:'Poppins',sans-serif;border:none;border-radius:14px;text-decoration:none;text-transform:uppercase;letter-spacing:.05em;transition:opacity .2s,transform .15s}
+.sunday-card__btn:hover{opacity:.9;transform:translateY(-2px)}
+.sunday-card__btn:focus-visible{outline:2px solid #f7d794;outline-offset:3px}
+</style>
+<section class="sunday-section" id="sunday-class" aria-labelledby="sundayTitle">
+  <div class="sunday-card">
+    <div class="sunday-card__badge">Every Sunday</div>
+    <h2 class="sunday-card__title" id="sundayTitle">Sunday <span>Group HIIT</span> Class</h2>
+    <p class="sunday-card__desc">Crazy workout circuits, a hyping vibe, and a room full of like-minded people. One explosive session to start your Sunday right.</p>
+    <ul class="sunday-card__facts">
+      <li>Starts <b>9:00 AM</b></li>
+      <li>Class fee <b>&#8377;500</b></li>
+      <li>Limited spots</li>
+    </ul>
+    <a class="sunday-card__btn" href="/sunday-hiit.html">Book Your Sunday HIIT Class</a>
+  </div>
+</section>
+<!-- ==================== END SUNDAY HIIT CLASS SECTION ==================== -->
+
 <!-- ==================== WORKSHOP VIDEOS SECTION ==================== -->
-<section class="workshop-section" id="workshop-videos">
+<section class="workshop-section" id="workshop-videos" hidden style="display:none">
   <div class="workshop-container">
     <!-- Heading -->
     <h2 class="workshop-heading">Watch Our Exclusive Workshop Videos</h2>
