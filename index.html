@@ -716,6 +716,7 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
     <h2 class="sunday-card__title" id="sundayTitle">Sunday <span>Group HIIT</span> Class</h2>
     <p class="sunday-card__desc">Crazy workout circuits, a hyping vibe, and a room full of like-minded people. One explosive session to start your Sunday right.</p>
     <ul class="sunday-card__facts">
+      <li>Date <b id="sundayCardDate">Every Sunday</b></li>
       <li>Starts <b>9:00 AM</b></li>
       <li>Class fee <b>&#8377;500</b></li>
       <li>Limited spots</li>
@@ -723,6 +724,16 @@ We're here to make sure your growth is sustainable, pain-free, and always exciti
     <a class="sunday-card__btn" href="/sunday-hiit.html">Book Your Sunday HIIT Class</a>
   </div>
 </section>
+<script>
+(function(){
+  var o=[{u:new Date('2026-11-07T12:00:00+05:30').getTime(),l:'7 November'},{u:new Date('2026-11-08T12:00:00+05:30').getTime(),l:'15 November'}];
+  var el=document.getElementById('sundayCardDate'),n=Date.now(),label=null;
+  for(var i=0;i<o.length;i++){if(n<o[i].u){label=o[i].l;break;}}
+  if(!label){var d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'})),w=d.getDay();
+    d.setDate(d.getDate()+(w===0?(d.getHours()<12?0:7):7-w));label=d.toLocaleDateString('en-IN',{day:'numeric',month:'long'});}
+  if(el)el.textContent=label;
+})();
+</script>
 <!-- ==================== END SUNDAY HIIT CLASS SECTION ==================== -->
 
 <!-- ==================== WORKSHOP VIDEOS SECTION ==================== -->

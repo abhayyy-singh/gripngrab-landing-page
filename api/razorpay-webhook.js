@@ -235,7 +235,13 @@ async function handleSundayHiit(payment, notes, res) {
   return res.status(200).json({ ok: true, ...results });
 }
 
+const CLASS_DATE_OVERRIDES = [
+  { until: new Date('2026-11-07T12:00:00+05:30').getTime(), label: '7 November' },
+  { until: new Date('2026-11-08T12:00:00+05:30').getTime(), label: '15 November' },
+];
 function getNextSundayDate() {
+  const nowMs = Date.now();
+  for (const o of CLASS_DATE_OVERRIDES) if (nowMs < o.until) return o.label;
   const now = new Date();
   const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   const day = istNow.getDay(); /* 0 = Sunday */
