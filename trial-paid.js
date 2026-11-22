@@ -475,34 +475,17 @@ window.NotifyLeads && window.NotifyLeads.render('nl-ptm', 'Trial Class', 'Grip&G
      PAYMENT SUCCESS
      ============================================================ */
   function onPaymentSuccess(formData, paymentId, orderId) {
-    /* Firestore enrollment save — idempotent via paymentId */
-    var paidAmount = (window.GNG_PRICING && window.GNG_PRICING.trialAmountPaise) || CONFIG.razorpay.amount;
-    window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'trial', planLabel: 'Trial Class', amount: paidAmount / 100, date: formData.date, time: formData.time, paymentId, orderId });
-    sendConfirmationEmail(formData, paymentId, orderId);
-    logToSheets(formData, paymentId);
+    /* Payment is already captured — show success first so a failing side effect
+       can never leave the user stuck on the loading button. */
     showSuccess(paymentId);
-  }
 
-  function sendConfirmationEmail(formData, paymentId, orderId) {
-    fetch('/api/send-email', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name:      formData.name,
-        email:     formData.email,
-        phone:     formData.phone,
-        dob:       '',
-        plan:      'trial',
-        amount:    paidAmount,
-        paymentId: paymentId,
-        orderId:   orderId,
-        location:  formData.location,
-        date:      formData.date,
-        time:      formData.time,
-      }),
-    })
-      .then(function () { console.log('Trial confirmation email sent.'); })
-      .catch(function (err) { console.error('Email send failed:', err); });
+    /* Confirmation email is sent by the Razorpay webhook (server-side) */
+    try {
+      var paidAmount = (window.GNG_PRICING && window.GNG_PRICING.trialAmountPaise) || CONFIG.razorpay.amount;
+      window.GNG && window.GNG.saveEnrollment({ name: formData.name, email: formData.email, phone: formData.phone, center: 'Grip&Grab ' + formData.location, plan: 'trial', planLabel: 'Trial Class', amount: paidAmount / 100, date: formData.date, time: formData.time, paymentId, orderId });
+    } catch (err) { console.error('Enrollment save failed:', err); }
+
+    try { logToSheets(formData, paymentId); } catch (err) { console.error('Sheets log failed:', err); }
   }
 
   function logToSheets(formData, paymentId) {
